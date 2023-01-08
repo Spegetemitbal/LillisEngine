@@ -1,14 +1,19 @@
 #include "GameObjectManager.h"
+#include "GameObject.h"
 
 GameObject* GameObjectManager::addObject()
 {
-	if (numObjects < MAX_OBJECTS)
-	{
-		objects[numObjects] = GameObject();
-		numObjects++;
-		return &objects[numObjects];
-	}
-	return nullptr;
+	objects.push_back(GameObject());
+	return &objects.back();
+}
+
+void GameObjectManager::clearAll()
+{
+	objects.clear();
+	colliders.clear();
+	renderers.clear();
+	players.clear();
+	rotators.clear();
 }
 
 GameObjectManager* GameObjectManager::world = nullptr;

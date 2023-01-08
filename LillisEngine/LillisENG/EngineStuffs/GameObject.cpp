@@ -1,5 +1,4 @@
 #include "GameObject.h"
-#include "GameObjectManager.h"
 
 #define WORLD GameObjectManager::world
 
@@ -7,9 +6,8 @@ RectangleRenderer* GameObject::CreateRenderer(Color c, float w, float h)
 {
 	if (renderer == nullptr)
 	{
-		renderer = &WORLD->renderers[WORLD->numRenderers];
-		WORLD->numRenderers++;
-		*renderer = RectangleRenderer(c, w, h);
+		WORLD->renderers.push_back(RectangleRenderer(c, w, h));
+		renderer = &WORLD->renderers.back();
 		renderer->setControlledObject(this);
 	}
 	return renderer;
@@ -19,9 +17,8 @@ RectangleCollider* GameObject::CreateCollider(float w, float h)
 {
 	if (collider == nullptr)
 	{
-		collider = &WORLD->colliders[WORLD->numColliders];
-		WORLD->numColliders++;
-		*collider = RectangleCollider(w, h);
+		WORLD->colliders.push_back(RectangleCollider(w, h));
+		collider = &WORLD->colliders.back();
 		collider->setControlledObject(this);
 	}
 	return collider;
@@ -29,12 +26,10 @@ RectangleCollider* GameObject::CreateCollider(float w, float h)
 
 PlayerController* GameObject::CreatePlayerController()
 {
-	int i = 0;
 	if (player == nullptr)
 	{
-		player = &WORLD->players[WORLD->numPlayers];
-		WORLD->numPlayers++;
-		*player = PlayerController();
+		WORLD->players.push_back(PlayerController());
+		player = &WORLD->players.back();
 		player->setControlledObject(this);
 	}
 	return player;
@@ -44,9 +39,8 @@ Rotator* GameObject::CreateRotator(double angle)
 {
 	if (rotator == nullptr)
 	{
-		rotator = &WORLD->rotators[WORLD->numRotators];
-		WORLD->numRotators++;
-		*rotator = Rotator(angle);
+		WORLD->rotators.push_back(Rotator(angle));
+		rotator = &WORLD->rotators.back();
 		rotator->setControlledObject(this);
 	}
 	return rotator;

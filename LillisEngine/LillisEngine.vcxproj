@@ -20,31 +20,59 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LillisENG\Engine.h" />
-    <ClInclude Include="LillisENG\EngineStuffs\Color.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Audio\AudioSystem.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Behaviors\Behavior.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Behaviors\BehaviorSystem.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Behaviors\PlayerController.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Behaviors\Rotator.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Component.h" />
     <ClInclude Include="LillisENG\EngineStuffs\GameObject.h" />
     <ClInclude Include="LillisENG\EngineStuffs\GameObjectManager.h" />
-    <ClInclude Include="LillisENG\EngineStuffs\PlayerController.h" />
-    <ClInclude Include="LillisENG\EngineStuffs\RectangleCollider.h" />
-    <ClInclude Include="LillisENG\EngineStuffs\RectangleRenderer.h" />
-    <ClInclude Include="LillisENG\EngineStuffs\Rotator.h" />
-    <ClInclude Include="LillisENG\EngineStuffs\SceneLoader.h" />
-    <ClInclude Include="LillisENG\EngineStuffs\StackAllocator.h" />
-    <ClInclude Include="LillisENG\EngineStuffs\System.h" />
-    <ClInclude Include="LillisENG\EngineStuffs\System_Common.h" />
-    <ClInclude Include="LillisENG\EngineStuffs\System_Win32.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\Color.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\GraphicsSystem.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\RectangleRenderer.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Physics\PhysicsSystem.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Physics\RectangleCollider.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Transform.h" />
+    <ClInclude Include="LillisENG\Lillis.h" />
+    <ClInclude Include="LillisENG\System\System.h" />
+    <ClInclude Include="LillisENG\System\System_Common.h" />
+    <ClInclude Include="LillisENG\System\System_Win32.h" />
+    <ClInclude Include="LillisENG\Utils\DataStructures\LCArray.h" />
+    <ClInclude Include="LillisENG\Utils\DataStructures\LCCircularQueue.h" />
+    <ClInclude Include="LillisENG\Utils\DataStructures\LCHashSet.h" />
+    <ClInclude Include="LillisENG\Utils\DataStructures\LCHashTable.h" />
+    <ClInclude Include="LillisENG\Utils\DataStructures\LCList.h" />
+    <ClInclude Include="LillisENG\Utils\DataStructures\LCPair.h" />
+    <ClInclude Include="LillisENG\Utils\DataStructures\LCSet.h" />
+    <ClInclude Include="LillisENG\Utils\Events\EditorEvent.h" />
+    <ClInclude Include="LillisENG\Utils\Events\Event.h" />
+    <ClInclude Include="LillisENG\Utils\Events\EventListener.h" />
+    <ClInclude Include="LillisENG\Utils\Events\EventSystem.h" />
+    <ClInclude Include="LillisENG\Utils\Events\GameEvent.h" />
+    <ClInclude Include="LillisENG\Utils\Events\InputEvent.h" />
+    <ClInclude Include="LillisENG\Utils\InputSystem.h" />
+    <ClInclude Include="LillisENG\Utils\SceneLoader.h" />
+    <ClInclude Include="LillisENG\Utils\StackAllocator.h" />
+    <ClInclude Include="LillisENG\Utils\Timing.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LillisENG\Engine.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Behaviors\PlayerController.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Behaviors\Rotator.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\GameObject.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\GameObjectManager.cpp" />
-    <ClCompile Include="LillisENG\EngineStuffs\PlayerController.cpp" />
-    <ClCompile Include="LillisENG\EngineStuffs\RectangleCollider.cpp" />
-    <ClCompile Include="LillisENG\EngineStuffs\RectangleRenderer.cpp" />
-    <ClCompile Include="LillisENG\EngineStuffs\Rotator.cpp" />
-    <ClCompile Include="LillisENG\EngineStuffs\SceneLoader.cpp" />
-    <ClCompile Include="LillisENG\EngineStuffs\System_Win32.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Graphics\RectangleRenderer.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Physics\RectangleCollider.cpp" />
+    <ClCompile Include="LillisENG\System\System_Win32.cpp" />
+    <ClCompile Include="LillisENG\Utils\Events\EditorEvent.cpp" />
+    <ClCompile Include="LillisENG\Utils\Events\Event.cpp" />
+    <ClCompile Include="LillisENG\Utils\Events\EventListener.cpp" />
+    <ClCompile Include="LillisENG\Utils\Events\EventSystem.cpp" />
+    <ClCompile Include="LillisENG\Utils\Events\GameEvent.cpp" />
+    <ClCompile Include="LillisENG\Utils\Events\InputEvent.cpp" />
+    <ClCompile Include="LillisENG\Utils\InputSystem.cpp" />
+    <ClCompile Include="LillisENG\Utils\SceneLoader.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

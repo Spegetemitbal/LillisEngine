@@ -1,29 +1,31 @@
 #pragma once
-#include "GameObject.h"
+
 #include <vector>
+#include "Behaviors/BehaviorSystem.h"
+#include "Graphics/GraphicsSystem.h"
+#include "Physics/PhysicsSystem.h"
 
-const int MAX_OBJECTS = 50;
 
-struct GameObjectManager
+class GameObject;
+
+class GameObjectManager
 {
+public:
 	static GameObjectManager* world;
 
 	static void DelWorld() { delete world; }
+
+	void clearAll();
 
 	GameObjectManager() {}
 	~GameObjectManager() {};
 
 	int numObjects = 0;
-	int numColliders = 0;
-	int numRenderers = 0;
-	int numColorChangers = 0;
-	int numPlayers = 0;
-	int numRotators = 0;
 
 	//GameObject* findObject(GameObject g);
 
 	GameObject* addObject();
-	void addCollider(int objNum, float w, float h);
+	/* void addCollider(int objNum, float w, float h);
 	void addRenderer(int objNum, Color c, float w, float h);
 	void addPlayer(int objNum);
 	void addColorChanger(int objNum);
@@ -33,13 +35,13 @@ struct GameObjectManager
 	void addRenderer(Color c, float w, float h);
 	void addPlayer();
 	void addColorChanger();
-	void addRotator(double angle);
+	void addRotator(double angle); */
 
-	GameObject objects[MAX_OBJECTS];
-	RectangleCollider colliders[MAX_OBJECTS];
-	RectangleRenderer renderers[MAX_OBJECTS];
-	PlayerController players[MAX_OBJECTS];
-	Rotator rotators[MAX_OBJECTS];
+	std::vector<GameObject> objects = std::vector<GameObject>();
+	std::vector<RectangleCollider> colliders = std::vector<RectangleCollider>();
+	std::vector<RectangleRenderer> renderers = std::vector<RectangleRenderer>();
+	std::vector<PlayerController> players = std::vector<PlayerController>();
+	std::vector<Rotator> rotators = std::vector<Rotator>();
 };
 
 //Note that INTS in C++ can hold 4 characters instead of a number, pretty sweet.

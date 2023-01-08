@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-void Engine::Run()
+Engine::Engine()
 {
     const int WIDTH = 640;
     const int HEIGHT = 480;
@@ -16,42 +16,58 @@ void Engine::Run()
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_GetKeyboardState(0);
 
-    EngineState engine;
-    engine.quit = false;
-    engine.renderer = renderer;
-    engine.frame = 0;
-    engine.frameStart = GetTicks();
-    engine.system = system;
+    currentState = DBG_NEW EngineState();
+    currentState->quit = false;
+    currentState->window = window;
+    currentState->renderer = renderer;
+    currentState->frame = 0;
+    currentState->frameStart = GetTicks();
+    currentState->system = system;
 
     WORLD = DBG_NEW GameObjectManager();
-    SceneLoader scl;
-    scl.LoadData("Level.dat");
+}
 
-    runMainLoop(&engine);
-
+Engine::~Engine()
+{
     //WORLD->DelWorld();
     delete WORLD;
     delete FrameAllocator;
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(currentState->renderer);
+    SDL_DestroyWindow(currentState->window);
     SDL_Quit();
 
-    system->Shutdown();
-    delete system;
+    currentState->system->Shutdown();
+    delete currentState->system;
+
+    delete currentState;
 }
 
-void Engine::runMainLoop(EngineState* engine)
+void Engine::LoadLevel(std::string Data)
+{
+    if (WORLD == nullptr)
+    {
+        WORLD = DBG_NEW GameObjectManager();
+    }
+    else
+    {
+        WORLD->clearAll();
+    }
+    SceneLoader scl;
+    scl.LoadData(Data);
+}
+
+void Engine::Run()
 {
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&frameStep, engine, 0, true);
 #else
-    while (!engine->quit)
+    while (!currentState->quit)
     {
         Uint32 now = GetTicks();
-        if (now - engine->frameStart >= 16)
+        if (now - currentState->frameStart >= 16)
         {
-            frameStep(engine);
+            frameStep(currentState);
         }
     }
 #endif
@@ -85,27 +101,28 @@ void Engine::frameStep(void* arg)
 
     const Uint8* keyDown = SDL_GetKeyboardState(0);
 
-    for (int i = 0; i < WORLD->numPlayers; i++)
+    for (int i = 0; i < WORLD->players.size(); i++)
     {
         WORLD->players[i].Update(keyDown);
     }
 
-    for (int i = 0; i < WORLD->numRotators; i++)
+    for (int i = 0; i < WORLD->rotators.size(); i++)
     {
         WORLD->rotators[i].Update(0.1);
     }
 
-    for (int i = 0; i < WORLD->numColliders; i++)
+    /*for (int i = 0; i < WORLD->colliders.size(); i++)
     {
         WORLD->colliders[i].isCurrentlyColliding = false;
-    }
+    }*/
 
-    GameObject* colPoint = FrameAllocator->alloc<GameObject>(WORLD->numColliders);
+    GameObject* colPoint = FrameAllocator->alloc<GameObject>(WORLD->colliders.size());
     int colPointLoc = 0;
 
-    for (int i = 0; i < WORLD->numColliders; i++)
+    //Collision
+    /*for (int i = 0; i < WORLD->colliders.size(); i++)
     {
-        for (int j = i + 1; j < WORLD->numColliders; j++)
+        for (int j = i + 1; j < WORLD->colliders.size(); j++)
         {
             if (WORLD->colliders[i].CheckCollision(WORLD->colliders[j]))
             {
@@ -119,7 +136,7 @@ void Engine::frameStep(void* arg)
                 }
             }
         }
-    }
+    } */
     if (colPointLoc > 0)
     {
         int num = 0;
@@ -130,7 +147,8 @@ void Engine::frameStep(void* arg)
         //std::cout << num << " Objects" << std::endl;
     }
 
-    for (int i = 0; i < WORLD->numRenderers; i++)
+    //Render
+    for (int i = 0; i < WORLD->renderers.size(); i++)
     {
         Color c = WORLD->renderers[i].getColor();
         Transform t = WORLD->renderers[i].getObject()->transform;
@@ -147,3 +165,32 @@ Uint32 Engine::GetTicks()
 {
     return SDL_GetTicks();
 }
+
+Engine* Engine::GetGameInstance()
+{
+    if (Game != nullptr)
+    {
+        return Game;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+Engine* Engine::CreateGameInstance()
+{
+    if (Game == nullptr)
+    {
+        Game = new Engine();
+    }
+    return Game;
+}
+
+void Engine::DestroyGameInstance()
+{
+    delete Game;
+    Game = nullptr;
+}
+
+Engine* Engine::Game = nullptr;

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "EngineStuffs/System.h"
-#include "EngineStuffs/SceneLoader.h"
-#include "EngineStuffs/GameObjectManager.h"
-#include "EngineStuffs/StackAllocator.h"
+#include "System/System.h"
+#include "Utils/SceneLoader.h"
+#include "EngineStuffs/GameObject.h"
+#include "Utils/StackAllocator.h"
+#include "Utils//InputSystem.h"
 #include <iostream>
 #include <vector>
 
@@ -20,22 +21,33 @@ StackAllocator* FrameAllocator = DBG_NEW StackAllocator();
 struct EngineState
 {
     SDL_Renderer* renderer;
+    SDL_Window* window;
     GPR460::System* system;
     Uint32 frameStart;
     bool quit;
     int frame;
+
+    bool isEditor;
 };
 
 
 class DLLUSAGE Engine
 {
 public:
-    Engine() {};
-    ~Engine() {};
+    static Engine* Game;
 
+    static Engine* GetGameInstance();
+    static Engine* CreateGameInstance();
+    static void DestroyGameInstance();
+
+    void LoadLevel(std::string Data);
     void Run();
 private:
-    void runMainLoop(EngineState* engine);
+    EngineState* currentState;
+
+    Engine();
+    ~Engine();
+
     void frameStep(void* arg);
     Uint32 GetTicks();
 };

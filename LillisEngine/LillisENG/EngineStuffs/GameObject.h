@@ -1,10 +1,7 @@
 #pragma once
 
-#include "PlayerController.h"
-#include "RectangleCollider.h"
+#include "GameObjectManager.h"
 #include "Transform.h"
-#include "RectangleRenderer.h"
-#include "Rotator.h"
 
 class GameObject
 {
