@@ -1,91 +1,34 @@
 #pragma once
 
-typedef char byte;
-
+namespace LILLIS
+{
+	typedef char byte;
+}
 class StackAllocator
 {
 public:
 	template <typename T>
-	T* alloc()
-	{
-		size_t sizeToAllocate = sizeof(T);
-		void* allocationPoint = base;
-
-		//Makes sure we're not writing past the end of the stack!
-		if (base + sizeToAllocate > buffer + stackSize)
-		{
-			return nullptr;
-		}
-		else
-		{
-			base += sizeToAllocate;
-			return (T*)allocationPoint;
-		}
-	}
+	T* alloc();
 
 	template <typename T>
-	T* alloc(size_t arrayCount)
-	{
-		size_t sizeToAllocate = sizeof(T) * arrayCount;
-		void* allocationPoint = base;
-
-		//Makes sure we're not writing past the end of the stack!
-		if (base + sizeToAllocate > buffer + stackSize)
-		{
-			return nullptr;
-		}
-		else
-		{
-			base += sizeToAllocate;
-			return (T*)allocationPoint;
-		}
-	}
+	T* alloc(size_t arrayCount);
 
 	template <typename T>
-	T* placementNew()
-	{
-		size_t sizeToAllocate = sizeof(T);
-		void* allocationPoint = base;
-
-		if (base + sizeToAllocate > buffer + stackSize)
-		{
-			return nullptr;
-		}
-		else
-		{
-			base += sizeToAllocate;
-			return new (allocationPoint)T();
-		}
-	}
+	T* placementNew();
 
 	template <typename T>
-	T* placementNew(size_t arrayCount)
-	{
-		size_t sizeToAllocate = sizeof(T) * arrayCount;
-		void* allocationPoint = base;
-
-		if (base + sizeToAllocate > buffer + stackSize)
-		{
-			return nullptr;
-		}
-		else
-		{
-			base += sizeToAllocate;
-			return new (allocationPoint)T();
-		}
-
-	}
+	T* placementNew(size_t arrayCount);
 
 	//Frees everything
 	void clearStack() { base = buffer; }
 
-	StackAllocator() { stackSize = 1024 * 1024 * 32; buffer = new byte[stackSize]; base = buffer; }
-	StackAllocator(int MB) { stackSize = 1024 * 1024 * MB; buffer = new byte[stackSize]; base = buffer; }
+	StackAllocator() { stackSize = 1024 * 1024 * 32; buffer = new LILLIS::byte[stackSize]; base = buffer; }
+	StackAllocator(int MB) { stackSize = 1024 * 1024 * MB; buffer = new LILLIS::byte[stackSize]; base = buffer; }
 	~StackAllocator() { delete[] buffer; }
 private:
 	//because chars are 1 byte, you literally just replace them with whatever.
-	byte* buffer = nullptr;
-	byte* base = nullptr;
+	LILLIS::byte* buffer = nullptr;
+	LILLIS::byte* base = nullptr;
 	int stackSize = 0;
 };
 

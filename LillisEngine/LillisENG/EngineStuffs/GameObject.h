@@ -21,12 +21,17 @@ public:
 
 	}
 
+	//For cache efficiency, 
+	std::vector<Behavior> behaviors = std::vector<Behavior>();
+
 	RectangleRenderer* CreateRenderer(Color c, float w, float h);
 	RectangleCollider* CreateCollider(float w, float h);
 	PlayerController* CreatePlayerController();
 	Rotator* CreateRotator(double angle);
 
 	Transform transform;
+
+	Behavior* getBehavior(string name);
 
 	RectangleCollider* getCollider() { return collider; }
 	RectangleRenderer* getRenderer() { return renderer; }

@@ -1,14 +1,21 @@
 #pragma once
-#include "../Component.h"
+#include "../Behaviors/Behavior.h"
 #include "../Transform.h"
-#include <SDL.h>
 
 class GameObject;
 
-class PlayerController : public Component
+class PlayerController : public Behavior
 {
 public:
+	PlayerController() : Behavior("PlayerController")
+	{
+		addListener(INPUT_EVENT);
+	}
+	~PlayerController() {};
+
 	static Component* CreatePlayerController(GameObject* G, int* param);
-	void Update(const Uint8* keyDown);
+	void Update();
+	void handleEvent(const Event& theEvent);
 private:
+	bool w = false, s = false, a = false, d = false;
 };

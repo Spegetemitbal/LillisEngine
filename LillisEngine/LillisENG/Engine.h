@@ -1,15 +1,14 @@
+#include "pch.h"
 #pragma once
+
+//Engine.h + cpp = The central game and all of its attachments.
 
 #include "System/System.h"
 #include "Utils/SceneLoader.h"
 #include "EngineStuffs/GameObject.h"
 #include "Utils/StackAllocator.h"
-#include "Utils//InputSystem.h"
-#include <iostream>
-#include <vector>
 
 #define WORLD GameObjectManager::world
-StackAllocator* FrameAllocator = DBG_NEW StackAllocator();
 
 #ifdef LILLISENG
 #define DLLUSAGE _declspec(dllexport)
@@ -20,10 +19,9 @@ StackAllocator* FrameAllocator = DBG_NEW StackAllocator();
 
 struct EngineState
 {
-    SDL_Renderer* renderer;
-    SDL_Window* window;
-    GPR460::System* system;
-    Uint32 frameStart;
+    GraphicsSystem* graphics;
+    LILLIS::System* system;
+    double frameStart;
     bool quit;
     int frame;
 
@@ -43,12 +41,12 @@ public:
     void LoadLevel(std::string Data);
     void Run();
 private:
-    EngineState* currentState;
+    EngineState engine;
 
     Engine();
     ~Engine();
 
-    void frameStep(void* arg);
-    Uint32 GetTicks();
+    //StackAllocator* FrameAllocator = DBG_NEW StackAllocator();
+    void frameStep();
 };
 

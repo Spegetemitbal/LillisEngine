@@ -1,7 +1,7 @@
 #include "Rotator.h"
 #include "../GameObject.h"
-#include <cmath>
-#include <iostream>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 Component* Rotator::CreateRotator(GameObject* G, int* params)
 {

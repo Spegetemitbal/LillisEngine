@@ -1,6 +1,7 @@
 
 #include "InputEvent.h"
-InputEvent::InputEvent(const int& inputCode) : GameEvent(INPUT_EVENT)
+InputEvent::InputEvent(const int& inputCode, const bool& down) : GameEvent(INPUT_EVENT)
 {
 	mInputCode = inputCode;
+	mDown = down;
 }

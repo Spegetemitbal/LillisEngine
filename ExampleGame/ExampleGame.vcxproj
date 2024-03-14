@@ -107,13 +107,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)LillisENG/Entry;$(SolutionDir)SDL2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)GLFW\include\GLFW;$(SolutionDir)LillisENG</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin;$(SolutionDir)SDL2\lib\x64;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LillisEngine.lib;SDL2.lib;SDL2main.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)GLFW\lib-vc2022;$(SolutionDir)bin</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LillisEngine.lib;glfw3_mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -137,6 +139,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Level.dat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LillisEngine\LillisEngine.vcxproj">
+      <Project>{f0b6e68a-498b-468f-856e-2870ab3cc1f8}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

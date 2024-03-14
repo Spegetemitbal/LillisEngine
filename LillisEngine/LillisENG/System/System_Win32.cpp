@@ -1,6 +1,6 @@
 #include "System_Win32.h"
 
-using namespace GPR460;
+using namespace LILLIS;
 
 class System_Win32 : public System
 {

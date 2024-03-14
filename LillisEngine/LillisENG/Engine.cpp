@@ -1,48 +1,53 @@
 #include "Engine.h"
+#include "Utils/InputSystem.h"
 
+//Creates window, Initializes low level systems and loads scene.
 Engine::Engine()
 {
+    EventSystem::createInstance();
+
     const int WIDTH = 640;
     const int HEIGHT = 480;
-    SDL_Window* window = NULL;
-    SDL_Renderer* renderer = NULL;
 
-    GPR460::System* system = GPR460::System::Create();
-    system->Init();
 
-    SDL_Init(SDL_INIT_VIDEO);
+    engine = EngineState();
+    engine.quit = false;
 
-    window = SDL_CreateWindow("SDL2 Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    SDL_GetKeyboardState(0);
+    engine.graphics = new GraphicsSystem(WIDTH, HEIGHT, "Game");
+    engine.graphics->Init();
+    engine.frame = 0;
+    engine.frameStart = glfwGetTime();
+    engine.system = LILLIS::System::Create();
+    engine.system->Init();
 
-    currentState = DBG_NEW EngineState();
-    currentState->quit = false;
-    currentState->window = window;
-    currentState->renderer = renderer;
-    currentState->frame = 0;
-    currentState->frameStart = GetTicks();
-    currentState->system = system;
+    //Leaky abstraction. Either the inputsystem should pass in the graphicssystem, or the graphicssystem should pass in the inputsystem.
+    InputSystem::CreateSystemInstance(engine.graphics->getWindow());
+
+    //SDL_Init(SDL_INIT_VIDEO);
+    //SDL_GetKeyboardState(0);
 
     WORLD = DBG_NEW GameObjectManager();
 }
 
+//Clears everything
 Engine::~Engine()
 {
     //WORLD->DelWorld();
     delete WORLD;
-    delete FrameAllocator;
+    //delete FrameAllocator;
 
-    SDL_DestroyRenderer(currentState->renderer);
-    SDL_DestroyWindow(currentState->window);
-    SDL_Quit();
+    EventSystem::delInstance();
+    InputSystem::DestroySystemInstance();
 
-    currentState->system->Shutdown();
-    delete currentState->system;
+    engine.graphics->ShutDown();
+    delete engine.graphics;
+    engine.graphics = nullptr;
 
-    delete currentState;
+    engine.system->Shutdown();
+    delete engine.system;
 }
 
+//Resets WORLD and loads a new scene.
 void Engine::LoadLevel(std::string Data)
 {
     if (WORLD == nullptr)
@@ -57,53 +62,40 @@ void Engine::LoadLevel(std::string Data)
     scl.LoadData(Data);
 }
 
+//Game loop
 void Engine::Run()
 {
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&frameStep, engine, 0, true);
 #else
-    while (!currentState->quit)
+    while (!engine.quit)
     {
-        Uint32 now = GetTicks();
-        if (now - currentState->frameStart >= 16)
+        double now = glfwGetTime();
+        if (now - engine.frameStart >= 0.016)
         {
-            frameStep(currentState);
+            frameStep();
         }
+        engine.quit = engine.graphics->isWindowOpen();
     }
 #endif
 }
 
-void Engine::frameStep(void* arg)
+//Occurs every frame, the 'content' of the game loop
+void Engine::frameStep()
 {
-    EngineState* engine = (EngineState*)arg;
-    SDL_Event event;
+    double now = glfwGetTime();
 
-    Uint32 now = GetTicks();
+    engine.frame++;
+    engine.frameStart = now;
 
-    engine->frame++;
-    engine->frameStart = now;
+    InputSystem* inSys = InputSystem::GetSystemInstance();
+    inSys->tick();
 
-    while (SDL_PollEvent(&event))
-    {
-        if (event.type == SDL_QUIT)
-        {
-            engine->quit = true;
-        }
-
-        if (event.type == SDL_KEYDOWN)
-        {
-            if (event.key.keysym.sym == SDLK_ESCAPE)
-            {
-                engine->quit = true;
-            }
-        }
-    }
-
-    const Uint8* keyDown = SDL_GetKeyboardState(0);
+    engine.graphics->Update();
 
     for (int i = 0; i < WORLD->players.size(); i++)
     {
-        WORLD->players[i].Update(keyDown);
+        WORLD->players[i].Update();
     }
 
     for (int i = 0; i < WORLD->rotators.size(); i++)
@@ -111,12 +103,20 @@ void Engine::frameStep(void* arg)
         WORLD->rotators[i].Update(0.1);
     }
 
+    /*for (int i = 0; i < WORLD->objects.size(); i++)
+    {
+        for (int j = 0; j < WORLD->objects[i].behaviors.size(); j++)
+        {
+            WORLD->objects[i].behaviors.Update();
+        }
+    } */
+
     /*for (int i = 0; i < WORLD->colliders.size(); i++)
     {
         WORLD->colliders[i].isCurrentlyColliding = false;
     }*/
 
-    GameObject* colPoint = FrameAllocator->alloc<GameObject>(WORLD->colliders.size());
+    //GameObject* colPoint = FrameAllocator->alloc<GameObject>(WORLD->colliders.size());
     int colPointLoc = 0;
 
     //Collision
@@ -146,26 +146,16 @@ void Engine::frameStep(void* arg)
         }
         //std::cout << num << " Objects" << std::endl;
     }
-
-    //Render
-    for (int i = 0; i < WORLD->renderers.size(); i++)
-    {
-        Color c = WORLD->renderers[i].getColor();
-        Transform t = WORLD->renderers[i].getObject()->transform;
-        SDL_SetRenderDrawColor(engine->renderer, c.getR(), c.getG(), c.getB(), c.getA());
-        SDL_Rect r = { t.x, t.y,  WORLD->renderers[i].getWidth(),  WORLD->renderers[i].getHeight() };
-        SDL_RenderFillRect(engine->renderer, &r);
-    }
-
-    SDL_RenderPresent(engine->renderer);
-    FrameAllocator->clearStack();
+    //FrameAllocator->clearStack();
 }
 
-Uint32 Engine::GetTicks()
-{
-    return SDL_GetTicks();
-}
+//Returns time
+//Uint32 Engine::GetTicks()
+//{
+//    return SDL_GetTicks();
+//}
 
+//Singleton getter
 Engine* Engine::GetGameInstance()
 {
     if (Game != nullptr)
@@ -178,15 +168,17 @@ Engine* Engine::GetGameInstance()
     }
 }
 
+//Singleton create (No lazy init is used)
 Engine* Engine::CreateGameInstance()
 {
     if (Game == nullptr)
     {
-        Game = new Engine();
+        Game = DBG_NEW Engine();
     }
     return Game;
 }
 
+//Singleton destroy
 void Engine::DestroyGameInstance()
 {
     delete Game;

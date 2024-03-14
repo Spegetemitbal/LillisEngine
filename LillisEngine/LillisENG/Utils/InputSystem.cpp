@@ -1,11 +1,29 @@
 #include "InputSystem.h"
 
-InputSystem::InputSystem()
+void InputSystem::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	keyMap = new bool[72]; 
-	previousState = new bool[72];
-	conversionMap = new Uint8[72];
+	//std::cout << key << " " << action << std::endl;
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	{
+		glfwSetWindowShouldClose(window, GLFW_TRUE);
+	}
+}
 
+InputSystem::InputSystem(GLFWwindow* window)
+{
+	glfwSetKeyCallback(window, key_callback);
+
+	keyMap = DBG_NEW bool[72]; 
+	previousState = DBG_NEW bool[72];
+	//conversionMap = DBG_NEW Uint8[72];
+
+	for (int i = 0; i < 72; i++)
+	{
+		keyMap[i] = false;
+		previousState[i] = false;
+	}
+
+	/*
 	conversionMap[0] = SDL_SCANCODE_0;
 	conversionMap[1] = SDL_SCANCODE_1;
 	conversionMap[2] = SDL_SCANCODE_2;
@@ -78,55 +96,36 @@ InputSystem::InputSystem()
 	conversionMap[69] = SDL_SCANCODE_MINUS;
 	conversionMap[70] = SDL_SCANCODE_EQUALS;
 	conversionMap[71] = SDL_SCANCODE_BACKSPACE;
+	*/
 }
 
 void InputSystem::tick()
 {
 	EventSystem* pEventSystem = EventSystem::getInstance();
-	SDL_Event events;
+	//SDL_Event events;
 
-	const Uint8* keyDown = SDL_GetKeyboardState(0);
+	//const Uint8* keyDown = SDL_GetKeyboardState(0);
 
-	for (int i = 0; i < 72; i++)
+	//replace this
+	/*for (int i = 0; i < 72; i++)
 	{
+		bool changed = false;
+
 		previousState[i] = keyMap[i];
 		keyMap[i] = false;
 
 		if (keyDown[conversionMap[i]])
 		{
-			keyMap[i] = true;
-			pEventSystem->fireEvent(InputEvent(KeyCode(i)));
+			keyMap[i] = true;			
 		}
-	}
-}
 
-bool InputSystem::getKey(KeyCode k)
-{
-	return keyMap[k];
-}
-
-bool InputSystem::getKeyDown(KeyCode k)
-{
-	if (keyMap[k] && !previousState[k])
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool InputSystem::getKeyUp(KeyCode k)
-{
-	if (!keyMap[k] && previousState[k])
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+		if (keyMap[i] != previousState[i])
+		{
+			//std::cout << "Fired Input" << std::endl;
+			//Note to self: add some kind of accessible data structure in the scripting system to distinguish ondown vs held.
+			pEventSystem->fireEvent(InputEvent(KeyCode(i), keyMap[i]));
+		}
+	}*/
 }
 
 InputSystem* InputSystem::GetSystemInstance()
@@ -141,11 +140,11 @@ InputSystem* InputSystem::GetSystemInstance()
 	}
 }
 
-InputSystem* InputSystem::CreateSystemInstance()
+InputSystem* InputSystem::CreateSystemInstance(GLFWwindow* w)
 {
 	if (Input == nullptr)
 	{
-		Input = new InputSystem;
+		Input = DBG_NEW InputSystem(w);
 	}
 	return Input;
 }

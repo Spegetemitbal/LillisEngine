@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include "Behaviors/BehaviorSystem.h"
 #include "Graphics/GraphicsSystem.h"
 #include "Physics/PhysicsSystem.h"

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LillisENG\pch.h" />
     <ClInclude Include="LillisENG\Engine.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Audio\AudioSystem.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Behaviors\Behavior.h" />
@@ -38,13 +39,6 @@
     <ClInclude Include="LillisENG\System\System.h" />
     <ClInclude Include="LillisENG\System\System_Common.h" />
     <ClInclude Include="LillisENG\System\System_Win32.h" />
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCArray.h" />
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCCircularQueue.h" />
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCHashSet.h" />
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCHashTable.h" />
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCList.h" />
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCPair.h" />
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCSet.h" />
     <ClInclude Include="LillisENG\Utils\Events\EditorEvent.h" />
     <ClInclude Include="LillisENG\Utils\Events\Event.h" />
     <ClInclude Include="LillisENG\Utils\Events\EventListener.h" />
@@ -58,10 +52,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LillisENG\Engine.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Behaviors\Behavior.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\Behaviors\PlayerController.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\Behaviors\Rotator.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\GameObject.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\GameObjectManager.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Graphics\GraphicsSystem.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\Graphics\RectangleRenderer.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\Physics\RectangleCollider.cpp" />
     <ClCompile Include="LillisENG\System\System_Win32.cpp" />
@@ -72,7 +68,13 @@
     <ClCompile Include="LillisENG\Utils\Events\GameEvent.cpp" />
     <ClCompile Include="LillisENG\Utils\Events\InputEvent.cpp" />
     <ClCompile Include="LillisENG\Utils\InputSystem.cpp" />
+    <ClCompile Include="LillisENG\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp20</LanguageStandard>
+    </ClCompile>
     <ClCompile Include="LillisENG\Utils\SceneLoader.cpp" />
+    <ClCompile Include="LillisENG\Utils\StackAllocator.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -163,14 +165,20 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>LILLISENG;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)GLFW\include\GLFW;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)SDL2\lib\x64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)GLFW\lib-vc2022</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3_mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d  "$(OutDir)*.dll" "$(SolutionDir)..\ExampleGame\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -180,6 +188,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

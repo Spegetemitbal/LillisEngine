@@ -24,40 +24,10 @@
     <ClInclude Include="LillisENG\EngineStuffs\GameObjectManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\PlayerController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\RectangleCollider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\RectangleRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\Rotator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LillisENG\EngineStuffs\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LillisENG\Engine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\Color.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\SceneLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\StackAllocator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\System.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\System_Common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\System_Win32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LillisENG\EngineStuffs\Audio\AudioSystem.h">
@@ -117,27 +87,6 @@
     <ClInclude Include="LillisENG\Utils\StackAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCArray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCCircularQueue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCHashSet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCHashTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCPair.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LillisENG\Utils\DataStructures\LCSet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LillisENG\Utils\Events\EditorEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -156,6 +105,9 @@
     <ClInclude Include="LillisENG\Utils\Events\InputEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LillisENG\pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LillisENG\EngineStuffs\GameObject.cpp">
@@ -164,25 +116,7 @@
     <ClCompile Include="LillisENG\EngineStuffs\GameObjectManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LillisENG\EngineStuffs\PlayerController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LillisENG\EngineStuffs\RectangleCollider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LillisENG\EngineStuffs\RectangleRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LillisENG\EngineStuffs\Rotator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LillisENG\Engine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LillisENG\EngineStuffs\SceneLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LillisENG\EngineStuffs\System_Win32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LillisENG\EngineStuffs\Behaviors\PlayerController.cpp">
@@ -225,6 +159,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LillisENG\Utils\Events\InputEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\EngineStuffs\Behaviors\Behavior.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\Utils\StackAllocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\EngineStuffs\Graphics\GraphicsSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
