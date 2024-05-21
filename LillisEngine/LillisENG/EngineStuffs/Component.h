@@ -17,6 +17,8 @@ public:
 
 	void handleEvent(const Event& theEvent) {}
 
+	bool isActive = false;
+
 protected:
 	GameObject* thisObject = nullptr;
 };

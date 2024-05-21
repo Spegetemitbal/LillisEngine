@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include "Event.h"
 using namespace std;
 enum EditorEventType

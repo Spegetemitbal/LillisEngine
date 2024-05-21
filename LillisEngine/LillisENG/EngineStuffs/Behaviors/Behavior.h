@@ -7,7 +7,7 @@
 class Behavior : public Component
 {
 public:
-	Behavior(string name)
+	Behavior(std::string name)
 	{
 		BehaviorName = name;
 		if (IDList.find(name) != IDList.end())
@@ -26,7 +26,7 @@ public:
 	int getNextID() { return nextID; };
 	
 	//returns -1 if nonexistent
-	static int getIDbyName(string n) 
+	static int getIDbyName(std::string n) 
 	{
 		if (IDList.find(n) != IDList.end())
 		{
@@ -44,10 +44,10 @@ public:
 private:
 	Behavior() {};
 	bool isStatic = false;
-	string BehaviorName = "";
+	std::string BehaviorName = "";
 	int BehaviorID = 0;
 
-	static std::map<string, int> IDList;
+	static std::map<std::string, int> IDList;
 	static int nextID;
 
 protected:

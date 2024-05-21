@@ -1,10 +1,13 @@
+#include "pch.h"
 #include "../GameObject.h"
 #include "RectangleCollider.h"
-#include <cstdlib>
+#include "Utils/Events/CollisionEvent.h"
+//#include <cstdlib>
 
 Component* RectangleCollider::CreateRectangleCollider(GameObject* G, int* params)
 {
-	return G->CreateCollider(params[0], params[1]);
+	//Probs fix this lol.
+	return G->CreateCollider(params[0], params[1], params[2]);
 }
 
 bool RectangleCollider::CheckCollision(RectangleCollider other)
@@ -20,6 +23,8 @@ bool RectangleCollider::CheckCollision(RectangleCollider other)
 
 	if (abs(thisTransform.x - thatTransform.x) < thisWidth + otherWidth && abs(thisTransform.y - thatTransform.y) < thisHeight + otherHeight)
 	{
+		EventSystem* e = EventSystem::getInstance();
+		e->fireEvent(CollisionEvent(tag, other.tag));
 		return true;
 	}
 	else

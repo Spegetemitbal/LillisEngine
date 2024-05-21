@@ -1,32 +1,46 @@
+#include "pch.h"
 #include "Engine.h"
-#include "Utils/InputSystem.h"
+#include "EngineStuffs/Networking/ByteBuffer.h"
 
 //Creates window, Initializes low level systems and loads scene.
 Engine::Engine()
 {
-    EventSystem::createInstance();
+
+    EventSystem* ev = EventSystem::createInstance();
+    ev->init();
+
+    SockLibInit();
 
     const int WIDTH = 640;
     const int HEIGHT = 480;
 
-
     engine = EngineState();
     engine.quit = false;
 
+    engine.phys = new PhysicsSystem();
+
     engine.graphics = new GraphicsSystem(WIDTH, HEIGHT, "Game");
-    engine.graphics->Init();
+    if (!engine.graphics->Init())
+    {
+        exit(1);
+    }
+    
+    std::vector<LILLIS::KeyCode> importantKeys
+    {
+        LILLIS::W, LILLIS::S, LILLIS::A, LILLIS::D, LILLIS::ESC
+    };
+
+    engine.gameInputs = new InputSystem(importantKeys);
+    engine.gameInputs->setupKeyInputs(engine.graphics->GetWin());
+
     engine.frame = 0;
     engine.frameStart = glfwGetTime();
     engine.system = LILLIS::System::Create();
     engine.system->Init();
 
-    //Leaky abstraction. Either the inputsystem should pass in the graphicssystem, or the graphicssystem should pass in the inputsystem.
-    InputSystem::CreateSystemInstance(engine.graphics->getWindow());
+    WORLD = DBG_NEW GameObjectManager();  
 
-    //SDL_Init(SDL_INIT_VIDEO);
-    //SDL_GetKeyboardState(0);
-
-    WORLD = DBG_NEW GameObjectManager();
+    restartGame();
 }
 
 //Clears everything
@@ -36,8 +50,16 @@ Engine::~Engine()
     delete WORLD;
     //delete FrameAllocator;
 
+    SockLibShutdown();
+
+    delete engine.phys;
+    engine.phys = nullptr;
+
+    EventSystem* ev = EventSystem::getInstance();
+    ev->cleanup();
     EventSystem::delInstance();
-    InputSystem::DestroySystemInstance();
+    
+    delete engine.gameInputs;
 
     engine.graphics->ShutDown();
     delete engine.graphics;
@@ -68,17 +90,58 @@ void Engine::Run()
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&frameStep, engine, 0, true);
 #else
-    while (!engine.quit)
+    do
     {
+        //This logic is causing errors upon exiting!.
         double now = glfwGetTime();
         if (now - engine.frameStart >= 0.016)
         {
             frameStep();
         }
         engine.quit = engine.graphics->isWindowOpen();
-    }
+    } while (!engine.quit);
 #endif
+
 }
+
+//Wipe later
+void Engine::restartGame()
+{
+    if (!WORLD->objects.empty())
+    {
+        WORLD->clearAll();
+    }
+
+    //Game specifics
+    p1 = WORLD->addObject(0, 0);
+    p1->CreateCollider(40, 40, 0);
+    p1->SetSprite("p1");
+    p1->CreatePlayerController();
+
+    p2 = WORLD->addObject(0, 440);
+    p2->SetSprite("p2");
+    p2->CreateCollider(40, 40, 1);
+    p2->CreatePlayerController();
+
+    GameObject* goal = WORLD->addObject(600, 220);
+    goal->SetSprite("goal");
+    goal->CreateCollider(40, 40, 2);
+
+    float pos = 100;
+    float ang = 20;
+    for (int i = 0; i < 3; i++)
+    {
+        GameObject* spinny = WORLD->addObject(300, pos);
+        spinny->SetSprite("enemy");
+        spinny->CreateCollider(40, 40, 3);
+        Rotator* r = spinny->CreateRotator(ang);
+        r->setBaseOffset(300, pos);
+        pos += 100;
+        ang += 30;
+    }
+
+}
+
 
 //Occurs every frame, the 'content' of the game loop
 void Engine::frameStep()
@@ -88,72 +151,112 @@ void Engine::frameStep()
     engine.frame++;
     engine.frameStart = now;
 
-    InputSystem* inSys = InputSystem::GetSystemInstance();
-    inSys->tick();
-
-    engine.graphics->Update();
-
-    for (int i = 0; i < WORLD->players.size(); i++)
-    {
-        WORLD->players[i].Update();
-    }
-
     for (int i = 0; i < WORLD->rotators.size(); i++)
     {
-        WORLD->rotators[i].Update(0.1);
+        WORLD->rotators[i]->Update(0.1);
     }
 
-    /*for (int i = 0; i < WORLD->objects.size(); i++)
-    {
-        for (int j = 0; j < WORLD->objects[i].behaviors.size(); j++)
-        {
-            WORLD->objects[i].behaviors.Update();
-        }
-    } */
 
-    /*for (int i = 0; i < WORLD->colliders.size(); i++)
-    {
-        WORLD->colliders[i].isCurrentlyColliding = false;
-    }*/
-
-    //GameObject* colPoint = FrameAllocator->alloc<GameObject>(WORLD->colliders.size());
-    int colPointLoc = 0;
-
-    //Collision
-    /*for (int i = 0; i < WORLD->colliders.size(); i++)
+    for (int i = 0; i < WORLD->colliders.size(); i++)
     {
         for (int j = i + 1; j < WORLD->colliders.size(); j++)
         {
-            if (WORLD->colliders[i].CheckCollision(WORLD->colliders[j]))
-            {
-                WORLD->colliders[i].isCurrentlyColliding = true;
-                WORLD->colliders[j].isCurrentlyColliding = true;
-                if (i != 7 && j == j)
-                {
-                    GameObject* g = WORLD->colliders[i].getObject();
-                    colPoint[colPointLoc] = *g;
-                    colPointLoc++;
-                }
-            }
+            WORLD->colliders[i]->CheckCollision(*WORLD->colliders[j]);
         }
-    } */
-    if (colPointLoc > 0)
-    {
-        int num = 0;
-        for (int i = 0; i < colPointLoc; i++)
-        {
-            num++;
-        }
-        //std::cout << num << " Objects" << std::endl;
     }
-    //FrameAllocator->clearStack();
+
+    engine.graphics->PreDraw();
+
+    for (int i = 0; i < WORLD->objects.size(); i++)
+    {
+        if (!WORLD->objects[i]->getSprite().empty())
+        {
+            //Might be dereferencing something you shouldn't.
+            engine.graphics->RenderSprite(*WORLD->objects[i]);
+        }
+    }
+
+    engine.graphics->PostDraw();
+
+    if (engine.phys->checkReset())
+    {
+        restartGame();
+        engine.phys->patchReset();
+    }
+
+    if (engine.gameInputs->getIsKeyDown(LILLIS::ESC))
+    {
+        engine.graphics->closeWindow();
+    }
 }
 
-//Returns time
-//Uint32 Engine::GetTicks()
-//{
-//    return SDL_GetTicks();
-//}
+std::string GetFileName(const char* path)
+{
+    stringstream ss = stringstream(path);
+    std::string currentString;
+    while (!ss.eof())
+    {
+        currentString.clear();
+        std::getline(ss, currentString, '/');
+    }
+    return currentString;
+}
+
+//Call this once for each folder. If folder is not alphabetical, all hope be lost.
+void Engine::InjectAssets(const char* filePath, AssetType resourceType)
+{
+    std::vector<std::string> folder = std::vector<std::string>();
+    for (const auto& entry : fs::directory_iterator(filePath))
+    {
+        //std::cout << entry.path() << std::endl;
+        folder.push_back(GetFileName(entry.path().string().data()));
+    }
+
+    // The container must be sorted!
+    if (std::adjacent_find(folder.begin(), folder.end()) != folder.end())
+    {
+        std::cerr << "DUPLICATE FILES DETECTED" << '\n';
+        return;
+    }
+
+    switch (resourceType)
+    {
+    case SINGLEIMAGES:
+        break;
+    case SPRITESHEET:
+        break;
+    case SHADERS:
+        break;
+    case SOUNDS:
+        break;
+    default:
+        std::cerr << "INVALID ASSET INSERTION" << '\n';
+        break;
+    }
+
+    std::cout << "Multiple asset injection not ready yet :(" << '\n';
+}
+
+void Engine::InjectSingleAsset(const char* filePath, AssetType resourceType)
+{
+    std::string FileName = GetFileName(filePath);
+
+    switch (resourceType)
+    {
+    case SINGLEIMAGES:
+        break;
+    case SPRITESHEET:
+        break;
+    case SHADERS:
+        std::cerr << "SINGLE SHADER INSERTION PROHIBITED" << '\n';
+        break;
+    case SOUNDS:
+        break;
+    default:
+        std::cerr << "INVALID ASSET INSERTION" << '\n';
+        break;
+    }
+}
 
 //Singleton getter
 Engine* Engine::GetGameInstance()

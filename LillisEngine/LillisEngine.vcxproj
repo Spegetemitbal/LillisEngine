@@ -19,6 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LillisENG\EngineStuffs\ECSPool.h" />
+    <ClInclude Include="LillisENG\Utils\Events\CollisionEvent.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\Camera.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\DefaultRenderPipeline.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\FrameBuffer.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\LillisWindow.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Networking\ByteBuffer.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Networking\RecvBuffer.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Networking\socklib.h" />
     <ClInclude Include="LillisENG\pch.h" />
     <ClInclude Include="LillisENG\Engine.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Audio\AudioSystem.h" />
@@ -31,7 +40,6 @@
     <ClInclude Include="LillisENG\EngineStuffs\GameObjectManager.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Graphics\Color.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Graphics\GraphicsSystem.h" />
-    <ClInclude Include="LillisENG\EngineStuffs\Graphics\RectangleRenderer.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Physics\PhysicsSystem.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Physics\RectangleCollider.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Transform.h" />
@@ -49,8 +57,15 @@
     <ClInclude Include="LillisENG\Utils\SceneLoader.h" />
     <ClInclude Include="LillisENG\Utils\StackAllocator.h" />
     <ClInclude Include="LillisENG\Utils\Timing.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\Shader.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\Texture.h" />
+    <ClInclude Include="LillisENG\Utils\ResourceManager.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\SpriteRenderer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LillisENG\EngineStuffs\ECSPool.cpp" />
+    <ClCompile Include="LillisENG\Utils\Events\CollisionEvent.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Graphics\FrameBuffer.cpp" />
     <ClCompile Include="LillisENG\Engine.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\Behaviors\Behavior.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\Behaviors\PlayerController.cpp" />
@@ -58,8 +73,14 @@
     <ClCompile Include="LillisENG\EngineStuffs\GameObject.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\GameObjectManager.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\Graphics\GraphicsSystem.cpp" />
-    <ClCompile Include="LillisENG\EngineStuffs\Graphics\RectangleRenderer.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Networking\RecvBuffer.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Networking\socklib_generic.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Networking\socklib_win32.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Physics\PhysicsSystem.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\Physics\RectangleCollider.cpp" />
+    <ClCompile Include="LillisENG\glad.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="LillisENG\System\System_Win32.cpp" />
     <ClCompile Include="LillisENG\Utils\Events\EditorEvent.cpp" />
     <ClCompile Include="LillisENG\Utils\Events\Event.cpp" />
@@ -75,6 +96,14 @@
     </ClCompile>
     <ClCompile Include="LillisENG\Utils\SceneLoader.cpp" />
     <ClCompile Include="LillisENG\Utils\StackAllocator.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Graphics\Shader.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Graphics\Texture.cpp" />
+    <ClCompile Include="LillisENG\Utils\ResourceManager.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\Graphics\SpriteRenderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LillisENG\EngineStuffs\Graphics\DefaultShaders\Default2D.frag" />
+    <None Include="LillisENG\EngineStuffs\Graphics\DefaultShaders\Default2D.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -165,16 +194,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>LILLISENG;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)GLFW\include\GLFW;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)LillisENG;$(ProjectDir)Dependencies\include\;$(ProjectDir)Dependencies\glm\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)GLFW\lib-vc2022</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3_mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\lib\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3_mt.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d  "$(OutDir)*.dll" "$(SolutionDir)..\ExampleGame\"</Command>

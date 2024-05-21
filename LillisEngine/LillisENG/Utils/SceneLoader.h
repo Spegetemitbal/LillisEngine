@@ -1,8 +1,6 @@
 #pragma once
-#include <iostream>
-#include <fstream>
+#include "pch.h"
 #include "../EngineStuffs/Component.h"
-#include <unordered_map>
 
 typedef Component* (*componentFunction)(GameObject* G, int* param);
 

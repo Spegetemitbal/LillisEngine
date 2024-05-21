@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "../GameObject.h"
 #include "PlayerController.h"
 #include "../../Utils/Events/InputEvent.h"
@@ -9,28 +10,30 @@ Component* PlayerController::CreatePlayerController(GameObject* G, int* params)
 
 void PlayerController::Update()
 {
+	//std::cout << "Internal: " << thisObject->getSprite() << '\n';
 
 	int speed = 5;
 
-	Transform* t = &thisObject->transform;
-	//take in array, check against SDLK_(whatever), that should work
+	//Make this more cache friendly.
+	Transform& t = thisObject->transform;
 
 	if (w)
 	{
-		t->y -= speed;
+		t.y -= speed;
 	}
 	else if (s)
 	{
-		t->y += speed;
+		t.y += speed;
 	}
 	if (a)
 	{
-		t->x -= speed;
+		t.x -= speed;
 	}
 	else if (d)
 	{
-		t->x += speed;
+		t.x += speed;
 	}
+	//std::cout << "PostMove: " << t.x << " " << t.y << '\n';
 }
 
 void PlayerController::handleEvent(const Event& theEvent)
@@ -41,7 +44,7 @@ void PlayerController::handleEvent(const Event& theEvent)
 		int key = inputEvent.getInput();
 		bool down = inputEvent.getPressed();
 
-		std::cout << "Key Pressed: " << key << std::endl;
+		//std::cout << "Key Pressed: " << key << std::endl;
 
 		switch (key)
 		{	

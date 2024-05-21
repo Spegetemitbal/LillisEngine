@@ -5,7 +5,7 @@ class RectangleCollider : public Component
 {
 public:
 	RectangleCollider() { colliderHeight = 0; colliderWidth = 0; }
-	RectangleCollider(float w, float h) { colliderHeight = h; colliderWidth = w; }
+	RectangleCollider(float w, float h, int id) { colliderHeight = h; colliderWidth = w; tag = id; }
 
 	static Component* CreateRectangleCollider(GameObject* G, int* param);
 
@@ -14,12 +14,11 @@ public:
 	float getHeight() { return colliderHeight; };
 	float getWidth() { return colliderWidth; };
 
-	bool getColliding() { return isCurrentlyColliding; }
-
-	bool isCurrentlyColliding = false;
+	int collidingWith = -1;
 
 private:
 
+	int tag = -1;
 	float colliderWidth;
 	float colliderHeight;
 };

@@ -1,7 +1,11 @@
 #pragma once
 
-#include "RectangleRenderer.h"
-#include <glfw3.h>
+#define GLFW_INCLUDE_NONE
+#include "SpriteRenderer.h"
+#include "../../Utils/ResourceManager.h"
+#include "LillisWindow.h"
+#include "Camera.h"
+#include "../GameObject.h"
 
 class GraphicsSystem
 {
@@ -15,16 +19,23 @@ public:
 
 	void Update();
 
-	void closeWindow() { if (window) { glfwSetWindowShouldClose(window, GLFW_TRUE); } }
-	bool isWindowOpen() { return glfwWindowShouldClose(window); }
+	void PreDraw();
+	void RenderSprite(GameObject& g);
+	void PostDraw();
+
+	LillisWindow* GetWin() { return &_win; }
+
+	void closeWindow() { if (_win.window) { glfwSetWindowShouldClose(_win.window, GLFW_TRUE); } }
+	bool isWindowOpen() { return glfwWindowShouldClose(_win.window); }
 
 	static void error_callback(int error, const char* description);
 
-	GLFWwindow* getWindow() { return window; }
-
 private:
 
-	GLFWwindow* window = nullptr;
+	SpriteRenderer* testSpr;
+	LILLIS::Camera testCam;
+
+	LillisWindow _win;
 	std::string _windowName = "";
 	unsigned int _height = 0, _width = 0;
 };

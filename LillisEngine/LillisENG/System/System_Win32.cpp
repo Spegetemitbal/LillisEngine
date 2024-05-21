@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "System_Win32.h"
 
 using namespace LILLIS;
@@ -15,17 +16,17 @@ private:
 
 void System_Win32::Init()
 {
-	_CrtDumpMemoryLeaks();
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
 
 	if (!AllocConsole())
 	{
-		ShowError(L"Failed to Alloc Console");
-		ExitProcess(1);
+		//ShowError(L"Failed to Alloc Console");
+		// ExitProcess(1);
 	}
 
-	freopen("CONOUT$", "w", stdout);
+	//do something with this later.
+	//freopen("CONOUT$", "w", stdout);
 
 }
 
@@ -35,6 +36,7 @@ void System_Win32::Shutdown()
 	{
 		CloseHandle(gameErrors);
 	}
+	_CrtDumpMemoryLeaks();
 }
 
 void System_Win32::LogToErrorFile(const string& message)

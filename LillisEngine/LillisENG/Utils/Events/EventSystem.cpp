@@ -1,10 +1,14 @@
+#include "pch.h"
 #include "EventSystem.h"
 #include "Event.h"
 #include "EventListener.h"
 
 EventSystem* EventSystem::eventSystem = nullptr;
 
-EventSystem::EventSystem(){}
+EventSystem::EventSystem()
+{
+
+}
 
 EventSystem::~EventSystem()
 {
@@ -123,8 +127,8 @@ void EventSystem::dispatchAllEvents(const Event& theEvent)
 		//This whole first shenanigan is to make sure you're iterating through the part of the map with the correct type!
 		std::pair<std::multimap<EventType, EventListener*>::iterator, std::multimap<EventType, EventListener*>::iterator> ret;
 		ret = Listeners.equal_range(theEvent.getType());
-		std::multimap<EventType, EventListener*>::iterator iter;
-		for (iter = ret.first; iter != ret.second; ++iter)
+		std::multimap<EventType, EventListener*>::iterator iter = ret.first;
+		for (; iter != ret.second; ++iter)
 		{
 			iter->second->handleEvent(theEvent);
 		}

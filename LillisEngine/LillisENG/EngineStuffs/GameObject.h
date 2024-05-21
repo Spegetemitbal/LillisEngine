@@ -10,7 +10,20 @@ public:
 	GameObject()
 	{
 		transform = Transform();
-		renderer = nullptr;
+		//sprite = nullptr;
+		collider = nullptr;
+		player = nullptr;
+		rotator = nullptr;
+	};
+
+	//Probs make these private my guy.
+	GameObject(float x, float y, int id)
+	{
+		transform = Transform();
+		transform.x = x;
+		transform.y = y;
+		entityID = id;
+		//sprite = nullptr;
 		collider = nullptr;
 		player = nullptr;
 		rotator = nullptr;
@@ -24,22 +37,26 @@ public:
 	//For cache efficiency, 
 	std::vector<Behavior> behaviors = std::vector<Behavior>();
 
-	RectangleRenderer* CreateRenderer(Color c, float w, float h);
-	RectangleCollider* CreateCollider(float w, float h);
+	void SetSprite(std::string name);
+	RectangleCollider* CreateCollider(float w, float h, int id);
 	PlayerController* CreatePlayerController();
 	Rotator* CreateRotator(double angle);
 
+	size_t SerializeTransform(char* buffer, size_t bufSize);
+	size_t DeSerializeTransform(char* buffer, size_t bufSize);
+
 	Transform transform;
 
-	Behavior* getBehavior(string name);
+	//Behavior* getBehavior(LILLIS::string name);
 
 	RectangleCollider* getCollider() { return collider; }
-	RectangleRenderer* getRenderer() { return renderer; }
+	std::string getSprite() { return sprite; }
 
 protected:
-	RectangleRenderer* renderer = nullptr;
+	std::string sprite;
 	RectangleCollider* collider = nullptr;
 	PlayerController* player = nullptr;
 	Rotator* rotator = nullptr;
 
+	int entityID = 0;
 };

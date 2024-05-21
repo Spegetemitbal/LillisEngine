@@ -1,11 +1,14 @@
-#include "../../pch.h"
+#include "pch.h"
 #pragma once
+
+#include "GameEvent.h"
 
 //Note for improvement: Change the data structure, multimap is SUPER unintuitive.
 
 class Event;
 class EventListener;
 enum EventType;
+enum GameEventType;
 
 class EventSystem
 {
@@ -22,6 +25,7 @@ public:
 	void removeListenerFromAllEvents(EventListener* pListener);
 private:
 	static EventSystem* eventSystem;
+	//Swapping over because br0ke
 	std::multimap< EventType, EventListener* > Listeners;
 	bool IsInitted = false;
 	void dispatchAllEvents(const Event& theEvent);

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Behavior.h"
 
 void Behavior::addListener(GameEventType type)
@@ -8,4 +9,4 @@ void Behavior::addListener(GameEventType type)
 
 int Behavior::nextID = 0;
 
-std::map<string, int> Behavior::IDList = map<string,int>();
+std::map<std::string, int> Behavior::IDList = map<std::string,int>();

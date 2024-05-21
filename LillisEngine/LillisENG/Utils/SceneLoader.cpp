@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "SceneLoader.h"
-#include <string>
 #include "../EngineStuffs/GameObject.h"
 
 #define WORLD GameObjectManager::world
@@ -14,7 +14,7 @@ SceneLoader::SceneLoader()
 	//1380144195
 	compMap['RCTC'] = RectangleCollider::CreateRectangleCollider;
 	//1380144210
-	compMap['RCTR'] = RectangleRenderer::CreateRectangleRenderer;
+	//compMap['RCTR'] = RectangleRenderer::CreateRectangleRenderer;
 	//1380930642
 	compMap['ROTR'] = Rotator::CreateRotator;
 }
@@ -43,7 +43,10 @@ void SceneLoader::LoadData(std::string fileName)
 			int x, y;
 			stream >> x;
 			stream >> y;
-			std::cout << word << " " << x << " " << y << " " << std::endl;
+
+			//Intake texture ID here
+
+			//std::cout << word << " " << x << " " << y << " " << std::endl;
 
 			stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
@@ -61,7 +64,7 @@ void SceneLoader::LoadData(std::string fileName)
 				currentParam = 0;
 				if (component != 'ENDL')
 				{
-					std::cout << component << " ";
+					//std::cout << component << " ";
 					int componentParam[MAX_PARAMS];
 					//1162757200
 					for (int i = 0; currentParam != 'ENDP'; i++)
@@ -70,14 +73,14 @@ void SceneLoader::LoadData(std::string fileName)
 						if (currentParam != 'ENDP')
 						{
 							componentParam[i] = currentParam;
-							std::cout << currentParam << " ";
+							//std::cout << currentParam << " ";
 						}
 					}
 					compMap[component](G, componentParam);
-					std::cout << currentParam << std::endl;
+					//std::cout << currentParam << std::endl;
 				}
 			}
-			std::cout << component << std::endl;
+			//std::cout << component << std::endl;
 
 		}
 	}

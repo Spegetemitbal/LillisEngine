@@ -2,6 +2,15 @@
 
 #ifdef _DEBUG
 #ifdef _WIN32
+
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif // !_CRT_SECURE_NO_WARNINGS
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif // !WIN32_LEAN_AND_MEAN
+
 #ifndef DBG_NEW
 #define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
 // Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
@@ -12,6 +21,8 @@
 #define DBG_NEW new
 #endif
 
+#define _USE_MATH_DEFINES
+
 #include <vector>
 #include <map>
 #include <list>
@@ -19,6 +30,13 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <math.h>
+#include <algorithm>
+#include <unordered_map>
+#include <memory>
+
+#include <stdlib.h>
+#include <stdio.h>
 
 //Put logging here too
 

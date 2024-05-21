@@ -1,7 +1,6 @@
+#include "pch.h"
 #include "Rotator.h"
 #include "../GameObject.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 Component* Rotator::CreateRotator(GameObject* G, int* params)
 {
@@ -10,8 +9,7 @@ Component* Rotator::CreateRotator(GameObject* G, int* params)
 
 void Rotator::Update(float deltaTime)
 {
-	const int OFFSET = 300;
-	const int DIST = 100;
+	const int DIST = 50;
 	myAngle += deltaTime / 2;
 
 	if (myAngle > M_PI * 2)
@@ -19,6 +17,6 @@ void Rotator::Update(float deltaTime)
 		myAngle -= M_PI * 2;
 	}
 
-	thisObject->transform.x = (DIST * cos(myAngle)) + OFFSET;
-	thisObject->transform.y = (DIST * sin(myAngle)) + OFFSET;
+	thisObject->transform.x = (DIST * cos(myAngle)) + offsetX;
+	thisObject->transform.y = (DIST * sin(myAngle)) + offsetY;
 }

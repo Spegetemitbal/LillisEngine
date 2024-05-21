@@ -2,9 +2,20 @@
 
 int main(int argc, char* argv[])
 {
-	Engine* e = Engine::CreateGameInstance();
+	Engine* e;
+
+	if (argc > 1)
+	{
+		e = Engine::CreateGameInstance();
+		std::cout << "Launching as Server\n";
+	}
+	else
+	{
+		e = Engine::CreateGameInstance();
+		std::cout << "Launching as Client\n";
+	}
 	
-	e->LoadLevel("Level.dat");
+	//e->LoadLevel("Level.dat");
 	e->Run();
 
 	Engine::DestroyGameInstance();

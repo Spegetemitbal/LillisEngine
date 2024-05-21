@@ -57,9 +57,6 @@
     <ClInclude Include="LillisENG\EngineStuffs\Graphics\GraphicsSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\Graphics\RectangleRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LillisENG\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -108,6 +105,45 @@
     <ClInclude Include="LillisENG\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\FrameBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\Utils\ResourceManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\SpriteRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\LillisWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\EngineStuffs\Networking\RecvBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\EngineStuffs\Networking\socklib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\EngineStuffs\Graphics\DefaultRenderPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\EngineStuffs\Networking\ByteBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\Utils\Events\CollisionEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LillisENG\EngineStuffs\ECSPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LillisENG\EngineStuffs\GameObject.cpp">
@@ -126,9 +162,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LillisENG\EngineStuffs\Physics\RectangleCollider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LillisENG\EngineStuffs\Graphics\RectangleRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LillisENG\Engine.cpp">
@@ -173,5 +206,45 @@
     <ClCompile Include="LillisENG\EngineStuffs\Graphics\GraphicsSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LillisENG\EngineStuffs\Graphics\FrameBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\EngineStuffs\Graphics\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\EngineStuffs\Graphics\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\Utils\ResourceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\EngineStuffs\Graphics\SpriteRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\EngineStuffs\Networking\RecvBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\EngineStuffs\Networking\socklib_generic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\EngineStuffs\Networking\socklib_win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\EngineStuffs\Physics\PhysicsSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\Utils\Events\CollisionEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LillisENG\EngineStuffs\ECSPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LillisENG\EngineStuffs\Graphics\DefaultShaders\Default2D.vs" />
+    <None Include="LillisENG\EngineStuffs\Graphics\DefaultShaders\Default2D.frag" />
   </ItemGroup>
 </Project>

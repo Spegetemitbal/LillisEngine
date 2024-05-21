@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Behaviors/BehaviorSystem.h"
-#include "Graphics/GraphicsSystem.h"
 #include "Physics/PhysicsSystem.h"
-
+#include "Graphics/GraphicsSystem.h"
 
 class GameObject;
 
@@ -17,30 +16,23 @@ public:
 	void clearAll();
 
 	GameObjectManager() {}
-	~GameObjectManager() {};
+	~GameObjectManager() { clearAll(); };
 
 	int numObjects = 0;
 
 	//GameObject* findObject(GameObject g);
 
 	GameObject* addObject();
-	/* void addCollider(int objNum, float w, float h);
-	void addRenderer(int objNum, Color c, float w, float h);
-	void addPlayer(int objNum);
-	void addColorChanger(int objNum);
-	void addRotator(int objNum, double angle);
+	GameObject* addObject(float x, float y);
 
-	void addCollider(float w, float h);
-	void addRenderer(Color c, float w, float h);
-	void addPlayer();
-	void addColorChanger();
-	void addRotator(double angle); */
+	//Use pointers instead. BUT have each of these point to a contiguous stack of your own creation to make sure your cache is happy!.
 
-	std::vector<GameObject> objects = std::vector<GameObject>();
-	std::vector<RectangleCollider> colliders = std::vector<RectangleCollider>();
-	std::vector<RectangleRenderer> renderers = std::vector<RectangleRenderer>();
-	std::vector<PlayerController> players = std::vector<PlayerController>();
-	std::vector<Rotator> rotators = std::vector<Rotator>();
+	std::vector<GameObject*> objects = std::vector<GameObject*>();
+	std::vector<RectangleCollider*> colliders = std::vector<RectangleCollider*>();
+	//A flyweight should be implemented here soon.
+	//std::vector<Texture2D> sprites = std::vector<Texture2D>();
+	std::vector<PlayerController*> players = std::vector<PlayerController*>();
+	std::vector<Rotator*> rotators = std::vector<Rotator*>();
 };
 
 //Note that INTS in C++ can hold 4 characters instead of a number, pretty sweet.
