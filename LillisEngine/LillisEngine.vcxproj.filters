@@ -141,7 +141,7 @@
     <ClInclude Include="LillisENG\Utils\Events\CollisionEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LillisENG\EngineStuffs\ECSPool.h">
+    <ClInclude Include="LillisENG\EngineStuffs\ComponentPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -239,7 +239,7 @@
     <ClCompile Include="LillisENG\Utils\Events\CollisionEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LillisENG\EngineStuffs\ECSPool.cpp">
+    <ClCompile Include="LillisENG\EngineStuffs\ComponentPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

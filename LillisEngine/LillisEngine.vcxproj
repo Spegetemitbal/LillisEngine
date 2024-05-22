@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LillisENG\EngineStuffs\ECSPool.h" />
+    <ClInclude Include="LillisENG\EngineStuffs\ComponentPool.h" />
     <ClInclude Include="LillisENG\Utils\Events\CollisionEvent.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Graphics\Camera.h" />
     <ClInclude Include="LillisENG\EngineStuffs\Graphics\DefaultRenderPipeline.h" />
@@ -63,7 +63,7 @@
     <ClInclude Include="LillisENG\EngineStuffs\Graphics\SpriteRenderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LillisENG\EngineStuffs\ECSPool.cpp" />
+    <ClCompile Include="LillisENG\EngineStuffs\ComponentPool.cpp" />
     <ClCompile Include="LillisENG\Utils\Events\CollisionEvent.cpp" />
     <ClCompile Include="LillisENG\EngineStuffs\Graphics\FrameBuffer.cpp" />
     <ClCompile Include="LillisENG\Engine.cpp" />
