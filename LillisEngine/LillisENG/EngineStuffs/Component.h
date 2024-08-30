@@ -12,6 +12,7 @@ public:
 	Component() {};
 	~Component() {};
 
+	//virtual void initComponent() = 0;
 	GameObject* getObject() { return thisObject; }
 	void setControlledObject(GameObject* g) { thisObject = g; }
 

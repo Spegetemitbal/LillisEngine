@@ -3,6 +3,7 @@
 #include "Behaviors/BehaviorSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Graphics/GraphicsSystem.h"
+#include "ComponentPool.h"
 
 class GameObject;
 
@@ -15,7 +16,8 @@ public:
 
 	void clearAll();
 
-	GameObjectManager() {}
+	GameObjectManager();
+	
 	~GameObjectManager() { clearAll(); };
 
 	int numObjects = 0;
@@ -29,6 +31,9 @@ public:
 
 	std::vector<GameObject*> objects = std::vector<GameObject*>();
 	std::vector<RectangleCollider*> colliders = std::vector<RectangleCollider*>();
+
+	LILLIS::ComponentPool<RectangleCollider>* colliderPool;
+
 	//A flyweight should be implemented here soon.
 	//std::vector<Texture2D> sprites = std::vector<Texture2D>();
 	std::vector<PlayerController*> players = std::vector<PlayerController*>();

@@ -2,6 +2,11 @@
 #include "GameObjectManager.h"
 #include "GameObject.h"
 
+GameObjectManager::GameObjectManager()
+{
+	colliderPool = DBG_NEW LILLIS::ComponentPool<RectangleCollider>();
+}
+
 GameObject* GameObjectManager::addObject()
 {
 	objects.push_back(new GameObject());
@@ -40,6 +45,9 @@ void GameObjectManager::clearAll()
 
 	objects.clear();
 	colliders.clear();
+
+	delete colliderPool;
+
 	//sprites.clear();
 	players.clear();
 	rotators.clear();

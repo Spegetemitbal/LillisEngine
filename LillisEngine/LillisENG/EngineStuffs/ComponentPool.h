@@ -1,31 +1,33 @@
 #pragma once
-#include "Component.h"
 
-template <typename Obj>
-class ComponentPool
+namespace LILLIS
 {
-public:
-	ComponentPool();
-	~ComponentPool() { delete mPool; };
-	ComponentPool(unsigned int numComp);
+	template <class Obj>
+	class ComponentPool
+	{
+	public:
+		ComponentPool();
+		~ComponentPool() { delete mPool; };
+		ComponentPool(unsigned int numComp);
 
-	Component AddComponent();
-	void DestroyComponent(Component& comp);
+		Obj* AddComponent();
+		void DestroyComponent(Obj& comp);
 
-	//Typecast to specific component in game loop.
-	std::vector<Component*> poolDir;
+		std::vector<Obj*> poolDir;
 
-private:
+	private:
 
-	void SortPool();
-	void ResizePool();
+		void SortPool();
+		void ResizePool();
 
-	Obj* AllocateObj(char* base);
+		//std::vector<Component*> activeCheckDir;
+		Obj* AllocateObj(char* base);
 
-	bool isGameObj = false;
+		bool isGameObj = false;
 
-	unsigned int activeLine = 0;
-	unsigned int count = 0;
-	char* mPool = nullptr;
-};
-
+		unsigned int activeLine = 0;
+		unsigned int numActive = 0;
+		unsigned int count = 0;
+		char* mPool = nullptr;
+	};
+}

@@ -9,6 +9,8 @@ public:
 
 	static Component* CreateRectangleCollider(GameObject* G, int* param);
 
+	//void initComponent();
+
 	bool CheckCollision(RectangleCollider other);
 
 	float getHeight() { return colliderHeight; };
