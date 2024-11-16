@@ -1,4 +1,4 @@
-#include <Lillis.h>
+#include "../core/Lillis.h"
 
 int main(int argc, char* argv[])
 {

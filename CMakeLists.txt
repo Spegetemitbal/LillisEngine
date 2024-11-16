@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.16)
+
+include(cmake/get_cpm.cmake)
+
+
+project(
+        Lillis
+        VERSION 0.0.1
+)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+link_directories(${CMAKE_BINARY_DIR}/bin)
+
+include(External/glm.cmake)
+include(External/glfw.cmake)
+
+add_subdirectory(core)
+add_subdirectory(ExampleGame)
