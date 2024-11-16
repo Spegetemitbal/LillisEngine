@@ -4,7 +4,9 @@
 //#define _CRTDBG_MAP_ALLOC
 //#include <iostream>
 //#define WIN32_LEAN_AND_MEAN
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 
 #include "System_Common.h"
 
