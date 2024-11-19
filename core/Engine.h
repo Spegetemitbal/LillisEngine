@@ -9,6 +9,7 @@
 #include "Utils/StackAllocator.h"
 #include "Utils/InputSystem.h"
 #include "EngineStuffs/GameObjectManager.h"
+#include "System/System_Common.h"
 
 #define WORLD GameObjectManager::world
 
