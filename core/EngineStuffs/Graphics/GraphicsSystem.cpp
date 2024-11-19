@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "GraphicsSystem.h"
+#include "glad/gl.h"
 
 GraphicsSystem::GraphicsSystem(unsigned int width, unsigned int height, std::string name)
 {
@@ -37,10 +38,10 @@ bool GraphicsSystem::Init()
 	}
 	testCam = LILLIS::Camera(glm::vec2(0, 0), _width, _height);
 
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		printf("GLAD Failed to load GL headers");
-		return false;
-	}
+	//if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+	//	printf("GLAD Failed to load GL headers");
+	//	return false;
+	//}
 	
 	glfwSetErrorCallback(error_callback);
 

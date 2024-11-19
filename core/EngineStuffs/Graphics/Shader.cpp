@@ -9,7 +9,7 @@
 ******************************************************************/
 #include "shader.h"
 #include <glm/gtc/type_ptr.hpp>
-#include "External/glad.h"
+#include "glad/gl.h"
 
 LILLIS::Shader& LILLIS::Shader::Use()
 {

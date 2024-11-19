@@ -23,7 +23,7 @@ find_package(OpenGL REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(
-        LillisLib PUBLIC glm glad
+        LillisLib PUBLIC glm ${GLAD_LIBRARY}
 )
 
 target_precompile_headers(LillisLib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/pch.h)

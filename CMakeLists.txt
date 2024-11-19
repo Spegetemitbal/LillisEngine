@@ -6,6 +6,7 @@ include(cmake/get_cpm.cmake)
 project(
         Lillis
         VERSION 0.0.1
+        LANGUAGES CXX C
 )
 
 #set C++ version to 23
@@ -19,8 +20,10 @@ link_directories(${CMAKE_BINARY_DIR}/bin)
 
 include(External/glm.cmake)
 include(External/glfw.cmake)
-include(External/glad.cmake)
 include(External/stb.cmake)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/External/glad/include)
+file(GLOB BUTTERFLIES_SOURCES_C ${CMAKE_CURRENT_SOURCE_DIR} *.c External/glad/src/gl.c)
 
 add_subdirectory(core)
 add_subdirectory(ExampleGame)

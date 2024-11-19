@@ -13,7 +13,7 @@
 
 #include "pch.h"
 
-#include "External/glad.h"
+#include "glad/gl.h"
 #include <filesystem>
 #include "EngineStuffs/Graphics/Texture.h"
 #include "EngineStuffs/Graphics/Shader.h"
