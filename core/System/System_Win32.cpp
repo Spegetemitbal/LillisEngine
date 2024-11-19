@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "System_Win32.h"
 
+#ifdef _WIN32
+
 using namespace LILLIS;
 
 class System_Win32 : public System
@@ -60,3 +62,4 @@ System* System::Create()
 	return DBG_NEW System_Win32();
 }
 
+#endif

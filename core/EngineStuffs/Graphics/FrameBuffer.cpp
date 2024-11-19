@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "FrameBuffer.h"
-#include "External/glad.h"
+#include "glad.h"
 
 using namespace LILLIS;
 

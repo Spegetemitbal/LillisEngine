@@ -19,6 +19,8 @@ link_directories(${CMAKE_BINARY_DIR}/bin)
 
 include(External/glm.cmake)
 include(External/glfw.cmake)
+include(External/glad.cmake)
+include(External/stb.cmake)
 
 add_subdirectory(core)
 add_subdirectory(ExampleGame)

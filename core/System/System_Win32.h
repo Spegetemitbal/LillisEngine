@@ -10,5 +10,5 @@
 
 #include "System_Common.h"
 
-LILLIS::string const ERROR_LOG = L"Error: User pressed 'k'\n";
-LILLIS::string const ERROR_WINDOW = L"Do not press 'k'!!\n";
+LILLIS::string const ERROR_LOG = "Error: User pressed 'k'\n";
+LILLIS::string const ERROR_WINDOW = "Do not press 'k'!!\n";

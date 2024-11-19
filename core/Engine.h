@@ -35,7 +35,7 @@ struct EngineState
 
 namespace fs = std::filesystem;
 
-enum DLLUSAGE AssetType
+enum AssetType
 {
     SINGLEIMAGES = 0,
     SPRITESHEET,
@@ -44,7 +44,7 @@ enum DLLUSAGE AssetType
 
 };
 
-class DLLUSAGE Engine
+class Engine
 {
 public:
     static Engine* Game;
