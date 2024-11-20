@@ -22,8 +22,9 @@ include(External/glm.cmake)
 include(External/glfw.cmake)
 include(External/stb.cmake)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/External/glad/include)
-file(GLOB BUTTERFLIES_SOURCES_C ${CMAKE_CURRENT_SOURCE_DIR} *.c External/glad/src/gl.c)
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/External/glad/include)
+#file(GLOB BUTTERFLIES_SOURCES_C ${CMAKE_CURRENT_SOURCE_DIR} *.c External/glad/src/gl.c)
 
+add_subdirectory(External/glad)
 add_subdirectory(core)
 add_subdirectory(ExampleGame)
