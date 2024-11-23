@@ -1,4 +1,3 @@
-#include "pch.h"
 
 //#include "ComponentPool.h"
 //#include "Physics/RectangleCollider.h"

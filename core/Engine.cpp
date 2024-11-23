@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "Engine.h"
 
 //Creates window, Initializes low level systems and loads scene.

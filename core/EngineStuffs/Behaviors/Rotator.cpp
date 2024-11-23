@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "Rotator.h"
 #include "../GameObject.h"
 

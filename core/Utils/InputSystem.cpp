@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "InputSystem.h"
 
 std::vector<InputSystem*> InputSystem::_instances;

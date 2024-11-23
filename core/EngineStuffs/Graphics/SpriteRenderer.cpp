@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "SpriteRenderer.h"
 #include "glad/gl.h"
 #include <glm/glm.hpp>

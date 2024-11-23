@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "SceneLoader.h"
 #include "../EngineStuffs/GameObject.h"
 #include "../EngineStuffs/GameObjectManager.h"

@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "Behavior.h"
 
 void Behavior::addListener(GameEventType type)

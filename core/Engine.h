@@ -1,4 +1,3 @@
-#include "pch.h"
 #pragma once
 
 //Engine.h + cpp = The central game and all of its attachments.
@@ -44,7 +43,7 @@ enum AssetType
 
 };
 
-class Engine
+class DLLUSAGE Engine
 {
 public:
     static Engine* Game;

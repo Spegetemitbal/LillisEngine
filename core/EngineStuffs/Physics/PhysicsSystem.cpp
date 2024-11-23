@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "PhysicsSystem.h"
 #include "Utils/Events/CollisionEvent.h"
 

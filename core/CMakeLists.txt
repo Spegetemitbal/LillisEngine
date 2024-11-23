@@ -11,7 +11,8 @@ file(
         *.cpp
 )
 
-add_library(LillisLib SHARED ${CORE_INC} ${CORE_SRC})
+add_library(LillisLib SHARED ${CORE_INC} ${CORE_SRC}
+        pch.cpp)
 
 # if (WIN32) remove System/System_Win32.cpp and System/System_Win32.h
 IF(WIN32)
@@ -21,7 +22,7 @@ ENDIF(WIN32)
 
 find_package(OpenGL REQUIRED)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(LillisLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(
         LillisLib PUBLIC glm glfw glad
 )

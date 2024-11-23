@@ -11,8 +11,6 @@
 #define RESOURCE_MANAGER_H
 #endif
 
-#include "pch.h"
-
 #include "glad/gl.h"
 #include <filesystem>
 #include "EngineStuffs/Graphics/Texture.h"
