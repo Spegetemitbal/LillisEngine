@@ -11,6 +11,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <filesystem>
 
 // Instantiate static variables
 std::map<std::string, Texture2D>ResourceManager::Textures = std::map<std::string, Texture2D>();
@@ -124,4 +125,25 @@ Texture2D ResourceManager::loadTextureFromFile(const char* file, bool alpha)
     // and finally free image data
     stbi_image_free(data);
     return texture;
+}
+
+void ResourceManager::LoadTextureRecursive(const char* path, bool alpha) {
+    if (std::filesystem::exists(path)
+        && std::filesystem::is_directory(path)) {
+        // Loop through each item (file or subdirectory) in
+        // the directory
+        for (const auto& entry :
+             std::filesystem::recursive_directory_iterator(path)) {
+            if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".png" || entry.path().extension() == ".jpg")
+                {
+                //std::cout << entry.path().stem();
+                //paths.emplace_back(entry.path().filename());
+                Textures[entry.path().stem().string()] = loadTextureFromFile(entry.path().string().data(), alpha);
+                }
+             }
+        }
+    else {
+        // Handle the case where the directory doesn't exist
+        std::cerr << "Directory not found." << std::endl;
+    }
 }

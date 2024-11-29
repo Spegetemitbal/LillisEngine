@@ -109,16 +109,16 @@ void Engine::restartGame()
     //Game specifics
     p1 = WORLD->addObject(0, 0);
     p1->CreateCollider(40, 40, 0);
-    p1->SetSprite("p1");
+    p1->SetSprite("Player1");
     p1->CreatePlayerController();
 
     p2 = WORLD->addObject(0, 440);
-    p2->SetSprite("p2");
+    p2->SetSprite("Player2");
     p2->CreateCollider(40, 40, 1);
     p2->CreatePlayerController();
 
     GameObject* goal = WORLD->addObject(600, 220);
-    goal->SetSprite("goal");
+    goal->SetSprite("WinFlag");
     goal->CreateCollider(40, 40, 2);
 
     float pos = 100;
@@ -126,7 +126,7 @@ void Engine::restartGame()
     for (int i = 0; i < 3; i++)
     {
         GameObject* spinny = WORLD->addObject(300, pos);
-        spinny->SetSprite("enemy");
+        spinny->SetSprite("Angry");
         spinny->CreateCollider(40, 40, 3);
         Rotator* r = spinny->CreateRotator(ang);
         r->setBaseOffset(300, pos);
