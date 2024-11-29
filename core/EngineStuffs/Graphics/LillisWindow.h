@@ -17,6 +17,7 @@ public:
 			return false;
 		}
 		glfwMakeContextCurrent(window);
+		return true;
 	}
 
 	void DelWindow()

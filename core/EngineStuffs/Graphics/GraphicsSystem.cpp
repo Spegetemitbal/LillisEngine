@@ -35,12 +35,13 @@ bool GraphicsSystem::Init()
 		printf("GLFW failed to create window");
 		return false;
 	}
-	testCam = LILLIS::Camera(glm::vec2(0, 0), _width, _height);
 
-	//if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-	//	printf("GLAD Failed to load GL headers");
-	//	return false;
-	//}
+	if (!gladLoadGL(glfwGetProcAddress)) {
+		printf("GLAD Failed to load GL headers");
+		return false;
+	}
+
+	testCam = LILLIS::Camera(glm::vec2(0, 0), _width, _height);
 	
 	glfwSetErrorCallback(error_callback);
 
@@ -54,11 +55,11 @@ bool GraphicsSystem::Init()
 	// load textures
 
 	//For the love of god, move the sprite holder here.
-	ResourceManager::LoadTexture("Test.png", true, "face");
-	ResourceManager::LoadTexture("Angry.png", true, "enemy");
-	ResourceManager::LoadTexture("Player1.png", true, "p1");
-	ResourceManager::LoadTexture("Player2.png", true, "p2");
-	ResourceManager::LoadTexture("WinFlag.png", true, "goal");
+	ResourceManager::LoadTexture("assets/Test.png", true, "face");
+	ResourceManager::LoadTexture("assets/Angry.png", true, "enemy");
+	ResourceManager::LoadTexture("assets/Player1.png", true, "p1");
+	ResourceManager::LoadTexture("assets/Player2.png", true, "p2");
+	ResourceManager::LoadTexture("assets/WinFlag.png", true, "goal");
 	return true;
 }
 
