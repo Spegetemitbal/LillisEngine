@@ -1,5 +1,7 @@
 #include "Engine.h"
 
+#include "Utils/Timing.h"
+
 //Creates window, Initializes low level systems and loads scene.
 Engine::Engine()
 {
@@ -31,8 +33,7 @@ Engine::Engine()
     engine.gameInputs = DBG_NEW InputSystem(importantKeys);
     engine.gameInputs->setupKeyInputs(engine.graphics->GetWin());
 
-    engine.frame = 0;
-    engine.frameStart = glfwGetTime();
+    Timing::Init();
 
     WORLD = DBG_NEW GameObjectManager();  
 
@@ -84,16 +85,16 @@ void Engine::Run()
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&frameStep, engine, 0, true);
 #else
-    do
+    while (!engine.quit)
     {
-        //This logic is causing errors upon exiting!.
-        double now = glfwGetTime();
-        if (now - engine.frameStart >= 0.016)
+        Timing::SetTime();
+        if (Timing::realTime - Timing::frameStart >= Timing::realFrameRate)
         {
+            Timing::Tick();
             frameStep();
         }
         engine.quit = engine.graphics->isWindowOpen();
-    } while (!engine.quit);
+    }
 #endif
 
 }
@@ -140,10 +141,6 @@ void Engine::restartGame()
 //Occurs every frame, the 'content' of the game loop
 void Engine::frameStep()
 {
-    double now = glfwGetTime();
-
-    engine.frame++;
-    engine.frameStart = now;
 
     vector<Rotator*> rot = WORLD->getRotators();
 

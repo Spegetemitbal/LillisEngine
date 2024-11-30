@@ -11,8 +11,7 @@ file(
         *.cpp
 )
 
-add_library(LillisLib SHARED ${CORE_INC} ${CORE_SRC}
-        pch.cpp)
+add_library(LillisLib SHARED ${CORE_INC} ${CORE_SRC})
 
 # if (WIN32) remove System/System_Win32.cpp and System/System_Win32.h
 IF(WIN32)

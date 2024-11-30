@@ -12,12 +12,6 @@
 
 #define WORLD GameObjectManager::world
 
-#ifdef LILLISENG
-#define DLLUSAGE __declspec(dllexport)
-#else
-#define DLLUSAGE __declspec(dllimport)
-#endif
-
 
 struct EngineState
 {
@@ -25,10 +19,7 @@ struct EngineState
     InputSystem* gameInputs;
     LILLIS::System* system;
     PhysicsSystem* phys;
-    double frameStart;
     bool quit;
-    int frame;
-
     bool isEditor;
 };
 
