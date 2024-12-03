@@ -35,8 +35,14 @@ public:
 
 	}
 
+	//Inactive objects are wiped.
 	void SetActive(bool active);
+	static void Destroy(GameObject* object) {object->SetActive(false);};
 	bool GetActive() const { return isActive; };
+
+	//Whether the object is turned on or not
+	bool isEnabled = false;
+
 	//For cache efficiency, 
 	std::vector<Behavior> behaviors = std::vector<Behavior>();
 

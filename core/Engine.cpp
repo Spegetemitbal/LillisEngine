@@ -35,9 +35,7 @@ Engine::Engine()
 
     Timing::Init();
 
-    WORLD = DBG_NEW GameObjectManager();  
-
-    restartGame();
+    WORLD = DBG_NEW GameObjectManager();
 }
 
 //Clears everything
@@ -82,6 +80,7 @@ void Engine::LoadLevel(std::string Data)
 //Game loop
 void Engine::Run()
 {
+    restartGame();
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&frameStep, engine, 0, true);
 #else
@@ -217,39 +216,30 @@ std::string GetFileName(const char* path)
     return currentString;
 }
 
-//Call this once for each folder. If folder is not alphabetical, all hope be lost.
+//Call this once for each type of asset you'd like to import.
 void Engine::InjectAssets(const char* filePath, AssetType resourceType)
 {
-    std::vector<std::string> folder = std::vector<std::string>();
-    for (const auto& entry : fs::directory_iterator(filePath))
-    {
-        //std::cout << entry.path() << std::endl;
-        folder.push_back(GetFileName(entry.path().string().data()));
-    }
-
-    // The container must be sorted!
-    if (std::adjacent_find(folder.begin(), folder.end()) != folder.end())
-    {
-        std::cerr << "DUPLICATE FILES DETECTED" << '\n';
-        return;
-    }
-
     switch (resourceType)
     {
-    case SINGLEIMAGES:
-        break;
-    case SPRITESHEET:
-        break;
-    case SHADERS:
-        break;
-    case SOUNDS:
-        break;
-    default:
-        std::cerr << "INVALID ASSET INSERTION" << '\n';
-        break;
+        case SINGLEIMAGES:
+            ResourceManager::LoadTextureRecursive(filePath, true, false);
+            break;
+        case SPRITESHEET:
+            ResourceManager::LoadTextureRecursive(filePath, true, true);
+            break;
+        case SHADERS:
+            ResourceManager::LoadShaderRecursive(filePath);
+            break;
+        case SOUNDS:
+            std::cout << "Not implemented yet" << '\n';
+            break;
+        case DATA:
+            ResourceManager::LoadDataRecursive(filePath);
+            break;
+        default:
+            std::cerr << "INVALID ASSET INSERTION" << '\n';
+            break;
     }
-
-    std::cout << "Multiple asset injection not ready yet :(" << '\n';
 }
 
 void Engine::InjectSingleAsset(const char* filePath, AssetType resourceType)
@@ -258,18 +248,24 @@ void Engine::InjectSingleAsset(const char* filePath, AssetType resourceType)
 
     switch (resourceType)
     {
-    case SINGLEIMAGES:
-        break;
-    case SPRITESHEET:
-        break;
-    case SHADERS:
-        std::cerr << "SINGLE SHADER INSERTION PROHIBITED" << '\n';
-        break;
-    case SOUNDS:
-        break;
-    default:
-        std::cerr << "INVALID ASSET INSERTION" << '\n';
-        break;
+        case SINGLEIMAGES:
+            ResourceManager::LoadTexture(filePath, true, false);
+            break;
+        case SPRITESHEET:
+            ResourceManager::LoadTexture(filePath, true, true);
+            break;
+        case SHADERS:
+            std::cerr << "SINGLE SHADER INSERTION PROHIBITED" << '\n';
+            break;
+        case SOUNDS:
+            std::cout << "Not implemented yet" << '\n';
+            break;
+        case DATA:
+            ResourceManager::LoadData(filePath);
+            break;
+        default:
+            std::cerr << "INVALID ASSET INSERTION" << '\n';
+            break;
     }
 }
 

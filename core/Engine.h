@@ -9,6 +9,7 @@
 #include "Utils/InputSystem.h"
 #include "EngineStuffs/GameObjectManager.h"
 #include "System/System_Common.h"
+#include "Utils/ResourceManager.h"
 
 #define WORLD GameObjectManager::world
 
@@ -21,17 +22,6 @@ struct EngineState
     PhysicsSystem* phys;
     bool quit;
     bool isEditor;
-};
-
-namespace fs = std::filesystem;
-
-enum AssetType
-{
-    SINGLEIMAGES = 0,
-    SPRITESHEET,
-    SHADERS,
-    SOUNDS
-
 };
 
 class DLLUSAGE Engine

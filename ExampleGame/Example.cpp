@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
 	}
 	
 	//e->LoadLevel("Level.dat");
+	e->InjectAssets("assets", SINGLEIMAGES);
 	e->Run();
 
 	Engine::DestroyGameInstance();

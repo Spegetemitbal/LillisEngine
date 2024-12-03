@@ -13,6 +13,7 @@ namespace LILLIS
 		{
 			count = 20;
 			poolDir.reserve(count);
+			activeCheckDir.reserve(count);
 			mPool = DBG_NEW char[sizeof(Obj) * count];
 
 			size_t sizeToAllocate = sizeof(Obj);
@@ -44,6 +45,7 @@ namespace LILLIS
 		{
 			count = numComp;
 			poolDir.reserve(count);
+			activeCheckDir.reserve(count);
 			mPool = DBG_NEW char[sizeof(Obj) * count];
 
 			size_t sizeToAllocate = sizeof(Obj);
@@ -73,6 +75,7 @@ namespace LILLIS
 				ResizePool();
 			}
 			activeCheckDir[activeLine]->isActive = true;
+			activeCheckDir[activeLine]->isEnabled = true;
 			activeLine++;
 			return poolDir[activeLine - 1];
 		}
@@ -85,6 +88,7 @@ namespace LILLIS
 			{
 				int index = distance(poolDir.begin(), f);
 				activeCheckDir[index]->isActive = false;
+				activeCheckDir[index]->isEnabled = false;
 				numActive--;
 			}
 
@@ -100,6 +104,7 @@ namespace LILLIS
 			for (int i = 0; i < activeCheckDir.size(); i++)
 			{
 				activeCheckDir[i]->isActive = false;
+				activeCheckDir[i]->isEnabled = false;
 				activeCheckDir[i]->setControlledObject(nullptr);
 			}
 			activeLine = 0;
@@ -112,6 +117,7 @@ namespace LILLIS
 	private:
 
 		void SortPool() {}
+		void CompactPool() {}
 		void ResizePool()
 		{
 
@@ -155,8 +161,6 @@ namespace LILLIS
 			//size_t sizeToAllocate = sizeof(Obj);
 			return new (base)Obj();
 		}
-
-		bool isGameObj = false;
 
 		unsigned int activeLine = 0;
 		unsigned int numActive = 0;

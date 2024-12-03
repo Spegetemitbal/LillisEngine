@@ -68,7 +68,8 @@ public:
 
 private:
 
-	void SortPool() {}
+	void CompactPool() {}
+
 	void ResizePool()
 	{
 
@@ -105,8 +106,6 @@ private:
 	{
 		return new (base)GameObject();
 	}
-
-	bool isGameObj = false;
 
 	size_t sizeToAllocate = sizeof(GameObject);
 	unsigned int activeLine = 0;

@@ -15,6 +15,7 @@
 #include <filesystem>
 #include "EngineStuffs/Graphics/Texture.h"
 #include "EngineStuffs/Graphics/Shader.h"
+#include "Utils/FileDataWrapper.h"
 //#include "EngineStuffs/Audio/Sound.h"
 
 // A static singleton ResourceManager class that hosts several
@@ -25,6 +26,15 @@
 
 using namespace LILLIS;
 
+enum AssetType
+{
+    SINGLEIMAGES = 0,
+    SPRITESHEET,
+    SHADERS,
+    SOUNDS,
+    DATA
+};
+
 class ResourceManager
 {
 public:
@@ -33,15 +43,26 @@ public:
     //FOR THE LOVE OF ALL THAT IS HOLY, MOVE THIS ELSEWHERE!!!
 
     static std::map<std::string, Shader>    Shaders;
-    static std::map<std::string, Texture2D> Textures;
+    static std::map<std::string, Texture2D> SingleImages;
+    static std::map<std::string, Texture2D> SpriteSheets;
+    static std::map<std::string, FileDataWrapper> DataFiles;
+
     // loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
     static Shader    LoadShader(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile, std::string name);
     // retrieves a stored sader
     static Shader    GetShader(std::string name);
     // loads (and generates) a texture from file
-    static Texture2D LoadTexture(const char* file, bool alpha, std::string name);
-    // loads all textures
-    static void LoadTextureRecursive(const char* path, bool alpha);
+    static Texture2D LoadTexture(const char* file, bool alpha, bool isSpriteSheet);
+    // loads all textures in file
+    static void LoadTextureRecursive(const char* path, bool alpha, bool isSpriteSheet);
+    // loads all shaders in file
+    static void LoadShaderRecursive(const char* path);
+    // loads all Data resources in file
+    static void LoadDataRecursive(const char* path);
+    // loads single data
+    static void LoadData(const char* path);
+    // retrieves a file by name
+    static FileDataWrapper GetData(std::string name);
     // retrieves a stored texture
     static Texture2D GetTexture(std::string name);
     // properly de-allocates all loaded resources

@@ -12,10 +12,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <filesystem>
+#include <utility>
 
 // Instantiate static variables
-std::map<std::string, Texture2D>ResourceManager::Textures = std::map<std::string, Texture2D>();
+std::map<std::string, Texture2D>ResourceManager::SingleImages = std::map<std::string, Texture2D>();
 std::map<std::string, Shader>ResourceManager::Shaders = std::map<std::string, Shader>();
+std::map<std::string, Texture2D>ResourceManager::SpriteSheets = std::map<std::string, Texture2D>();
+std::map<std::string, FileDataWrapper>ResourceManager::DataFiles = std::map<std::string, FileDataWrapper>();
 
 
 Shader ResourceManager::LoadShader(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile, std::string name)
@@ -26,18 +29,40 @@ Shader ResourceManager::LoadShader(const char* vShaderFile, const char* fShaderF
 
 Shader ResourceManager::GetShader(std::string name)
 {
-    return Shaders[name];
+    if (Shaders.find(name) != Shaders.end())
+    {
+        return Shaders[name];
+    }
 }
 
-Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string name)
+Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, bool isSpriteSheet)
 {
-    Textures[name] = loadTextureFromFile(file, alpha);
-    return Textures[name];
+    std::filesystem::path path(file);
+
+    if (isSpriteSheet)
+    {
+        SpriteSheets[path.stem().string()] = loadTextureFromFile(file, alpha);
+        return SpriteSheets[path.stem().string()];
+    } else
+    {
+        SingleImages[path.stem().string()] = loadTextureFromFile(file, alpha);
+        return SingleImages[path.stem().string()];
+    }
 }
 
 Texture2D ResourceManager::GetTexture(std::string name)
 {
-    return Textures[name];
+    if (SingleImages.find(name) != SingleImages.end())
+    {
+        return SingleImages[name];
+    } else if (SpriteSheets.find(name) != SpriteSheets.end())
+    {
+        return SpriteSheets[name];
+    } else
+    {
+        std::cout << name << " not found" << std::endl;
+        return Texture2D();
+    }
 }
 
 void ResourceManager::Clear()
@@ -46,7 +71,7 @@ void ResourceManager::Clear()
     for (auto iter : Shaders)
         glDeleteProgram(iter.second.ID);
     // (properly) delete all textures
-    for (auto iter : Textures)
+    for (auto iter : SingleImages)
         glDeleteTextures(1, &iter.second.ID);
 }
 
@@ -127,18 +152,24 @@ Texture2D ResourceManager::loadTextureFromFile(const char* file, bool alpha)
     return texture;
 }
 
-void ResourceManager::LoadTextureRecursive(const char* path, bool alpha) {
+void ResourceManager::LoadTextureRecursive(const char* path, bool alpha, bool isSpriteSheet) {
     if (std::filesystem::exists(path)
         && std::filesystem::is_directory(path)) {
         // Loop through each item (file or subdirectory) in
         // the directory
         for (const auto& entry :
              std::filesystem::recursive_directory_iterator(path)) {
-            if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".png" || entry.path().extension() == ".jpg")
+            if (std::filesystem::is_regular_file(entry) && entry.path().extension().string() == ".png" || entry.path().extension().string() == ".jpg")
                 {
                 //std::cout << entry.path().stem();
                 //paths.emplace_back(entry.path().filename());
-                Textures[entry.path().stem().string()] = loadTextureFromFile(entry.path().string().data(), alpha);
+                if (isSpriteSheet)
+                {
+                    SpriteSheets[entry.path().stem().string()] = loadTextureFromFile(entry.path().string().data(), alpha);
+                } else
+                {
+                    SingleImages[entry.path().stem().string()] = loadTextureFromFile(entry.path().string().data(), alpha);
+                }
                 }
              }
         }
@@ -147,3 +178,124 @@ void ResourceManager::LoadTextureRecursive(const char* path, bool alpha) {
         std::cerr << "Directory not found." << std::endl;
     }
 }
+
+void ResourceManager::LoadShaderRecursive(const char* path)
+{
+    std::vector<std::filesystem::path> shaders = std::vector<std::filesystem::path>();
+    std::vector<std::string> shaderNames = std::vector<std::string>();
+    std::multimap<std::string, std::filesystem::path> shaderChunks = std::multimap<std::string, std::filesystem::path>();
+    if (std::filesystem::exists(path)
+    && std::filesystem::is_directory(path))
+    {
+        // Loop through each item (file or subdirectory) in
+        // the directory
+        for (const auto& entry :
+             std::filesystem::recursive_directory_iterator(path))
+        {
+            if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".frag"
+                || entry.path().extension() == ".vert" || entry.path().extension() == ".geom")
+            {
+                shaders.push_back(entry.path());
+            }
+        }
+    }
+    else {
+        // Handle the case where the directory doesn't exist
+        std::cerr << "Directory not found." << std::endl;
+    }
+
+    //First sort by names
+    for (int i = 0; i < shaders.size(); i++)
+    {
+        if (std::find(shaderNames.begin(), shaderNames.end(), shaders[i].stem().string()) == shaderNames.end())
+        {
+            shaderNames.push_back(shaders[i].stem().string());
+        }
+        shaderChunks.insert(std::pair<std::string, std::filesystem::path>(shaders[i].stem().string(), shaders[i]));
+    }
+
+    //Then determine if there are sufficient shaders and input!
+    for (int i = 0; i < shaderNames.size(); i++)
+    {
+        std::string name = shaderNames[i];
+
+        std::filesystem::path fragment, vertex, geometry;
+        auto range = shaderChunks.equal_range(name);
+        for (auto j = range.first; j != range.second; ++j)
+        {
+            if (j->second.extension().string() == ".frag")
+            {
+                fragment = j->second;
+            } else if (j->second.extension().string() == ".vert")
+            {
+                vertex = j->second;
+            } else
+            {
+                geometry = j->second;
+            }
+        }
+
+        if (!fragment.empty() && !vertex.empty())
+        {
+            if (!geometry.empty())
+            {
+                loadShaderFromFile(vertex.string().c_str(), fragment.string().c_str(), geometry.string().c_str());
+            } else
+            {
+                loadShaderFromFile(vertex.string().c_str(), fragment.string().c_str(), nullptr);
+            }
+        } else
+        {
+            std::cout << "Shader not found for pipeline: " << name << std::endl;
+        }
+
+    }
+
+
+}
+
+FileDataWrapper ResourceManager::GetData(std::string name)
+{
+    if (DataFiles.find(name) != DataFiles.end())
+    {
+        return DataFiles[name];
+    }
+    //Add an empty return value ig...
+}
+
+//Currently will load anything you want, use sparingly.
+void ResourceManager::LoadData(const char *path)
+{
+    std::filesystem::path resourcePath(path);
+    try
+    {
+        DataFiles[resourcePath.stem().string()] = FileDataWrapper(path);
+    } catch (...)
+    {
+        std::cerr << "Invalid File" << std::endl;
+    }
+}
+
+
+//Will technically load... anything. Please keep your data files separate from other assets.
+void ResourceManager::LoadDataRecursive(const char *path)
+{
+    if (std::filesystem::exists(path)
+        && std::filesystem::is_directory(path)) {
+        // Loop through each item (file or subdirectory) in
+        // the directory
+        for (const auto& entry :
+             std::filesystem::recursive_directory_iterator(path))
+            {
+                if (std::filesystem::is_regular_file(entry))
+                {
+                    DataFiles[entry.path().stem().string()] = FileDataWrapper(entry.path().string().c_str());
+                }
+            }
+        }
+    else {
+        // Handle the case where the directory doesn't exist
+        std::cerr << "Directory not found." << std::endl;
+    }
+}
+

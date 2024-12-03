@@ -55,12 +55,7 @@ bool GraphicsSystem::Init()
 	// load textures
 
 	//For the love of god, move the sprite holder here.
-	ResourceManager::LoadTextureRecursive("assets",true);
-	//ResourceManager::LoadTexture("assets/Test.png", true, "face");
-	//ResourceManager::LoadTexture("assets/Angry.png", true, "enemy");
-	//ResourceManager::LoadTexture("assets/Player1.png", true, "p1");
-	//ResourceManager::LoadTexture("assets/Player2.png", true, "p2");
-	//ResourceManager::LoadTexture("assets/WinFlag.png", true, "goal");
+	//ResourceManager::LoadTextureRecursive("assets",true,false);
 	return true;
 }
 
