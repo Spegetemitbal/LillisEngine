@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ComponentPool.h"
-#include "GameObjPool.h"
+#include "Memory/ComponentPool.h"
+#include "Memory/GameObjPool.h"
 #include "Behaviors/BehaviorSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Graphics/GraphicsSystem.h"
