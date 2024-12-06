@@ -1,8 +1,9 @@
 #pragma once
 #include "GameObject.h"
+#include "MemoryPool.h"
 #include <cstring>
 
-class GameObjPool
+class GameObjPool : public MemoryPool<GameObject>
 {
 public:
 	GameObjPool()
@@ -20,11 +21,8 @@ public:
 			base += sizeToAllocate;
 		}
 	}
-	~GameObjPool()
-	{
-		delete[] mPool;
-		poolDir.clear();
-	}
+	~GameObjPool() = default;
+
 	GameObjPool(unsigned int numComp)
 	{
 		count = numComp;
@@ -64,13 +62,11 @@ public:
 
 	unsigned int GetActiveLine() { return activeLine; };
 
-	std::vector<GameObject*> poolDir;
+protected:
 
-private:
+	void CompactPool() override {}
 
-	void CompactPool() {}
-
-	void ResizePool()
+	void ResizePool() override
 	{
 
 		poolDir.resize(poolDir.size() * 2);
@@ -102,14 +98,6 @@ private:
 		mPool = tempPool;
 	}
 
-	GameObject* AllocateObj(char* base)
-	{
-		return new (base)GameObject();
-	}
-
 	size_t sizeToAllocate = sizeof(GameObject);
 	unsigned int activeLine = 0;
-	unsigned int numActive = 0;
-	unsigned int count = 0;
-	char* mPool = nullptr;
 };

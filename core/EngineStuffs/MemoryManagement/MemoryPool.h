@@ -40,8 +40,10 @@ protected:
 
     std::map<int , Obj*> objMap;
 
-    virtual void SortPool() {};
+    virtual void CompactPool() {};
     virtual void ResizePool() = 0;
+    unsigned int numActive = 0;
+    unsigned int count = 0;
     char* mPool = nullptr;
 };
 

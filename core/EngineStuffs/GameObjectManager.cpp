@@ -8,9 +8,9 @@
 GameObjectManager::GameObjectManager()
 {
 	objects = DBG_NEW GameObjPool(10);
-	colliderPool = DBG_NEW LILLIS::ComponentPool<RectangleCollider>(10);
-	playerPool = DBG_NEW LILLIS::ComponentPool<PlayerController>(10);
-	rotatorPool = DBG_NEW LILLIS::ComponentPool<Rotator>(10);
+	colliderPool = DBG_NEW ComponentPool<RectangleCollider>(10);
+	playerPool = DBG_NEW ComponentPool<PlayerController>(10);
+	rotatorPool = DBG_NEW ComponentPool<Rotator>(10);
 }
 
 GameObjectManager::~GameObjectManager() 

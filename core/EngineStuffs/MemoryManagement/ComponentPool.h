@@ -1,60 +1,59 @@
 #pragma once
 #include "Component.h"
+#include "MemoryPool.h"
 #include <cstring>
 
-namespace LILLIS
+template <typename Comp>
+class ComponentPool : public MemoryPool<Comp>
 {
-	template <typename Obj>
-	class ComponentPool
+public:
+	//So apparently template objects require all functions to be written in the .h
+	ComponentPool()
 	{
-	public:
-		//So apparently template objects require all functions to be written in the .h
-		ComponentPool()
+		MemoryPool<Comp>::count = 20;
+		poolDir.reserve(count);
+		activeCheckDir.reserve(MemoryPool<Comp>::count);
+		MemoryPool<Comp>::mPool = DBG_NEW char[sizeof(Comp) * count];
+
+		size_t sizeToAllocate = sizeof(Comp);
+		char* base = MemoryPool<Comp>::mPool;
+		try
 		{
-			count = 20;
-			poolDir.reserve(count);
-			activeCheckDir.reserve(count);
-			mPool = DBG_NEW char[sizeof(Obj) * count];
-
-			size_t sizeToAllocate = sizeof(Obj);
-			char* base = mPool;
-			try
+			for (int i = 0; i < count; i++)
 			{
-				for (int i = 0; i < count; i++)
-				{
-					Obj* toScoot = AllocateObj(base);
-					activeCheckDir.push_back(toScoot);
-					poolDir.push_back(toScoot);
+				Comp* toScoot = MemoryPool<Comp>::AllocateObj(base);
+				activeCheckDir.push_back(toScoot);
+				poolDir.push_back(toScoot);
 
-					base += sizeToAllocate;
-				}
-			}
-			catch (...)
-			{
-				std::cout << "Non Component Type!, Failure imminent.";
-				exit(1);
+				base += sizeToAllocate;
 			}
 		}
-		~ComponentPool() 
-		{ 
-			delete[] mPool; 
+		catch (...)
+		{
+			std::cout << "Non Component Type!, Failure imminent.";
+			exit(1);
+		}
+	}
+	~ComponentPool()
+		{
+			delete[] MemoryPool<Comp>::mPool;
 			activeCheckDir.clear();
 			poolDir.clear();
 		}
 		ComponentPool(unsigned int numComp)
 		{
-			count = numComp;
+			MemoryPool<Comp>::count = numComp;
 			poolDir.reserve(count);
-			activeCheckDir.reserve(count);
-			mPool = DBG_NEW char[sizeof(Obj) * count];
+			activeCheckDir.reserve(MemoryPool<Comp>::count);
+			MemoryPool<Comp>::mPool = DBG_NEW char[sizeof(Comp) * count];
 
-			size_t sizeToAllocate = sizeof(Obj);
-			char* base = mPool;
+			size_t sizeToAllocate = sizeof(Comp);
+			char* base = MemoryPool<Comp>::mPool;
 			try
 			{
 				for (int i = 0; i < count; i++)
 				{
-					Obj* toScoot = AllocateObj(base);
+					Comp* toScoot = MemoryPool<Comp>::AllocateObj(base);
 					activeCheckDir.push_back(toScoot);
 					poolDir.push_back(toScoot);
 
@@ -68,7 +67,7 @@ namespace LILLIS
 			}
 		}
 
-		Obj* AddComponent()
+		Comp* AddComponent()
 		{
 			if (activeLine == count)
 			{
@@ -80,7 +79,7 @@ namespace LILLIS
 			return poolDir[activeLine - 1];
 		}
 
-		void DestroyComponent(Obj& comp)
+		void DestroyComponent(Comp& comp)
 		{
 			std::iterator f = std::find(poolDir.begin(), poolDir.end(), comp);
 
@@ -89,10 +88,10 @@ namespace LILLIS
 				int index = distance(poolDir.begin(), f);
 				activeCheckDir[index]->isActive = false;
 				activeCheckDir[index]->isEnabled = false;
-				numActive--;
+				MemoryPool<Comp>::numActive--;
 			}
 
-			if (numActive / activeLine < 0.5)
+			if (MemoryPool<Comp>::numActive / activeLine < 0.5)
 			{
 				SortPool();
 			}
@@ -112,30 +111,30 @@ namespace LILLIS
 
 		unsigned int GetActiveLine() { return activeLine; };
 
-		std::vector<Obj*> poolDir;
+		std::vector<Comp*> poolDir;
 
-	private:
+	protected:
 
 		void SortPool() {}
-		void CompactPool() {}
-		void ResizePool()
+		void CompactPool() override {}
+		void ResizePool() override
 		{
 
 			poolDir.resize(poolDir.size() * 2);
 			activeCheckDir.resize(activeCheckDir.size() * 2);
 			poolDir.clear();
 			activeCheckDir.clear();
-			char* tempPool = DBG_NEW char[2 * sizeof(Obj) * count];
+			char* tempPool = DBG_NEW char[2 * sizeof(Comp) * count];
 			//std::copy(std::begin(mPool), std::end(mPool), std::begin(tempPool));
-			std::strcpy(mPool, tempPool);
-			size_t sizeToAllocate = sizeof(Obj);
-			char* base = tempPool + (sizeof(Obj) * count);
+			std::strcpy(MemoryPool<Comp>::mPool, tempPool);
+			size_t sizeToAllocate = sizeof(Comp);
+			char* base = tempPool + (sizeof(Comp) * count);
 			char* start = tempPool;
 
 			for (int i = 0; i < count; i++)
 			{
 				//Probably don't do this much...
-				Obj* toScoot = reinterpret_cast<Obj*>(start);
+				Comp* toScoot = reinterpret_cast<Comp*>(start);
 				activeCheckDir.push_back(toScoot);
 				poolDir.push_back(toScoot);
 				start += sizeToAllocate;
@@ -143,28 +142,19 @@ namespace LILLIS
 
 			for (int i = 0; i < count; i++)
 			{
-				Obj* toScoot = AllocateObj(base);
+				Comp* toScoot = MemoryPool<Comp>::AllocateObj(base);
 				activeCheckDir.push_back(toScoot);
 				poolDir.push_back(toScoot);
 
 				base += sizeToAllocate;
 			}
 			count *= 2;
-			delete[] mPool;
-			mPool = tempPool;
+			delete[] MemoryPool<Comp>::mPool;
+			MemoryPool<Comp>::mPool = tempPool;
 		}
 
 		std::vector<Component*> activeCheckDir;
 
-		Obj* AllocateObj(char* base)
-		{
-			//size_t sizeToAllocate = sizeof(Obj);
-			return new (base)Obj();
-		}
-
 		unsigned int activeLine = 0;
-		unsigned int numActive = 0;
-		unsigned int count = 0;
-		char* mPool = nullptr;
-	};
-}
+};
+

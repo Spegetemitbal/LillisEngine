@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Memory/ComponentPool.h"
-#include "Memory/GameObjPool.h"
+#include "MemoryManagement/ComponentPool.h"
+#include "MemoryManagement/GameObjPool.h"
 #include "Behaviors/BehaviorSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Graphics/GraphicsSystem.h"
@@ -48,9 +48,9 @@ public:
 
 private:
 	GameObjPool* objects;
-	LILLIS::ComponentPool<Rotator>* rotatorPool;
-	LILLIS::ComponentPool<PlayerController>* playerPool;
-	LILLIS::ComponentPool<RectangleCollider>* colliderPool;
+	ComponentPool<Rotator>* rotatorPool;
+	ComponentPool<PlayerController>* playerPool;
+	ComponentPool<RectangleCollider>* colliderPool;
 };
 
 //Note that INTS in C++ can hold 4 characters instead of a number, pretty sweet.
