@@ -4,8 +4,8 @@
 class RectangleCollider : public Component
 {
 public:
-	RectangleCollider() { colliderHeight = 0; colliderWidth = 0; }
-	RectangleCollider(float w, float h, int id) { colliderHeight = h; colliderWidth = w; tag = id; }
+	explicit RectangleCollider() { colliderHeight = 0; colliderWidth = 0; }
+	RectangleCollider(float w, float h, int t) { colliderHeight = h; colliderWidth = w; tag = t; }
 
 	static Component* CreateRectangleCollider(GameObject* G, int* param);
 

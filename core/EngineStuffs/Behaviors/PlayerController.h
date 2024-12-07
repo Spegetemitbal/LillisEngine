@@ -12,8 +12,6 @@ public:
 		addListener(INPUT_EVENT);
 	}
 
-	PlayerController(const PlayerController& pc) = delete;
-
 	~PlayerController() {};
 
 	static Component* CreatePlayerController(GameObject* G, int* param);

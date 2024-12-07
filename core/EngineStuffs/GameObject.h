@@ -8,6 +8,7 @@ class GameObject
 {
 public:
 	//Init all components to nullptr
+
 	GameObject()
 	{
 		transform = Transform();
@@ -15,6 +16,9 @@ public:
 		collider = nullptr;
 		player = nullptr;
 		rotator = nullptr;
+
+		entityID = nextID;
+		nextID++;
 	};
 
 	//Probs make these private my guy.
@@ -28,6 +32,9 @@ public:
 		collider = nullptr;
 		player = nullptr;
 		rotator = nullptr;
+
+		entityID = nextID;
+		nextID++;
 	};
 
 	~GameObject()
@@ -51,6 +58,8 @@ public:
 	PlayerController* CreatePlayerController();
 	Rotator* CreateRotator(double angle);
 
+	unsigned int GetId() const {return entityID;};
+
 	size_t SerializeTransform(char* buffer, size_t bufSize);
 	size_t DeSerializeTransform(char* buffer, size_t bufSize);
 
@@ -68,5 +77,6 @@ protected:
 	Rotator* rotator = nullptr;
 
 	bool isActive = false;
-	int entityID = 0;
+	unsigned int entityID = 0;
+	static unsigned int nextID;
 };

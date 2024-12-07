@@ -7,6 +7,9 @@
 class Behavior : public Component
 {
 public:
+
+	Behavior() = delete;
+
 	Behavior(std::string name)
 	{
 		BehaviorName = name;
@@ -42,7 +45,6 @@ public:
 	//virtual void Update() = 0;
 
 private:
-	Behavior() {};
 	bool isStatic = false;
 	std::string BehaviorName = "";
 	int BehaviorID = 0;

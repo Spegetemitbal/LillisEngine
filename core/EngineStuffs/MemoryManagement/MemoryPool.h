@@ -43,7 +43,7 @@ protected:
     virtual void CompactPool() {};
     virtual void ResizePool() = 0;
     unsigned int numActive = 0;
-    unsigned int count = 0;
+    unsigned int mCount = 0;
     char* mPool = nullptr;
 };
 

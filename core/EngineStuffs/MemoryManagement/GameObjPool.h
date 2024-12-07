@@ -8,16 +8,16 @@ class GameObjPool : public MemoryPool<GameObject>
 public:
 	GameObjPool()
 	{
-		count = 20;
-		poolDir.reserve(count);
-		mPool = DBG_NEW char[sizeToAllocate * count];
+		mCount = 20;
+		poolDir.reserve(mCount);
+		mPool = DBG_NEW char[sizeToAllocate * mCount];
 
 		char* base = mPool;
-		for (int i = 0; i < count; i++)
+		for (int i = 0; i < mCount; i++)
 		{
 			GameObject* toScoot = AllocateObj(base);
 			poolDir.push_back(toScoot);
-
+			objMap.emplace(toScoot->GetId(), toScoot);
 			base += sizeToAllocate;
 		}
 	}
@@ -25,29 +25,47 @@ public:
 
 	GameObjPool(unsigned int numComp)
 	{
-		count = numComp;
-		poolDir.reserve(count);
-		mPool = DBG_NEW char[sizeToAllocate * count];
+		mCount = numComp;
+		poolDir.reserve(mCount);
+		mPool = DBG_NEW char[sizeToAllocate * mCount];
 
 		char* base = mPool;
-		for (int i = 0; i < count; i++)
+		for (int i = 0; i < mCount; i++)
 		{
 			GameObject* toScoot = AllocateObj(base);
 			poolDir.push_back(toScoot);
-
+			objMap.emplace(toScoot->GetId(), toScoot);
 			base += sizeToAllocate;
 		}
 	}
 
 	GameObject* AddObject()
 	{
-		if (activeLine == count)
+		if (activeLine == mCount)
 		{
 			ResizePool();
 		}
 		activeLine++;
-		poolDir[activeLine - 1]->SetActive(true);
-		return poolDir[activeLine - 1];
+		poolDir.back()->SetActive(true);
+		return poolDir.back();
+	}
+
+	void DestroyObject(GameObject* obj)
+	{
+		auto f = std::find(poolDir.begin(), poolDir.end(), obj);
+
+		if (f != poolDir.end())
+		{
+			size_t index = distance(poolDir.begin(), f);
+			poolDir[index]->SetActive(false);
+			poolDir[index]->isEnabled = false;
+			--numActive;
+		}
+
+		if (numActive / activeLine < 0.5)
+		{
+			CompactPool();
+		}
 	}
 
 	//Wipes the pool, doesn't do so on the Object's side
@@ -64,38 +82,77 @@ public:
 
 protected:
 
-	void CompactPool() override {}
+	//Two finger compaction
+	void CompactPool() override
+	{
+		size_t freeSpace = 0;
+		size_t scan = activeLine;
+
+		while (freeSpace < scan)
+		{
+			while (poolDir[freeSpace]->GetActive() == true && freeSpace < scan)
+			{
+				freeSpace++;
+			}
+
+			while (poolDir[scan]->GetActive() == false && freeSpace < scan)
+			{
+				scan--;
+			}
+
+			if (freeSpace < scan)
+			{
+				*poolDir[freeSpace] = *poolDir[scan];
+				poolDir[scan]->SetActive(false);
+				activeLine--;
+			}
+		}
+	}
 
 	void ResizePool() override
 	{
-
+		//Clear previous data (that isn't needed)
+		objMap.clear();
 		poolDir.resize(poolDir.size() * 2);
+		unsigned int preActiveLine = activeLine;
+		activeLine = 0;
+		vector<GameObject*> tempDir(poolDir);
 		poolDir.clear();
-		char* tempPool = DBG_NEW char[2 * sizeof(GameObject) * count];
-		//std::copy(std::begin(mPool), std::end(mPool), std::begin(tempPool));
-		std::strcpy(mPool, tempPool);
+
+		//Make new pool to copy things over to.
+		char* tempPool = DBG_NEW char[2 * sizeof(GameObject) * mCount];
 		size_t sizeToAllocate = sizeof(GameObject);
-		char* base = tempPool + (sizeof(GameObject) * count);
-		char* start = tempPool;
 
-		for (int i = 0; i < count; i++)
-		{
-			//Probably don't do this much...
-			GameObject* toScoot = reinterpret_cast<GameObject*>(start);
-			poolDir.push_back(toScoot);
-			start += sizeToAllocate;
-		}
-
-		for (int i = 0; i < count; i++)
+		//Populate New Pool
+		char* base = tempPool;
+		for (int i = 0; i < mCount * 2; i++)
 		{
 			GameObject* toScoot = AllocateObj(base);
 			poolDir.push_back(toScoot);
-
 			base += sizeToAllocate;
 		}
-		count *= 2;
+
+		//Copy all active objects over from previous pool to new pool.
+		int nextSpace = 0;
+		for (int i = 0; i < preActiveLine; i++)
+		{
+			if (tempDir[i]->GetActive() == true)
+			{
+				*poolDir[nextSpace] = *tempDir[i];
+				nextSpace++;
+				activeLine++;
+			}
+		}
+
+		//Final swap over.
+		mCount *= 2;
 		delete[] mPool;
 		mPool = tempPool;
+		//Reload Map
+		for (int i = 0; i < mCount; i++)
+		{
+			objMap.emplace(poolDir[i]->GetId(), poolDir[i]);
+		}
 	}
 
 	size_t sizeToAllocate = sizeof(GameObject);

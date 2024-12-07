@@ -73,3 +73,5 @@ size_t GameObject::DeSerializeTransform(char* buffer, size_t bufSize)
 
 	return bytes_read;
 }
+
+unsigned int GameObject::nextID = 0;

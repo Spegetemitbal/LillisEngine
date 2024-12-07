@@ -3,6 +3,8 @@
 #include "MemoryPool.h"
 #include <cstring>
 
+#define POOL_PARENT MemoryPool<Comp>
+
 template <typename Comp>
 class ComponentPool : public MemoryPool<Comp>
 {
@@ -10,21 +12,21 @@ public:
 	//So apparently template objects require all functions to be written in the .h
 	ComponentPool()
 	{
-		MemoryPool<Comp>::count = 20;
-		poolDir.reserve(count);
-		activeCheckDir.reserve(MemoryPool<Comp>::count);
-		MemoryPool<Comp>::mPool = DBG_NEW char[sizeof(Comp) * count];
+		POOL_PARENT::mCount = 20;
+		POOL_PARENT::poolDir.reserve(POOL_PARENT::mCount);
+		activeCheckDir.reserve(POOL_PARENT::mCount);
+		POOL_PARENT::mPool = DBG_NEW char[sizeof(Comp) * POOL_PARENT::mCount];
 
 		size_t sizeToAllocate = sizeof(Comp);
-		char* base = MemoryPool<Comp>::mPool;
+		char* base = POOL_PARENT::mPool;
 		try
 		{
 			for (int i = 0; i < count; i++)
 			{
-				Comp* toScoot = MemoryPool<Comp>::AllocateObj(base);
+				Comp* toScoot = POOL_PARENT::AllocateObj(base);
 				activeCheckDir.push_back(toScoot);
-				poolDir.push_back(toScoot);
-
+				POOL_PARENT::poolDir.push_back(toScoot);
+				POOL_PARENT::objMap.emplace(activeCheckDir.back()->GetId(), toScoot);
 				base += sizeToAllocate;
 			}
 		}
@@ -36,27 +38,27 @@ public:
 	}
 	~ComponentPool()
 		{
-			delete[] MemoryPool<Comp>::mPool;
+			//delete[] MemoryPool<Comp>::mPool;
 			activeCheckDir.clear();
-			poolDir.clear();
+			//poolDir.clear();
 		}
 		ComponentPool(unsigned int numComp)
 		{
-			MemoryPool<Comp>::count = numComp;
-			poolDir.reserve(count);
-			activeCheckDir.reserve(MemoryPool<Comp>::count);
-			MemoryPool<Comp>::mPool = DBG_NEW char[sizeof(Comp) * count];
+			POOL_PARENT::mCount = numComp;
+			POOL_PARENT::poolDir.reserve(POOL_PARENT::mCount);
+			activeCheckDir.reserve(POOL_PARENT::mCount);
+			POOL_PARENT::mPool = DBG_NEW char[sizeof(Comp) * POOL_PARENT::mCount];
 
 			size_t sizeToAllocate = sizeof(Comp);
-			char* base = MemoryPool<Comp>::mPool;
+			char* base = POOL_PARENT::mPool;
 			try
 			{
-				for (int i = 0; i < count; i++)
+				for (int i = 0; i < POOL_PARENT::mCount; i++)
 				{
-					Comp* toScoot = MemoryPool<Comp>::AllocateObj(base);
+					Comp* toScoot = POOL_PARENT::AllocateObj(base);
 					activeCheckDir.push_back(toScoot);
-					poolDir.push_back(toScoot);
-
+					POOL_PARENT::poolDir.push_back(toScoot);
+					POOL_PARENT::objMap.emplace(activeCheckDir.back()->GetId(), toScoot);
 					base += sizeToAllocate;
 				}
 			}
@@ -69,31 +71,33 @@ public:
 
 		Comp* AddComponent()
 		{
-			if (activeLine == count)
+			if (activeLine == POOL_PARENT::mCount)
 			{
 				ResizePool();
 			}
 			activeCheckDir[activeLine]->isActive = true;
 			activeCheckDir[activeLine]->isEnabled = true;
 			activeLine++;
-			return poolDir[activeLine - 1];
+			++POOL_PARENT::numActive;
+			return POOL_PARENT::poolDir.back();
 		}
 
 		void DestroyComponent(Comp& comp)
 		{
-			std::iterator f = std::find(poolDir.begin(), poolDir.end(), comp);
+			auto f = std::find(POOL_PARENT::poolDir.begin(), POOL_PARENT::poolDir.end(), comp);
 
-			if (f != poolDir.end())
+			if (f != POOL_PARENT::poolDir.end())
 			{
-				int index = distance(poolDir.begin(), f);
+				size_t index = distance(POOL_PARENT::poolDir.begin(), f);
 				activeCheckDir[index]->isActive = false;
 				activeCheckDir[index]->isEnabled = false;
-				MemoryPool<Comp>::numActive--;
+				--POOL_PARENT::numActive;
 			}
 
-			if (MemoryPool<Comp>::numActive / activeLine < 0.5)
+			//Maybe find a better time to call this?
+			if (POOL_PARENT::numActive / activeLine < 0.5)
 			{
-				SortPool();
+				CompactPool();
 			}
 		}
 
@@ -102,6 +106,7 @@ public:
 		{
 			for (int i = 0; i < activeCheckDir.size(); i++)
 			{
+				POOL_PARENT::objMap.clear();
 				activeCheckDir[i]->isActive = false;
 				activeCheckDir[i]->isEnabled = false;
 				activeCheckDir[i]->setControlledObject(nullptr);
@@ -111,46 +116,87 @@ public:
 
 		unsigned int GetActiveLine() { return activeLine; };
 
-		std::vector<Comp*> poolDir;
-
 	protected:
 
-		void SortPool() {}
-		void CompactPool() override {}
+		void SortPool()
+		{
+		}
+		//Two finger compaction
+		void CompactPool() override
+		{
+			size_t freeSpace = 0;
+			size_t scan = activeLine;
+
+			while (freeSpace < scan)
+			{
+				while (activeCheckDir[freeSpace]->isActive == true && freeSpace < scan)
+				{
+					freeSpace++;
+				}
+
+				while (activeCheckDir[scan]->isActive == false && freeSpace < scan)
+				{
+					scan--;
+				}
+
+				if (freeSpace < scan)
+				{
+					*activeCheckDir[freeSpace] = *activeCheckDir[scan];
+					activeCheckDir[scan]->isActive = false;
+					activeLine--;
+				}
+			}
+		}
 		void ResizePool() override
 		{
-
-			poolDir.resize(poolDir.size() * 2);
+			//Clear previous data (that isn't needed)
+			POOL_PARENT::objMap.clear();
+			POOL_PARENT::poolDir.resize(POOL_PARENT::poolDir.size() * 2);
 			activeCheckDir.resize(activeCheckDir.size() * 2);
-			poolDir.clear();
-			activeCheckDir.clear();
-			char* tempPool = DBG_NEW char[2 * sizeof(Comp) * count];
-			//std::copy(std::begin(mPool), std::end(mPool), std::begin(tempPool));
-			std::strcpy(MemoryPool<Comp>::mPool, tempPool);
+			unsigned int preActiveLine = activeLine;
+			activeLine = 0;
+			vector<Comp*> tempDir(POOL_PARENT::poolDir);
+			POOL_PARENT::poolDir.clear();
+
+			//Make new pool to copy things over to.
+			char* tempPool = DBG_NEW char[2 * sizeof(Comp) * POOL_PARENT::mCount];
 			size_t sizeToAllocate = sizeof(Comp);
-			char* base = tempPool + (sizeof(Comp) * count);
-			char* start = tempPool;
 
-			for (int i = 0; i < count; i++)
+			//Populate New Pool
+			char* base = tempPool;
+			for (int i = 0; i < POOL_PARENT::mCount * 2; i++)
 			{
-				//Probably don't do this much...
-				Comp* toScoot = reinterpret_cast<Comp*>(start);
+				Comp* toScoot = POOL_PARENT::AllocateObj(base);
+				POOL_PARENT::poolDir.push_back(toScoot);
 				activeCheckDir.push_back(toScoot);
-				poolDir.push_back(toScoot);
-				start += sizeToAllocate;
-			}
-
-			for (int i = 0; i < count; i++)
-			{
-				Comp* toScoot = MemoryPool<Comp>::AllocateObj(base);
-				activeCheckDir.push_back(toScoot);
-				poolDir.push_back(toScoot);
-
 				base += sizeToAllocate;
 			}
-			count *= 2;
-			delete[] MemoryPool<Comp>::mPool;
-			MemoryPool<Comp>::mPool = tempPool;
+
+			//Copy all active objects over from previous pool to new pool.
+			int nextSpace = 0;
+			for (int i = 0; i < preActiveLine; i++)
+			{
+				if (activeCheckDir[i]->isActive == true)
+				{
+					*POOL_PARENT::poolDir[nextSpace] = *tempDir[i];
+					nextSpace++;
+					activeLine++;
+				}
+			}
+
+			//Vector swap
+			activeCheckDir.clear();
+			activeCheckDir.assign(POOL_PARENT::poolDir.begin(), POOL_PARENT::poolDir.end());
+
+			//Final swap over.
+			POOL_PARENT::mCount *= 2;
+			delete[] POOL_PARENT::mPool;
+			POOL_PARENT::mPool = tempPool;
+			//Reload Map
+			for (int i = 0; i < POOL_PARENT::mCount; i++)
+			{
+				POOL_PARENT::objMap.emplace(activeCheckDir[i]->GetId(), POOL_PARENT::poolDir[i]);
+			}
 		}
 
 		std::vector<Component*> activeCheckDir;
