@@ -3,7 +3,7 @@
 
 Component* Rotator::CreateRotator(GameObject* G, int* params)
 {
-	return G->CreateRotator(params[0]);
+	return nullptr;//G->CreateRotator(params[0]);
 }
 
 void Rotator::Update(float deltaTime)

@@ -52,7 +52,7 @@ void SceneLoader::LoadData(std::string fileName)
 
 			int component = 0;
 			int currentParam = 0;
-			GameObject* G = WORLD->addObject();
+			LilObj<GameObject> G = WORLD->addObject();
 			G->transform.x = x;
 			G->transform.y = y;
 			G->transform.z = 0;
@@ -76,7 +76,7 @@ void SceneLoader::LoadData(std::string fileName)
 							//std::cout << currentParam << " ";
 						}
 					}
-					compMap[component](G, componentParam);
+					//compMap[component](G, componentParam);
 					//std::cout << currentParam << std::endl;
 				}
 			}

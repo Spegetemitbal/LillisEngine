@@ -50,7 +50,7 @@ private:
     //Everything past this point is game specific and to be wiped upon abstraction.
     void restartGame();
 
-    GameObject* p1;
-    GameObject* p2;
+    LilObj<GameObject> p1;
+    LilObj<GameObject> p2;
 };
 

@@ -4,7 +4,7 @@
 
 Component* PlayerController::CreatePlayerController(GameObject* G, int* params)
 {
-	return G->CreatePlayerController();
+	return nullptr;//G->CreatePlayerController();
 }
 
 void PlayerController::Update()

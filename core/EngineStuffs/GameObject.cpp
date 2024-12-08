@@ -8,6 +8,7 @@ void GameObject::SetSprite(std::string name)
 	sprite = name;
 }
 
+//Sets object for deletion.
 void GameObject::SetActive(bool active)
 {
 	isActive = active;
@@ -16,42 +17,42 @@ void GameObject::SetActive(bool active)
 		isActive = false;
 		transform = Transform();
 		//sprite = nullptr;
-		collider = nullptr;
-		player = nullptr;
-		rotator = nullptr;
+		collider = LilObj<RectangleCollider>();
+		player = LilObj<PlayerController>();
+		rotator = LilObj<Rotator>();
 	} else
 	{
 		isEnabled = true;
 	}
 }
 
-RectangleCollider* GameObject::CreateCollider(float w, float h, int id)
+LilObj<RectangleCollider> GameObject::CreateCollider(float w, float h, int id)
 {
-	if (collider == nullptr)
+	if (!collider.Exists())
 	{
 		collider = WORLD->addCollider(w, h, id);
-		collider->setControlledObject(this);
+		collider->setControlledObject(thisObject);
 	}
 	return collider;
 }
 
 //[Insert steve vai song title here] please make sure this isn't a copy or implicit constructor. plz.
-PlayerController* GameObject::CreatePlayerController()
+LilObj<PlayerController> GameObject::CreatePlayerController()
 {
-	if (player == nullptr)
+	if (!player.Exists())
 	{
 		player = WORLD->addPC();
-		player->setControlledObject(this);
+		player->setControlledObject(thisObject);
 	}
 	return player;
 }
 
-Rotator* GameObject::CreateRotator(double angle)
+LilObj<Rotator> GameObject::CreateRotator(double angle)
 {
-	if (rotator == nullptr)
+	if (!rotator.Exists())
 	{
 		rotator = WORLD->addRot(angle);
-		rotator->setControlledObject(this);
+		rotator->setControlledObject(thisObject);
 	}
 	return rotator;
 }
@@ -74,4 +75,4 @@ size_t GameObject::DeSerializeTransform(char* buffer, size_t bufSize)
 	return bytes_read;
 }
 
-unsigned int GameObject::nextID = 0;
+unsigned int GameObject::nextID = 1;

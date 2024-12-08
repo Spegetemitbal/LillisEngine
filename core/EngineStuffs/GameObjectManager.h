@@ -25,22 +25,22 @@ public:
 
 	//GameObject* findObject(GameObject g);
 
-	GameObject* addObject();
-	GameObject* addObject(float x, float y);
-	vector<GameObject*> getObjects() { return objects->poolDir; };
+	LilObj<GameObject> addObject();
+	LilObj<GameObject> addObject(float x, float y);
+	vector<GameObject*> getObjectsRaw() { return objects->poolDir; };
 	int getObjActive() { return objects->GetActiveLine(); };
 
-	RectangleCollider* addCollider(float w, float h, int id);
-	vector<RectangleCollider*> getColliders() { return colliderPool->poolDir; };
+	LilObj<RectangleCollider> addCollider(float w, float h, int id);
+	vector<RectangleCollider*> getCollidersRaw() { return colliderPool->poolDir; };
 	int getColActive() { return colliderPool->GetActiveLine(); };
 	//Do these really need to be pointers?? At least the built-in ones...
 
-	PlayerController* addPC();
-	vector<PlayerController*> getPlayers() { return playerPool->poolDir; };
+	LilObj<PlayerController> addPC();
+	vector<PlayerController*> getPlayersRaw() { return playerPool->poolDir; };
 	int getPlayerActive() { return playerPool->GetActiveLine(); };
 
-	Rotator* addRot(double angle);
-	vector<Rotator*> getRotators() { return rotatorPool->poolDir; };
+	LilObj<Rotator> addRot(double angle);
+	vector<Rotator*> getRotatorsRaw() { return rotatorPool->poolDir; };
 	int getRotActive() { return rotatorPool->GetActiveLine(); };
 
 	//A flyweight should be implemented here soon.

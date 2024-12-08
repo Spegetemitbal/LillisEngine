@@ -1,7 +1,3 @@
-
-//#include "ComponentPool.h"
-//#include "Physics/RectangleCollider.h"
-
 #include "GameObjectManager.h"
 #include "GameObject.h"
 
@@ -22,46 +18,50 @@ GameObjectManager::~GameObjectManager()
 	delete rotatorPool;
 }
 
-GameObject* GameObjectManager::addObject()
+LilObj<GameObject> GameObjectManager::addObject()
 {
 	GameObject* g = objects->AddObject();
+	LilObj<GameObject> ob = {objects, g->GetID()};
+	g->thisObject = ob;
 	g->transform.x = 0;
 	g->transform.y = 0;
 	g->transform.z = 0;
 	numObjects++;
-	return g;
+	return ob;
 }
 
-GameObject* GameObjectManager::addObject(float x, float y)
+LilObj<GameObject> GameObjectManager::addObject(float x, float y)
 {
 	GameObject* g = objects->AddObject();
+	LilObj<GameObject> ob = {objects, g->GetID()};
+	g->thisObject = ob;
 	g->transform.x = x;
 	g->transform.y = y;
 	g->transform.z = 0;
 	numObjects++;
-	return g;
+	return ob;
 }
 
-RectangleCollider* GameObjectManager::addCollider(float w, float h, int id)
+LilObj<RectangleCollider> GameObjectManager::addCollider(float w, float h, int id)
 {
 	RectangleCollider* r = colliderPool->AddComponent();
 	r->setHeight(h);
 	r->setWidth(w);
 	r->setTag(id);
-	return r;
+	return {colliderPool, r->GetID()};
 }
 
-PlayerController* GameObjectManager::addPC()
+LilObj<PlayerController> GameObjectManager::addPC()
 {
 	PlayerController* p = playerPool->AddComponent();
-	return p;
+	return {playerPool, p->GetID()};
 }
 
-Rotator* GameObjectManager::addRot(double angle)
+LilObj<Rotator> GameObjectManager::addRot(double angle)
 {
 	Rotator* r = rotatorPool->AddComponent();
 	r->setAngle(angle);
-	return r;
+	return {rotatorPool, r->GetID()};
 }
 
 void GameObjectManager::clearAll()

@@ -1,3 +1,3 @@
 #include "Component.h"
 
-unsigned int Component::nextID = 0;
+unsigned int Component::nextID = 1;

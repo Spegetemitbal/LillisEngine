@@ -117,7 +117,7 @@ void Engine::restartGame()
     p2->CreateCollider(40, 40, 1);
     p2->CreatePlayerController();
 
-    GameObject* goal = WORLD->addObject(600, 220);
+    LilObj<GameObject> goal = WORLD->addObject(600, 220);
     goal->SetSprite("WinFlag");
     goal->CreateCollider(40, 40, 2);
 
@@ -125,10 +125,10 @@ void Engine::restartGame()
     float ang = 20;
     for (int i = 0; i < 3; i++)
     {
-        GameObject* spinny = WORLD->addObject(300, pos);
+        LilObj<GameObject> spinny = WORLD->addObject(300, pos);
         spinny->SetSprite("Angry");
         spinny->CreateCollider(40, 40, 3);
-        Rotator* r = spinny->CreateRotator(ang);
+        LilObj<Rotator> r = spinny->CreateRotator(ang);
         r->setBaseOffset(300, pos);
         pos += 100;
         ang += 30;
@@ -141,18 +141,7 @@ void Engine::restartGame()
 void Engine::frameStep()
 {
 
-    vector<Rotator*> rot = WORLD->getRotators();
-
-    unsigned int lastRotator = WORLD->getRotActive();
-    for (int i = 0; i < lastRotator; i++)
-    {
-        if (rot[i]->isActive)
-        {
-            rot[i]->Update(0.1);
-        }
-    }
-
-    vector<PlayerController*> pla = WORLD->getPlayers();
+    vector<PlayerController*> pla = WORLD->getPlayersRaw();
 
     unsigned int lastPlayer = WORLD->getPlayerActive();
     for (int i = 0; i < lastPlayer; i++)
@@ -163,7 +152,18 @@ void Engine::frameStep()
         }
     }
 
-    vector<RectangleCollider*> col = WORLD->getColliders();
+    vector<Rotator*> rot = WORLD->getRotatorsRaw();
+
+    unsigned int lastRotator = WORLD->getRotActive();
+    for (int i = 0; i < lastRotator; i++)
+    {
+        if (rot[i]->isActive)
+        {
+            rot[i]->Update(0.1);
+        }
+    }
+
+    vector<RectangleCollider*> col = WORLD->getCollidersRaw();
 
     unsigned int lastCol = WORLD->getColActive();
     for (int i = 0; i < lastCol; i++)
@@ -179,7 +179,7 @@ void Engine::frameStep()
 
     engine.graphics->PreDraw();
 
-    vector<GameObject*> objects = WORLD->getObjects();
+    vector<GameObject*> objects = WORLD->getObjectsRaw();
     unsigned int lastObj = WORLD->getObjActive();
     for (int i = 0; i < lastObj; i++)
     {

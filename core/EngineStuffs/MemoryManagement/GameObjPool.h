@@ -17,7 +17,7 @@ public:
 		{
 			GameObject* toScoot = AllocateObj(base);
 			poolDir.push_back(toScoot);
-			objMap.emplace(toScoot->GetId(), toScoot);
+			objMap.emplace(toScoot->GetID(), toScoot);
 			base += sizeToAllocate;
 		}
 	}
@@ -34,7 +34,7 @@ public:
 		{
 			GameObject* toScoot = AllocateObj(base);
 			poolDir.push_back(toScoot);
-			objMap.emplace(toScoot->GetId(), toScoot);
+			objMap.emplace(toScoot->GetID(), toScoot);
 			base += sizeToAllocate;
 		}
 	}
@@ -46,8 +46,9 @@ public:
 			ResizePool();
 		}
 		activeLine++;
-		poolDir.back()->SetActive(true);
-		return poolDir.back();
+		numActive++;
+		poolDir[activeLine - 1]->SetActive(true);
+		return poolDir[activeLine - 1];
 	}
 
 	void DestroyObject(GameObject* obj)
@@ -151,7 +152,7 @@ protected:
 		//Reload Map
 		for (int i = 0; i < mCount; i++)
 		{
-			objMap.emplace(poolDir[i]->GetId(), poolDir[i]);
+			objMap.emplace(poolDir[i]->GetID(), poolDir[i]);
 		}
 	}
 

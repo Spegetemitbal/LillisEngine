@@ -2,6 +2,7 @@
 
 #include "../Utils/Events/EventSystem.h"
 #include "../Utils/Events/EventListener.h"
+#include "MemoryManagement/LilObj.h"
 
 class GameObject;
 
@@ -12,10 +13,10 @@ public:
 	Component() {entityID = nextID; nextID++;};
 	virtual ~Component() {};
 
-	GameObject* getObject() { return thisObject; }
-	void setControlledObject(GameObject* g) { thisObject = g; }
+	LilObj<GameObject> getObject() { return thisObject; }
+	void setControlledObject(LilObj<GameObject> g) { thisObject = g; }
 
-	unsigned int GetId() const { return entityID; }
+	unsigned int GetID() const { return entityID; }
 	void handleEvent(const Event& theEvent) {}
 
 	//If inactive, is garbage data
@@ -24,8 +25,9 @@ public:
 	bool isEnabled = false;
 
 protected:
-	GameObject* thisObject = nullptr;
+	LilObj<GameObject> thisObject;
 private:
 	unsigned int entityID = 0;
+	//Perhaps add a map of these or some way to have a different string of IDs for each component!
 	static unsigned int nextID;
 };

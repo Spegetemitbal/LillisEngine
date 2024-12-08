@@ -26,7 +26,7 @@ public:
 				Comp* toScoot = POOL_PARENT::AllocateObj(base);
 				activeCheckDir.push_back(toScoot);
 				POOL_PARENT::poolDir.push_back(toScoot);
-				POOL_PARENT::objMap.emplace(activeCheckDir.back()->GetId(), toScoot);
+				POOL_PARENT::objMap.emplace(activeCheckDir.back()->GetID(), toScoot);
 				base += sizeToAllocate;
 			}
 		}
@@ -58,7 +58,7 @@ public:
 					Comp* toScoot = POOL_PARENT::AllocateObj(base);
 					activeCheckDir.push_back(toScoot);
 					POOL_PARENT::poolDir.push_back(toScoot);
-					POOL_PARENT::objMap.emplace(activeCheckDir.back()->GetId(), toScoot);
+					POOL_PARENT::objMap.emplace(activeCheckDir.back()->GetID(), toScoot);
 					base += sizeToAllocate;
 				}
 			}
@@ -79,7 +79,7 @@ public:
 			activeCheckDir[activeLine]->isEnabled = true;
 			activeLine++;
 			++POOL_PARENT::numActive;
-			return POOL_PARENT::poolDir.back();
+			return POOL_PARENT::poolDir[activeLine - 1];
 		}
 
 		void DestroyComponent(Comp& comp)
@@ -109,7 +109,7 @@ public:
 				POOL_PARENT::objMap.clear();
 				activeCheckDir[i]->isActive = false;
 				activeCheckDir[i]->isEnabled = false;
-				activeCheckDir[i]->setControlledObject(nullptr);
+				activeCheckDir[i]->setControlledObject(LilObj<GameObject>());
 			}
 			activeLine = 0;
 		}
@@ -195,7 +195,7 @@ public:
 			//Reload Map
 			for (int i = 0; i < POOL_PARENT::mCount; i++)
 			{
-				POOL_PARENT::objMap.emplace(activeCheckDir[i]->GetId(), POOL_PARENT::poolDir[i]);
+				POOL_PARENT::objMap.emplace(activeCheckDir[i]->GetID(), POOL_PARENT::poolDir[i]);
 			}
 		}
 
