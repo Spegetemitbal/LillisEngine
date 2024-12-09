@@ -141,8 +141,11 @@ public:
 
 				if (freeSpace < scan)
 				{
+					Comp compacted = *POOL_PARENT::poolDir[freeSpace];
 					*activeCheckDir[freeSpace] = *activeCheckDir[scan];
-					activeCheckDir[scan]->isActive = false;
+					*POOL_PARENT::poolDir[scan] = compacted;
+					POOL_PARENT::objMap[activeCheckDir[freeSpace]->GetID()] = POOL_PARENT::poolDir[freeSpace];
+					POOL_PARENT::objMap[activeCheckDir[scan]->GetID()] = POOL_PARENT::poolDir[scan];
 					activeLine--;
 				}
 			}

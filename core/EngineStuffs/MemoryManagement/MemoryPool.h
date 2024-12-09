@@ -20,7 +20,7 @@ public:
     };
 
     std::vector<Obj*> poolDir;
-    Obj* GetObjByID(int id)
+    Obj* GetObjByID(unsigned int id)
     {
         try
         {
@@ -38,7 +38,7 @@ protected:
         return new (base)Obj();
     }
 
-    std::map<int , Obj*> objMap;
+    std::map<unsigned int , Obj*> objMap;
 
     virtual void CompactPool() {};
     virtual void ResizePool() = 0;

@@ -103,8 +103,11 @@ protected:
 
 			if (freeSpace < scan)
 			{
+				GameObject compacted = *poolDir[freeSpace];
 				*poolDir[freeSpace] = *poolDir[scan];
-				poolDir[scan]->SetActive(false);
+				*poolDir[scan] = compacted;
+				objMap[poolDir[freeSpace]->GetID()] = poolDir[freeSpace];
+				objMap[poolDir[scan]->GetID()] = poolDir[scan];
 				activeLine--;
 			}
 		}
