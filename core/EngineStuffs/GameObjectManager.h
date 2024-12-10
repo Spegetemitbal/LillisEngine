@@ -2,6 +2,7 @@
 
 #include "MemoryManagement/ComponentPool.h"
 #include "MemoryManagement/GameObjPool.h"
+#include "MemoryManagement/BehaviorPool.h"
 #include "Behaviors/BehaviorSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Graphics/GraphicsSystem.h"
@@ -43,6 +44,10 @@ public:
 	vector<Rotator*> getRotatorsRaw() { return rotatorPool->poolDir; };
 	int getRotActive() { return rotatorPool->GetActiveLine(); };
 
+	LilObj<Behavior> addBehavior(int* params);
+	vector<Behavior*> getBehaviorsRaw() { return behaviors->poolDir;}
+	//No getActive needed here, only active pointers are shown
+
 	//A flyweight should be implemented here soon.
 	//std::vector<Texture2D> sprites = std::vector<Texture2D>();
 
@@ -51,6 +56,7 @@ private:
 	ComponentPool<Rotator>* rotatorPool;
 	ComponentPool<PlayerController>* playerPool;
 	ComponentPool<RectangleCollider>* colliderPool;
+	BehaviorHandler* behaviors;
 };
 
 //Note that INTS in C++ can hold 4 characters instead of a number, pretty sweet.

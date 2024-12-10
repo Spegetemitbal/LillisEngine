@@ -6,7 +6,7 @@
 Component* RectangleCollider::CreateRectangleCollider(GameObject* G, int* params)
 {
 	//Probs fix this lol.
-	return nullptr;//G->CreateCollider(params[0], params[1], params[2]);
+	return nullptr; //G->CreateCollider(params[0], params[1], params[2]);
 }
 
 bool RectangleCollider::CheckCollision(RectangleCollider other)

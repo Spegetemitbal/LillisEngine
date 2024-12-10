@@ -32,10 +32,11 @@ public:
     }
 protected:
 
-    Obj* AllocateObj(char* base)
+    template<typename t>
+    t* AllocateObj(char* base)
     {
         //size_t sizeToAllocate = sizeof(Obj);
-        return new (base)Obj();
+        return new (base)t();
     }
 
     std::map<unsigned int , Obj*> objMap;

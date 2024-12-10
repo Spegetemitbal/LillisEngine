@@ -23,7 +23,7 @@ public:
 		{
 			for (int i = 0; i < count; i++)
 			{
-				Comp* toScoot = POOL_PARENT::AllocateObj(base);
+				Comp* toScoot = POOL_PARENT::template AllocateObj<Comp>(base);
 				activeCheckDir.push_back(toScoot);
 				POOL_PARENT::poolDir.push_back(toScoot);
 				POOL_PARENT::objMap.emplace(activeCheckDir.back()->GetID(), toScoot);
@@ -55,7 +55,7 @@ public:
 			{
 				for (int i = 0; i < POOL_PARENT::mCount; i++)
 				{
-					Comp* toScoot = POOL_PARENT::AllocateObj(base);
+					Comp* toScoot = POOL_PARENT::template AllocateObj<Comp>(base);
 					activeCheckDir.push_back(toScoot);
 					POOL_PARENT::poolDir.push_back(toScoot);
 					POOL_PARENT::objMap.emplace(activeCheckDir.back()->GetID(), toScoot);
@@ -169,7 +169,7 @@ public:
 			char* base = tempPool;
 			for (int i = 0; i < POOL_PARENT::mCount * 2; i++)
 			{
-				Comp* toScoot = POOL_PARENT::AllocateObj(base);
+				Comp* toScoot = POOL_PARENT::template AllocateObj<Comp>(base);
 				POOL_PARENT::poolDir.push_back(toScoot);
 				activeCheckDir.push_back(toScoot);
 				base += sizeToAllocate;

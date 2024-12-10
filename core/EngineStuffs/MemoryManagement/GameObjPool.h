@@ -15,7 +15,7 @@ public:
 		char* base = mPool;
 		for (int i = 0; i < mCount; i++)
 		{
-			GameObject* toScoot = AllocateObj(base);
+			GameObject* toScoot = AllocateObj<GameObject>(base);
 			poolDir.push_back(toScoot);
 			objMap.emplace(toScoot->GetID(), toScoot);
 			base += sizeToAllocate;
@@ -32,7 +32,7 @@ public:
 		char* base = mPool;
 		for (int i = 0; i < mCount; i++)
 		{
-			GameObject* toScoot = AllocateObj(base);
+			GameObject* toScoot = AllocateObj<GameObject>(base);
 			poolDir.push_back(toScoot);
 			objMap.emplace(toScoot->GetID(), toScoot);
 			base += sizeToAllocate;
@@ -131,7 +131,7 @@ protected:
 		char* base = tempPool;
 		for (int i = 0; i < mCount * 2; i++)
 		{
-			GameObject* toScoot = AllocateObj(base);
+			GameObject* toScoot = AllocateObj<GameObject>(base);
 			poolDir.push_back(toScoot);
 			base += sizeToAllocate;
 		}
