@@ -7,6 +7,39 @@
 #include <map>
 #include <vector>
 
+template<typename T>
+class ActiveTracker
+{
+public:
+
+    ActiveTracker() = delete;
+    ~ActiveTracker() = default;
+
+    ActiveTracker(vector<T> v) {data = v;}
+
+    T operator[](int idx)
+    {
+        try
+        {
+            if (!data[idx]->GetActive())
+            {
+                counter++;
+            }
+            return data[idx];
+        } catch (...)
+        {
+            std::cerr << "Invalid Tracker type" << std::endl;
+            return nullptr;
+        }
+    }
+
+    int GetNumActive() const {return counter;}
+
+private:
+    vector<T> data;
+    int counter = 0;
+};
+
 template<typename Obj>
 class MemoryPool
 {
@@ -19,7 +52,6 @@ public:
         poolDir.clear();
     };
 
-    std::vector<Obj*> poolDir;
     Obj* GetObjByID(unsigned int id)
     {
         try
@@ -30,7 +62,13 @@ public:
             return nullptr;
         }
     }
+
+    ActiveTracker<Obj*> getPool() {return {poolDir};}
+
+    virtual void CompactPool(int active) = 0;
 protected:
+
+    std::vector<Obj*> poolDir;
 
     template<typename t>
     t* AllocateObj(char* base)
@@ -41,9 +79,8 @@ protected:
 
     std::map<unsigned int , Obj*> objMap;
 
-    virtual void CompactPool() {};
     virtual void ResizePool() = 0;
-    unsigned int numActive = 0;
+    //unsigned int numActive = 0;
     unsigned int mCount = 0;
     char* mPool = nullptr;
 };

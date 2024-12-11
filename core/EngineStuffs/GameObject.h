@@ -35,11 +35,10 @@ public:
 
 	//Inactive objects are wiped.
 	void SetActive(bool active);
-	static void Destroy(GameObject* object) {object->SetActive(false);};
 	bool GetActive() const { return isActive; };
 
-	//Whether the object is turned on or not
-	bool isEnabled = false;
+	void SetEnabled(bool enabled) {if (isActive) {isEnabled = enabled;} };
+	bool GetEnabled() const { return isEnabled; };
 
 	//For cache efficiency, 
 	std::vector<Behavior> behaviors = std::vector<Behavior>();
@@ -69,6 +68,9 @@ protected:
 	LilObj<PlayerController> player;
 	LilObj<Rotator> rotator;
 
+	//Whether the object is turned on or not
+	bool isEnabled = false;
+	//Whether the object is garbage or not.
 	bool isActive = false;
 	unsigned int entityID = 0;
 	static unsigned int nextID;

@@ -28,24 +28,28 @@ public:
 
 	LilObj<GameObject> addObject();
 	LilObj<GameObject> addObject(float x, float y);
-	vector<GameObject*> getObjectsRaw() { return objects->poolDir; };
+	ActiveTracker<GameObject*> getObjectsRaw() { return objects->getPool(); };
 	int getObjActive() { return objects->GetActiveLine(); };
+	void compactObjects(int active) {objects->CompactPool(active);}
 
 	LilObj<RectangleCollider> addCollider(float w, float h, int id);
-	vector<RectangleCollider*> getCollidersRaw() { return colliderPool->poolDir; };
+	ActiveTracker<RectangleCollider*> getCollidersRaw() { return colliderPool->getPool(); };
 	int getColActive() { return colliderPool->GetActiveLine(); };
-	//Do these really need to be pointers?? At least the built-in ones...
+	void compactColliders(int active) {colliderPool->CompactPool(active);}
 
 	LilObj<PlayerController> addPC();
-	vector<PlayerController*> getPlayersRaw() { return playerPool->poolDir; };
+	ActiveTracker<PlayerController*> getPlayersRaw() { return playerPool->getPool(); };
 	int getPlayerActive() { return playerPool->GetActiveLine(); };
+	void compactPlayers(int active) {playerPool->CompactPool(active);}
 
 	LilObj<Rotator> addRot(double angle);
-	vector<Rotator*> getRotatorsRaw() { return rotatorPool->poolDir; };
+	ActiveTracker<Rotator*> getRotatorsRaw() { return rotatorPool->getPool(); };
 	int getRotActive() { return rotatorPool->GetActiveLine(); };
+	void compactRotators(int active) {rotatorPool->CompactPool(active);}
 
 	LilObj<Behavior> addBehavior(int* params);
-	vector<Behavior*> getBehaviorsRaw() { return behaviors->poolDir;}
+	ActiveTracker<Behavior*> getBehaviorsRaw() { return behaviors->getPool();}
+	void compactBehaviors(int active) {behaviors->CompactPool(active);}
 	//No getActive needed here, only active pointers are shown
 
 	//A flyweight should be implemented here soon.

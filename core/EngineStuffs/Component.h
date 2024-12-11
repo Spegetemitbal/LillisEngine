@@ -19,13 +19,20 @@ public:
 	unsigned int GetID() const { return entityID; }
 	void handleEvent(const Event& theEvent) {}
 
+	//An inactive object is garbage and will be wiped.
+	void SetActive(bool active);
+	bool GetActive() const { return isActive; };
+
+	//A disabled object is not garbage and will not be wiped.
+	void SetEnabled(bool enabled) {if (isActive) {isEnabled = enabled;} };
+	bool GetEnabled() const { return isEnabled; };
+
+protected:
+	LilObj<GameObject> thisObject;
 	//If inactive, is garbage data
 	bool isActive = false;
 	//If disabled, is not garbage data, but won't be read.
 	bool isEnabled = false;
-
-protected:
-	LilObj<GameObject> thisObject;
 private:
 	unsigned int entityID = 0;
 	//Perhaps add a map of these or some way to have a different string of IDs for each component!

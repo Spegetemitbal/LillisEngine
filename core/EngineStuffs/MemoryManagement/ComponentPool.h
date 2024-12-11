@@ -75,10 +75,8 @@ public:
 			{
 				ResizePool();
 			}
-			activeCheckDir[activeLine]->isActive = true;
-			activeCheckDir[activeLine]->isEnabled = true;
+			activeCheckDir[activeLine]->SetActive(true);
 			activeLine++;
-			++POOL_PARENT::numActive;
 			return POOL_PARENT::poolDir[activeLine - 1];
 		}
 
@@ -89,15 +87,7 @@ public:
 			if (f != POOL_PARENT::poolDir.end())
 			{
 				size_t index = distance(POOL_PARENT::poolDir.begin(), f);
-				activeCheckDir[index]->isActive = false;
-				activeCheckDir[index]->isEnabled = false;
-				--POOL_PARENT::numActive;
-			}
-
-			//Maybe find a better time to call this?
-			if (POOL_PARENT::numActive / activeLine < 0.5)
-			{
-				CompactPool();
+				activeCheckDir[index]->SetActive(false);
 			}
 		}
 
@@ -107,8 +97,7 @@ public:
 			for (int i = 0; i < activeCheckDir.size(); i++)
 			{
 				POOL_PARENT::objMap.clear();
-				activeCheckDir[i]->isActive = false;
-				activeCheckDir[i]->isEnabled = false;
+				activeCheckDir[i]->SetActive(false);
 				activeCheckDir[i]->setControlledObject(LilObj<GameObject>());
 			}
 			activeLine = 0;
@@ -116,40 +105,45 @@ public:
 
 		unsigned int GetActiveLine() { return activeLine; };
 
+		//Two finger compaction
+		void CompactPool(int active) override
+		{
+			if (active / activeLine < 0.5)
+			{
+				size_t freeSpace = 0;
+				size_t scan = activeLine;
+
+				while (freeSpace < scan)
+				{
+					while (activeCheckDir[freeSpace]->GetActive() == true && freeSpace < scan)
+					{
+						freeSpace++;
+					}
+
+					while (activeCheckDir[scan]->GetActive() == false && freeSpace < scan)
+					{
+						scan--;
+					}
+
+					if (freeSpace < scan)
+					{
+						Comp compacted = *POOL_PARENT::poolDir[freeSpace];
+						*activeCheckDir[freeSpace] = *activeCheckDir[scan];
+						*POOL_PARENT::poolDir[scan] = compacted;
+						POOL_PARENT::objMap[activeCheckDir[freeSpace]->GetID()] = POOL_PARENT::poolDir[freeSpace];
+						POOL_PARENT::objMap[activeCheckDir[scan]->GetID()] = POOL_PARENT::poolDir[scan];
+						activeLine--;
+					}
+				}
+			}
+		}
+
 	protected:
 
 		void SortPool()
 		{
 		}
-		//Two finger compaction
-		void CompactPool() override
-		{
-			size_t freeSpace = 0;
-			size_t scan = activeLine;
 
-			while (freeSpace < scan)
-			{
-				while (activeCheckDir[freeSpace]->isActive == true && freeSpace < scan)
-				{
-					freeSpace++;
-				}
-
-				while (activeCheckDir[scan]->isActive == false && freeSpace < scan)
-				{
-					scan--;
-				}
-
-				if (freeSpace < scan)
-				{
-					Comp compacted = *POOL_PARENT::poolDir[freeSpace];
-					*activeCheckDir[freeSpace] = *activeCheckDir[scan];
-					*POOL_PARENT::poolDir[scan] = compacted;
-					POOL_PARENT::objMap[activeCheckDir[freeSpace]->GetID()] = POOL_PARENT::poolDir[freeSpace];
-					POOL_PARENT::objMap[activeCheckDir[scan]->GetID()] = POOL_PARENT::poolDir[scan];
-					activeLine--;
-				}
-			}
-		}
 		void ResizePool() override
 		{
 			//Clear previous data (that isn't needed)
@@ -179,7 +173,7 @@ public:
 			int nextSpace = 0;
 			for (int i = 0; i < preActiveLine; i++)
 			{
-				if (activeCheckDir[i]->isActive == true)
+				if (activeCheckDir[i]->GetActive() == true)
 				{
 					*POOL_PARENT::poolDir[nextSpace] = *tempDir[i];
 					nextSpace++;

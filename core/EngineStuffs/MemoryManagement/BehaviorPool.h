@@ -45,7 +45,6 @@ public:
             poolDir.push_back(b);
             objMap[poolDir.back()->GetID()] = poolDir.back();
             mCount++;
-            numActive++;
             mHead += sizeToAllocate;
             return {this, poolDir.back()->GetID()};
         } catch(...)
@@ -64,21 +63,15 @@ public:
             size_t index = distance(poolDir.begin(), f);
             objMap.erase(Bhvr->GetID());
             poolDir.erase(f);
-            --numActive;
-        }
-
-        if (numActive / mCount < 0.5)
-        {
-            CompactPool();
         }
     }
 
+    void CompactPool(int active) override
+    {
+        //TODO LISP2 compaction... or something
+    }
 
 protected:
-    void CompactPool() override
-    {
-        //TODO Threaded compaction... or something
-    }
 
     void ResizePool() override
     {

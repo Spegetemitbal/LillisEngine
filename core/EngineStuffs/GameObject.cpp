@@ -14,7 +14,6 @@ void GameObject::SetActive(bool active)
 	isActive = active;
 	if (!isActive)
 	{
-		isActive = false;
 		transform = Transform();
 		//sprite = nullptr;
 		collider = LilObj<RectangleCollider>();

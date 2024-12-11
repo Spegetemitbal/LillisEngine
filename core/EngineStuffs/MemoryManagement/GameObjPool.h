@@ -46,7 +46,6 @@ public:
 			ResizePool();
 		}
 		activeLine++;
-		numActive++;
 		poolDir[activeLine - 1]->SetActive(true);
 		return poolDir[activeLine - 1];
 	}
@@ -59,13 +58,6 @@ public:
 		{
 			size_t index = distance(poolDir.begin(), f);
 			poolDir[index]->SetActive(false);
-			poolDir[index]->isEnabled = false;
-			--numActive;
-		}
-
-		if (numActive / activeLine < 0.5)
-		{
-			CompactPool();
 		}
 	}
 
@@ -81,37 +73,41 @@ public:
 
 	unsigned int GetActiveLine() { return activeLine; };
 
-protected:
-
 	//Two finger compaction
-	void CompactPool() override
+	void CompactPool(int active) override
 	{
-		size_t freeSpace = 0;
-		size_t scan = activeLine;
-
-		while (freeSpace < scan)
+		if (active / activeLine < 0.5)
 		{
-			while (poolDir[freeSpace]->GetActive() == true && freeSpace < scan)
-			{
-				freeSpace++;
-			}
+			size_t freeSpace = 0;
+			size_t scan = activeLine;
 
-			while (poolDir[scan]->GetActive() == false && freeSpace < scan)
+			while (freeSpace < scan)
 			{
-				scan--;
-			}
+				while (poolDir[freeSpace]->GetActive() == true && freeSpace < scan)
+				{
+					freeSpace++;
+				}
 
-			if (freeSpace < scan)
-			{
-				GameObject compacted = *poolDir[freeSpace];
-				*poolDir[freeSpace] = *poolDir[scan];
-				*poolDir[scan] = compacted;
-				objMap[poolDir[freeSpace]->GetID()] = poolDir[freeSpace];
-				objMap[poolDir[scan]->GetID()] = poolDir[scan];
-				activeLine--;
+				while (poolDir[scan]->GetActive() == false && freeSpace < scan)
+				{
+					scan--;
+				}
+
+				if (freeSpace < scan)
+				{
+					GameObject compacted = *poolDir[freeSpace];
+					*poolDir[freeSpace] = *poolDir[scan];
+					*poolDir[scan] = compacted;
+					objMap[poolDir[freeSpace]->GetID()] = poolDir[freeSpace];
+					objMap[poolDir[scan]->GetID()] = poolDir[scan];
+					activeLine--;
+				}
 			}
 		}
 	}
+
+protected:
+
 
 	void ResizePool() override
 	{

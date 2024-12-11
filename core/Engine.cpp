@@ -141,36 +141,36 @@ void Engine::restartGame()
 void Engine::frameStep()
 {
 
-    vector<PlayerController*> pla = WORLD->getPlayersRaw();
+    ActiveTracker<PlayerController*> pla = WORLD->getPlayersRaw();
 
     unsigned int lastPlayer = WORLD->getPlayerActive();
     for (int i = 0; i < lastPlayer; i++)
     {
-        if (pla[i]->isActive)
+        if (pla[i]->GetActive())
         {
             pla[i]->Update();
         }
     }
 
-    vector<Rotator*> rot = WORLD->getRotatorsRaw();
+    ActiveTracker<Rotator*> rot = WORLD->getRotatorsRaw();
 
     unsigned int lastRotator = WORLD->getRotActive();
     for (int i = 0; i < lastRotator; i++)
     {
-        if (rot[i]->isActive)
+        if (rot[i]->GetActive())
         {
             rot[i]->Update(0.1);
         }
     }
 
-    vector<RectangleCollider*> col = WORLD->getCollidersRaw();
+    ActiveTracker<RectangleCollider*> col = WORLD->getCollidersRaw();
 
     unsigned int lastCol = WORLD->getColActive();
     for (int i = 0; i < lastCol; i++)
     {
         for (int j = i + 1; j < lastCol; j++)
         {
-            if (col[j]->isActive && col[i]->isActive)
+            if (col[j]->GetActive() && col[i]->GetActive())
             {
                 col[i]->CheckCollision(*col[j]);
             }
@@ -179,7 +179,7 @@ void Engine::frameStep()
 
     engine.graphics->PreDraw();
 
-    vector<GameObject*> objects = WORLD->getObjectsRaw();
+    ActiveTracker<GameObject*> objects = WORLD->getObjectsRaw();
     unsigned int lastObj = WORLD->getObjActive();
     for (int i = 0; i < lastObj; i++)
     {
@@ -190,6 +190,7 @@ void Engine::frameStep()
         }
     }
 
+
     engine.graphics->PostDraw();
 
     if (engine.phys->checkReset())
@@ -197,6 +198,13 @@ void Engine::frameStep()
         restartGame();
         engine.phys->patchReset();
     }
+
+    //End of Frame Garbage collection
+    WORLD->compactObjects(objects.GetNumActive());
+    WORLD->compactObjects(col.GetNumActive());
+    WORLD->compactObjects(pla.GetNumActive());
+    WORLD->compactColliders(rot.GetNumActive());
+    //WORLD->compactColliders(behv.GetNumActive());
 
     if (engine.gameInputs->getIsKeyDown(LILLIS::ESC))
     {
