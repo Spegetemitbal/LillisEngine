@@ -36,10 +36,6 @@ Engine::Engine()
     Timing::Init();
 
     WORLD = DBG_NEW GameObjectManager();
-
-    BehaviorSystem* behav = BehaviorSystem::createInstance();
-    behav->InjectBehavior("Rotator", DBG_NEW Rotator());
-    behav->InjectBehavior("PlayerC", DBG_NEW PlayerController());
 }
 
 //Clears everything
@@ -51,8 +47,6 @@ Engine::~Engine()
 
     delete engine.phys;
     engine.phys = nullptr;
-
-    BehaviorSystem::delInstance();
 
     EventSystem* ev = EventSystem::getInstance();
     ev->cleanup();
@@ -154,7 +148,7 @@ void Engine::frameStep()
     {
         if (pla[i]->GetActive())
         {
-            pla[i]->Update(0.1);
+            pla[i]->Update();
         }
     }
 

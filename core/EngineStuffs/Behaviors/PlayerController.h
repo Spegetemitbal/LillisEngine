@@ -8,16 +8,14 @@ class PlayerController : public Behavior
 {
 public:
 	PlayerController() : Behavior("PlayerController")
-	{}
-
-	~PlayerController() {};
-
-	void LoadListeners() override
 	{
 		addListener(INPUT_EVENT);
 	}
 
-	void Update(float deltaTime) override;
+	~PlayerController() {};
+
+	static Component* CreatePlayerController(GameObject* G, int* param);
+	void Update();
 	void handleEvent(const Event& theEvent);
 
 	bool w = false, s = false, a = false, d = false;

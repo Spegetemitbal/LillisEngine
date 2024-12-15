@@ -1,6 +1,11 @@
 #include "Rotator.h"
 #include "../GameObject.h"
 
+Component* Rotator::CreateRotator(GameObject* G, int* params)
+{
+	return nullptr;//G->CreateRotator(params[0]);
+}
+
 void Rotator::Update(float deltaTime)
 {
 	const int DIST = 50;

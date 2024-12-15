@@ -10,13 +10,13 @@ SceneLoader::SceneLoader()
 {
 	//Map static componentCreate functions here.
 	//1347175252
-	//compMap['PLCT'] = PlayerController::CreatePlayerController;
+	compMap['PLCT'] = PlayerController::CreatePlayerController;
 	//1380144195
 	compMap['RCTC'] = RectangleCollider::CreateRectangleCollider;
 	//1380144210
 	//compMap['RCTR'] = RectangleRenderer::CreateRectangleRenderer;
 	//1380930642
-	//compMap['ROTR'] = Rotator::CreateRotator;
+	compMap['ROTR'] = Rotator::CreateRotator;
 }
 
 SceneLoader::~SceneLoader()

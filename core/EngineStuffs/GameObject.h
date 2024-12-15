@@ -40,6 +40,9 @@ public:
 	void SetEnabled(bool enabled) {if (isActive) {isEnabled = enabled;} };
 	bool GetEnabled() const { return isEnabled; };
 
+	//For cache efficiency, 
+	std::vector<Behavior> behaviors = std::vector<Behavior>();
+
 	void SetSprite(std::string name);
 	LilObj<RectangleCollider> CreateCollider(float w, float h, int id);
 	LilObj<PlayerController> CreatePlayerController();

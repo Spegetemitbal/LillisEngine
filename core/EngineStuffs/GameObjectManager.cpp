@@ -54,7 +54,6 @@ LilObj<RectangleCollider> GameObjectManager::addCollider(float w, float h, int i
 LilObj<PlayerController> GameObjectManager::addPC()
 {
 	PlayerController* p = playerPool->AddComponent();
-	p->LoadListeners();
 	return {playerPool, p->GetID()};
 }
 

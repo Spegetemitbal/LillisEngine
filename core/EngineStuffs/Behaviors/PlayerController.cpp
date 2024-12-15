@@ -2,7 +2,12 @@
 #include "PlayerController.h"
 #include "../../Utils/Events/InputEvent.h"
 
-void PlayerController::Update(float deltaTime)
+Component* PlayerController::CreatePlayerController(GameObject* G, int* params)
+{
+	return nullptr;//G->CreatePlayerController();
+}
+
+void PlayerController::Update()
 {
 	//std::cout << "Internal: " << thisObject->getSprite() << '\n';
 

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <ostream>
 
-#include "../Behaviors/BehaviorSystem.h"
+#include "../Behaviors/Behavior.h"
 #include "MemoryPool.h"
 #include "pch.h"
 
@@ -30,21 +30,19 @@ public:
         mHead = mPool;
     }
 
-    //Called by user createcomponent
     template<typename B>
-    LilObj<B> CreateBehavior(std::string behvID)
+    LilObj<B> CreateBehavior()
     {
         try
         {
-            Behavior* behv = BehaviorSystem::getInstance()->behaviorMap[behvID];
-            size_t sizeToAllocate = sizeof(*behv);
+            size_t sizeToAllocate = sizeof(B);
             if (mHead + sizeToAllocate > mPool + stackSize)
             {
                 ResizePool();
             }
-            void* ptr = memcpy(behv, mHead, sizeToAllocate);
-            B* rPtr = static_cast<B*>(ptr);
-            poolDir.push_back(rPtr);
+
+            B* b = AllocateObj<B>(mHead);
+            poolDir.push_back(b);
             objMap[poolDir.back()->GetID()] = poolDir.back();
             mCount++;
             mHead += sizeToAllocate;
@@ -53,32 +51,6 @@ public:
         {
             std::cerr << "Failed to allocate Behavior" << std::endl;
             return LilObj<B>();
-        }
-    }
-
-    //Called by sceneloader
-    LilObj<Behavior> CreateBehaviorGeneric(std::string behvID)
-    {
-        try
-        {
-            Behavior* behv = BehaviorSystem::getInstance()->behaviorMap[behvID];
-            size_t sizeToAllocate = sizeof(*behv);
-            if (mHead + sizeToAllocate > mPool + stackSize)
-            {
-                ResizePool();
-            }
-
-            void* ptr = memcpy(behv, mHead, sizeToAllocate);
-            Behavior* rPtr = static_cast<Behavior*>(ptr);
-            poolDir.push_back(rPtr);
-            objMap[poolDir.back()->GetID()] = poolDir.back();
-            mCount++;
-            mHead += sizeToAllocate;
-            return {this, poolDir.back()->GetID()};
-        } catch(...)
-        {
-            std::cerr << "Failed to allocate Behavior" << std::endl;
-            return {};
         }
     }
 
