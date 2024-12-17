@@ -8,7 +8,7 @@
 #include <iostream>
 #include <ostream>
 
-#include "../Behaviors/Behavior.h"
+#include "../Behaviors/BehaviorSystem.h"
 #include "MemoryPool.h"
 #include "pch.h"
 
@@ -30,19 +30,20 @@ public:
         mHead = mPool;
     }
 
-    template<typename B>
-    LilObj<B> CreateBehavior()
+    LilObj<Behavior> CreateBehavior(std::string typeID)
     {
+        BehaviorData B = BehaviorSystem::GetBehavior(typeID);
         try
         {
-            size_t sizeToAllocate = sizeof(B);
+            size_t sizeToAllocate = B.byteSize;
             if (mHead + sizeToAllocate > mPool + stackSize)
             {
                 ResizePool();
             }
 
-            B* b = AllocateObj<B>(mHead);
+            Behavior* b = B.generator(mHead);
             poolDir.push_back(b);
+            poolDir.back()->SetActive(true);
             objMap[poolDir.back()->GetID()] = poolDir.back();
             mCount++;
             mHead += sizeToAllocate;
@@ -50,7 +51,7 @@ public:
         } catch(...)
         {
             std::cerr << "Failed to allocate Behavior" << std::endl;
-            return LilObj<B>();
+            return {};
         }
     }
 
@@ -64,6 +65,13 @@ public:
             objMap.erase(Bhvr->GetID());
             poolDir.erase(f);
         }
+    }
+
+    void ClearPool()
+    {
+        mHead = mPool;
+        objMap.clear();
+        poolDir.clear();
     }
 
     void CompactPool(int active) override

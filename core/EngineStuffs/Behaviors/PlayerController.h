@@ -14,8 +14,8 @@ public:
 
 	~PlayerController() {};
 
-	static Component* CreatePlayerController(GameObject* G, int* param);
-	void Update();
+	static Behavior* CreatePlayerController(char* loc);
+	void Update(float deltaTime) override;
 	void handleEvent(const Event& theEvent);
 
 	bool w = false, s = false, a = false, d = false;

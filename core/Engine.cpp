@@ -36,6 +36,9 @@ Engine::Engine()
     Timing::Init();
 
     WORLD = DBG_NEW GameObjectManager();
+
+    BehaviorSystem::RegisterBehavior("PlayerController", sizeof(PlayerController), PlayerController::CreatePlayerController);
+    BehaviorSystem::RegisterBehavior("Rotator", sizeof(Rotator), Rotator::CreateRotator);
 }
 
 //Clears everything
@@ -141,25 +144,12 @@ void Engine::restartGame()
 void Engine::frameStep()
 {
 
-    ActiveTracker<PlayerController*> pla = WORLD->getPlayersRaw();
-
-    unsigned int lastPlayer = WORLD->getPlayerActive();
-    for (int i = 0; i < lastPlayer; i++)
+    ActiveTracker<Behavior*> behvs = WORLD->getBehaviorsRaw();
+    for (int i = 0; i < behvs.size(); i++)
     {
-        if (pla[i]->GetActive())
+        if (behvs[i]->GetActive())
         {
-            pla[i]->Update();
-        }
-    }
-
-    ActiveTracker<Rotator*> rot = WORLD->getRotatorsRaw();
-
-    unsigned int lastRotator = WORLD->getRotActive();
-    for (int i = 0; i < lastRotator; i++)
-    {
-        if (rot[i]->GetActive())
-        {
-            rot[i]->Update(0.1);
+            behvs[i]->Update(0.1);
         }
     }
 
@@ -202,9 +192,7 @@ void Engine::frameStep()
     //End of Frame Garbage collection
     WORLD->compactObjects(objects.GetNumActive());
     WORLD->compactObjects(col.GetNumActive());
-    WORLD->compactObjects(pla.GetNumActive());
-    WORLD->compactColliders(rot.GetNumActive());
-    //WORLD->compactColliders(behv.GetNumActive());
+    WORLD->compactColliders(behvs.GetNumActive());
 
     if (engine.gameInputs->getIsKeyDown(LILLIS::ESC))
     {

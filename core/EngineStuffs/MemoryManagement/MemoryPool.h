@@ -33,6 +33,8 @@ public:
         }
     }
 
+    size_t size() {return data.size();}
+
     int GetNumActive() const {return counter;}
 
 private:

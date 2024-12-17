@@ -47,6 +47,10 @@ class LilObj
     }
     return true;
   }
+
+  MemoryPool* GetPool() {return pool;}
+  unsigned int GetID() {return itemID;}
+
   private:
   MemoryPool* pool;
   //All item IDs start at 1

@@ -38,14 +38,8 @@ public:
 	void compactColliders(int active) {colliderPool->CompactPool(active);}
 
 	LilObj<PlayerController> addPC();
-	ActiveTracker<PlayerController*> getPlayersRaw() { return playerPool->getPool(); };
-	int getPlayerActive() { return playerPool->GetActiveLine(); };
-	void compactPlayers(int active) {playerPool->CompactPool(active);}
 
 	LilObj<Rotator> addRot(double angle);
-	ActiveTracker<Rotator*> getRotatorsRaw() { return rotatorPool->getPool(); };
-	int getRotActive() { return rotatorPool->GetActiveLine(); };
-	void compactRotators(int active) {rotatorPool->CompactPool(active);}
 
 	LilObj<Behavior> addBehavior(int* params);
 	ActiveTracker<Behavior*> getBehaviorsRaw() { return behaviors->getPool();}
@@ -57,8 +51,6 @@ public:
 
 private:
 	GameObjPool* objects;
-	ComponentPool<Rotator>* rotatorPool;
-	ComponentPool<PlayerController>* playerPool;
 	ComponentPool<RectangleCollider>* colliderPool;
 	BehaviorHandler* behaviors;
 };

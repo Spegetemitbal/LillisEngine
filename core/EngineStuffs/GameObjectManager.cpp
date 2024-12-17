@@ -5,17 +5,15 @@ GameObjectManager::GameObjectManager()
 {
 	objects = DBG_NEW GameObjPool(10);
 	colliderPool = DBG_NEW ComponentPool<RectangleCollider>(10);
-	playerPool = DBG_NEW ComponentPool<PlayerController>(10);
-	rotatorPool = DBG_NEW ComponentPool<Rotator>(10);
+	behaviors = DBG_NEW BehaviorHandler(50);
 }
 
 GameObjectManager::~GameObjectManager() 
 { 
-	clearAll(); 
+	//clearAll();
 	delete objects;
 	delete colliderPool;
-	delete playerPool;
-	delete rotatorPool;
+	delete behaviors;
 }
 
 LilObj<GameObject> GameObjectManager::addObject()
@@ -53,23 +51,26 @@ LilObj<RectangleCollider> GameObjectManager::addCollider(float w, float h, int i
 
 LilObj<PlayerController> GameObjectManager::addPC()
 {
-	PlayerController* p = playerPool->AddComponent();
-	return {playerPool, p->GetID()};
+	LilObj<Behavior> b = behaviors->CreateBehavior("PlayerController");
+	LilObj<PlayerController> pc = {behaviors, b->GetID()};
+	//PlayerController* p = playerPool->AddComponent();
+	return pc;
 }
 
 LilObj<Rotator> GameObjectManager::addRot(double angle)
 {
-	Rotator* r = rotatorPool->AddComponent();
+	LilObj<Behavior> b = behaviors->CreateBehavior("Rotator");
+	LilObj<Rotator> r = {behaviors, b.GetID()};
+	//Rotator* r = rotatorPool->AddComponent();
 	r->setAngle(angle);
-	return {rotatorPool, r->GetID()};
+	return r;
 }
 
 void GameObjectManager::clearAll()
 {
 	objects->ClearPool();
-	playerPool->ClearPool();
-	rotatorPool->ClearPool();
 	colliderPool->ClearPool();
+	behaviors->ClearPool();
 	numObjects = 0;
 	//sprites.clear();
 }

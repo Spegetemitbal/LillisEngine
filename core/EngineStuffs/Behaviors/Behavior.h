@@ -42,7 +42,7 @@ public:
 	}
 	void handleEvent(const Event& theEvent) {}
 
-	//virtual void Update() = 0;
+	virtual void Update(float deltaTime) = 0;
 
 private:
 	bool isStatic = false;

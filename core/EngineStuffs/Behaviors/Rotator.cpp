@@ -1,9 +1,9 @@
 #include "Rotator.h"
 #include "../GameObject.h"
 
-Component* Rotator::CreateRotator(GameObject* G, int* params)
+Behavior* Rotator::CreateRotator(char* loc)
 {
-	return nullptr;//G->CreateRotator(params[0]);
+	return new (loc)Rotator();
 }
 
 void Rotator::Update(float deltaTime)
