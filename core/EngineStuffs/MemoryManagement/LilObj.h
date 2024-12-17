@@ -7,7 +7,7 @@ template<typename Obj>
 class LilObj
 {
   public:
-  LilObj(MemoryPool<Obj>* memPool, unsigned int id)
+  LilObj(MemoryPool* memPool, unsigned int id)
   {
     itemID = id;
     pool = memPool;
@@ -22,7 +22,7 @@ class LilObj
   {
     if (itemID > 0)
     {
-      return &pool->GetObjByID(itemID);
+      return &pool->GetObjByID<Obj>(itemID);
     } else
     {
       return nullptr;
@@ -32,7 +32,7 @@ class LilObj
   {
     if (itemID > 0)
     {
-      return pool->GetObjByID(itemID);
+      return pool->GetObjByID<Obj>(itemID);
     } else
     {
       return nullptr;
@@ -48,7 +48,7 @@ class LilObj
     return true;
   }
   private:
-  MemoryPool<Obj>* pool;
+  MemoryPool* pool;
   //All item IDs start at 1
   unsigned int itemID;
 };

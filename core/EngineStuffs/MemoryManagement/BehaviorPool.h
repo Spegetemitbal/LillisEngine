@@ -12,7 +12,7 @@
 #include "MemoryPool.h"
 #include "pch.h"
 
-class BehaviorHandler : public MemoryPool<Behavior>
+class BehaviorHandler : public MemoryPool
 {
 public:
 
@@ -71,7 +71,11 @@ public:
         //TODO LISP2 compaction... or something
     }
 
+    ActiveTracker<Behavior*> getPool() {return {poolDir};}
+
 protected:
+
+    std::vector<Behavior*> poolDir;
 
     void ResizePool() override
     {

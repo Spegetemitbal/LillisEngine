@@ -3,7 +3,7 @@
 #include "MemoryPool.h"
 #include <cstring>
 
-class GameObjPool : public MemoryPool<GameObject>
+class GameObjPool : public MemoryPool
 {
 public:
 	GameObjPool()
@@ -106,8 +106,11 @@ public:
 		}
 	}
 
+	ActiveTracker<GameObject*> getPool() {return {poolDir};}
+
 protected:
 
+	std::vector<GameObject*> poolDir;
 
 	void ResizePool() override
 	{

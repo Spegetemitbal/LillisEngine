@@ -39,8 +39,6 @@ private:
     vector<T> data;
     int counter = 0;
 };
-
-template<typename Obj>
 class MemoryPool
 {
 public:
@@ -49,35 +47,32 @@ public:
     virtual ~MemoryPool()
     {
         delete[] mPool;
-        poolDir.clear();
     };
 
-    Obj* GetObjByID(unsigned int id)
+    template<typename T>
+    T* GetObjByID(unsigned int id)
     {
         try
         {
-            return objMap[id];
+            return (T*)objMap[id];
         } catch(...)
         {
+            std::cout << "Invalid type or ID";
             return nullptr;
         }
     }
 
-    ActiveTracker<Obj*> getPool() {return {poolDir};}
-
     virtual void CompactPool(int active) = 0;
 protected:
 
-    std::vector<Obj*> poolDir;
-
-    template<typename t>
-    t* AllocateObj(char* base)
+    template<typename T>
+    T* AllocateObj(char* base)
     {
         //size_t sizeToAllocate = sizeof(Obj);
-        return new (base)t();
+        return new (base)T();
     }
 
-    std::map<unsigned int , Obj*> objMap;
+    std::map<unsigned int , void*> objMap;
 
     virtual void ResizePool() = 0;
     //unsigned int numActive = 0;
