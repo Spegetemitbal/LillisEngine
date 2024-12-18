@@ -1,5 +1,6 @@
 #include "GameObjectManager.h"
 #include "GameObject.h"
+#include "MemoryManagement/GameObjPool.h"
 
 GameObjectManager::GameObjectManager()
 {
@@ -74,5 +75,15 @@ void GameObjectManager::clearAll()
 	numObjects = 0;
 	//sprites.clear();
 }
+
+LilObj<Behavior> GameObjectManager::addBehavior(const std::string &name) const
+{
+	return behaviors->CreateBehavior(name);
+}
+
+
+ActiveTracker<GameObject*> GameObjectManager::getObjectsRaw() const { return objects->getPool(); };
+unsigned int GameObjectManager::getObjActive() const { return objects->GetActiveLine(); };
+void GameObjectManager::compactObjects(int active) const {objects->CompactPool(active);}
 
 //GameObjectManager* GameObjectManager::world = nullptr;

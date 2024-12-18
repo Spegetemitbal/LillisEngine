@@ -56,6 +56,21 @@ LilObj<Rotator> GameObject::CreateRotator(double angle)
 	return rotator;
 }
 
+LilObj<Behavior> GameObject::CreateBehaviorGeneric(const std::string& name)
+{
+	if (behaviorMap.find(name) != behaviorMap.end())
+	{
+		return behaviorMap[name];
+	} else
+	{
+		LilObj<Behavior> behv = WORLD->addBehavior(name);
+		behaviorMap[name] = behv;
+		behaviorMap[name]->setControlledObject(thisObject);
+		return behv;
+	}
+}
+
+
 size_t GameObject::SerializeTransform(char* buffer, size_t bufSize)
 {
 	size_t bytes_written = 0;

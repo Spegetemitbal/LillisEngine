@@ -113,12 +113,12 @@ void Engine::restartGame()
     p1 = WORLD->addObject(0, 0);
     p1->CreateCollider(40, 40, 0);
     p1->SetSprite("Player1");
-    p1->CreatePlayerController();
+    p1->CreateBehaviorGeneric("PlayerController");
 
     p2 = WORLD->addObject(0, 440);
     p2->SetSprite("Player2");
     p2->CreateCollider(40, 40, 1);
-    p2->CreatePlayerController();
+    p2->CreateBehaviorGeneric("PlayerController");
 
     LilObj<GameObject> goal = WORLD->addObject(600, 220);
     goal->SetSprite("WinFlag");
@@ -131,7 +131,9 @@ void Engine::restartGame()
         LilObj<GameObject> spinny = WORLD->addObject(300, pos);
         spinny->SetSprite("Angry");
         spinny->CreateCollider(40, 40, 3);
-        LilObj<Rotator> r = spinny->CreateRotator(ang);
+        spinny->CreateBehaviorGeneric("Rotator");
+        LilObj<Rotator> r = spinny->GetBehavior<Rotator>("Rotator");
+        r->setAngle(ang);
         r->setBaseOffset(300, pos);
         pos += 100;
         ang += 30;

@@ -62,11 +62,34 @@ public:
 
 	LilObj<GameObject> thisObject;
 
+	template<typename Beh>
+	LilObj<Beh> GetBehavior(const std::string& name)
+	{
+		if (behaviorMap.find(name) != behaviorMap.end())
+		{
+			return {behaviorMap[name].GetPool(), behaviorMap[name].GetID()};
+		} else
+		{
+			return {};
+		}
+	}
+
+	//For use by Sceneloader, technically won't break if a user uses it?
+	LilObj<Behavior> CreateBehaviorGeneric(const std::string& name);
+
+	template<typename Beh>
+	LilObj<Beh> CreateBehavior(const std::string& name)
+	{
+		LilObj<Behavior> b = CreateBehaviorGeneric(name);
+		return {b.GetPool(), b.GetID()};
+	}
+
 protected:
 	std::string sprite;
 	LilObj<RectangleCollider> collider;
 	LilObj<PlayerController> player;
 	LilObj<Rotator> rotator;
+	unordered_map<std::string, LilObj<Behavior>> behaviorMap;
 
 	//Whether the object is turned on or not
 	bool isEnabled = false;

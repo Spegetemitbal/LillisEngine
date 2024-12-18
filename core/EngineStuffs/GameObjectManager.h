@@ -1,13 +1,13 @@
 #pragma once
 
 #include "MemoryManagement/ComponentPool.h"
-#include "MemoryManagement/GameObjPool.h"
 #include "MemoryManagement/BehaviorPool.h"
 #include "Behaviors/BehaviorSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Graphics/GraphicsSystem.h"
 
 class GameObject;
+class GameObjPool;
 
 class GameObjectManager
 {
@@ -28,21 +28,21 @@ public:
 
 	LilObj<GameObject> addObject();
 	LilObj<GameObject> addObject(float x, float y);
-	ActiveTracker<GameObject*> getObjectsRaw() { return objects->getPool(); };
-	int getObjActive() { return objects->GetActiveLine(); };
-	void compactObjects(int active) {objects->CompactPool(active);}
+	ActiveTracker<GameObject*> getObjectsRaw() const;
+	unsigned int getObjActive() const;
+	void compactObjects(int active) const;
 
 	LilObj<RectangleCollider> addCollider(float w, float h, int id);
-	ActiveTracker<RectangleCollider*> getCollidersRaw() { return colliderPool->getPool(); };
-	int getColActive() { return colliderPool->GetActiveLine(); };
+	ActiveTracker<RectangleCollider*> getCollidersRaw() const { return colliderPool->getPool(); };
+	unsigned int getColActive() { return colliderPool->GetActiveLine(); };
 	void compactColliders(int active) {colliderPool->CompactPool(active);}
 
 	LilObj<PlayerController> addPC();
 
 	LilObj<Rotator> addRot(double angle);
 
-	LilObj<Behavior> addBehavior(int* params);
-	ActiveTracker<Behavior*> getBehaviorsRaw() { return behaviors->getPool();}
+	LilObj<Behavior> addBehavior(const std::string &name) const;
+	ActiveTracker<Behavior*> getBehaviorsRaw() const { return behaviors->getPool();}
 	void compactBehaviors(int active) {behaviors->CompactPool(active);}
 	//No getActive needed here, only active pointers are shown
 
