@@ -17,8 +17,7 @@ void GameObject::SetActive(bool active)
 		transform = Transform();
 		//sprite = nullptr;
 		collider = LilObj<RectangleCollider>();
-		player = LilObj<PlayerController>();
-		rotator = LilObj<Rotator>();
+		behaviorMap.clear();
 	} else
 	{
 		isEnabled = true;
@@ -33,27 +32,6 @@ LilObj<RectangleCollider> GameObject::CreateCollider(float w, float h, int id)
 		collider->setControlledObject(thisObject);
 	}
 	return collider;
-}
-
-//[Insert steve vai song title here] please make sure this isn't a copy or implicit constructor. plz.
-LilObj<PlayerController> GameObject::CreatePlayerController()
-{
-	if (!player.Exists())
-	{
-		player = WORLD->addPC();
-		player->setControlledObject(thisObject);
-	}
-	return player;
-}
-
-LilObj<Rotator> GameObject::CreateRotator(double angle)
-{
-	if (!rotator.Exists())
-	{
-		rotator = WORLD->addRot(angle);
-		rotator->setControlledObject(thisObject);
-	}
-	return rotator;
 }
 
 LilObj<Behavior> GameObject::CreateBehaviorGeneric(const std::string& name)

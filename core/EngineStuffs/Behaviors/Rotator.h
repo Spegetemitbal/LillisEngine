@@ -1,5 +1,6 @@
 #pragma once
 #include "Behavior.h"
+#include "../MemoryManagement/Serializer.h"
 
 class GameObject;
 
@@ -8,6 +9,8 @@ class Rotator : public Behavior
 public:
 
 	static Behavior* CreateRotator(char* loc);
+	void Deserialize(Serializer& ser) override;
+
 	Rotator() : Behavior("Rotator") { myAngle = 0; }
 	//Angle in Radians
 	Rotator(double angle) : Behavior("Rotator") { myAngle = angle; };

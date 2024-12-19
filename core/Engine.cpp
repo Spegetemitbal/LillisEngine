@@ -2,6 +2,9 @@
 
 #include "Utils/Timing.h"
 
+#include "EngineStuffs/Behaviors/Rotator.h"
+#include "EngineStuffs/Behaviors/PlayerController.h"
+
 //Creates window, Initializes low level systems and loads scene.
 Engine::Engine()
 {
@@ -83,7 +86,7 @@ void Engine::LoadLevel(std::string Data)
 //Game loop
 void Engine::Run()
 {
-    restartGame();
+    //restartGame();
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&frameStep, engine, 0, true);
 #else
@@ -109,6 +112,8 @@ void Engine::restartGame()
         WORLD->clearAll();
     }
 
+    LoadLevel(WORLD->CurrentLevel);
+    /*
     //Game specifics
     p1 = WORLD->addObject(0, 0);
     p1->CreateCollider(40, 40, 0);
@@ -137,7 +142,7 @@ void Engine::restartGame()
         r->setBaseOffset(300, pos);
         pos += 100;
         ang += 30;
-    }
+    }*/
 
 }
 

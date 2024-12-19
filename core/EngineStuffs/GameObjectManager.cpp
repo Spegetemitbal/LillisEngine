@@ -50,23 +50,6 @@ LilObj<RectangleCollider> GameObjectManager::addCollider(float w, float h, int i
 	return {colliderPool, r->GetID()};
 }
 
-LilObj<PlayerController> GameObjectManager::addPC()
-{
-	LilObj<Behavior> b = behaviors->CreateBehavior("PlayerController");
-	LilObj<PlayerController> pc = {behaviors, b->GetID()};
-	//PlayerController* p = playerPool->AddComponent();
-	return pc;
-}
-
-LilObj<Rotator> GameObjectManager::addRot(double angle)
-{
-	LilObj<Behavior> b = behaviors->CreateBehavior("Rotator");
-	LilObj<Rotator> r = {behaviors, b.GetID()};
-	//Rotator* r = rotatorPool->AddComponent();
-	r->setAngle(angle);
-	return r;
-}
-
 void GameObjectManager::clearAll()
 {
 	objects->ClearPool();

@@ -3,6 +3,7 @@
 #include "../Component.h"
 #include "../../Utils/Events/EventSystem.h"
 #include "../../Utils/Events/GameEvent.h"
+#include "EngineStuffs/MemoryManagement/Serializer.h"
 
 class Behavior : public Component
 {
@@ -43,6 +44,8 @@ public:
 	void handleEvent(const Event& theEvent) {}
 
 	virtual void Update(float deltaTime) = 0;
+	virtual void Serialize(Serializer& ser) {};
+	virtual void Deserialize(Serializer& ser) {};
 
 private:
 	bool isStatic = false;

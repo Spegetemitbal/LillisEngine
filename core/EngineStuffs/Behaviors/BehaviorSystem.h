@@ -1,42 +1,35 @@
 #pragma once
 
 //Wipe these later.
-#include "PlayerController.h"
-#include "Rotator.h"
-//#include "Behavior.h"
+#include "Behavior.h"
+#include "../MemoryManagement/Serializer.h"
 
 typedef Behavior*( *BehaviorFactory )(char* loc);
-typedef void( *BehaviorSerialize )( const Behavior* _Behaviour/*, Buffer& o_Buffer*/ );
-typedef void( *BehaviorDeserialize )( Behavior* _Behaviour/*, const Buffer& _Buffer*/ );
+//typedef void( *BehaviorSerialize )( const Behavior* _Behavior, Serializer& o_Buffer );
+//typedef void( *BehaviorDeserialize )( Behavior* _Behavior, Serializer& _Buffer );
 
 struct BehaviorData
 {
     BehaviorData()
     {
         generator = nullptr;
-        serializer = nullptr;
-        deserializer = nullptr;
     }
 
-    BehaviorData(BehaviorFactory factory, size_t bytes, BehaviorSerialize serialize = nullptr, BehaviorDeserialize deserialize = nullptr)
+    BehaviorData(BehaviorFactory factory, size_t bytes)
     {
         generator = factory;
-        serializer = serialize;
-        deserializer = deserialize;
         byteSize = bytes;
     }
 
     BehaviorFactory generator;
-    BehaviorSerialize serializer;
-    BehaviorDeserialize deserializer;
     size_t byteSize;
 };
 
 class BehaviorSystem
 {
 public:
-    static void RegisterBehavior(std::string name, size_t bytes, BehaviorFactory factory, BehaviorSerialize serialize = nullptr, BehaviorDeserialize deserialize = nullptr);
-    static BehaviorData GetBehavior(std::string name)
+    static void RegisterBehavior(const std::string& name, size_t bytes, BehaviorFactory factory);
+    static BehaviorData GetBehavior(const std::string& name)
     {
         if (behaviorMap.contains(name))
         {

@@ -11,7 +11,7 @@ public:
 	SceneLoader();
 	~SceneLoader();
 
-	void LoadData(std::string fileName);
+	static void LoadData(const std::string& fileName);
 
 private:
 	std::unordered_map<int, componentFunction> compMap;

@@ -6,6 +6,13 @@ Behavior* Rotator::CreateRotator(char* loc)
 	return new (loc)Rotator();
 }
 
+void Rotator::Deserialize(Serializer& ser)
+{
+	ser.GetFromBuffer<double>(&myAngle);
+	ser.GetFromBuffer<float>(&offsetX);
+	ser.GetFromBuffer<float>(&offsetY);
+}
+
 void Rotator::Update(float deltaTime)
 {
 	const int DIST = 50;

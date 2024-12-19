@@ -37,10 +37,6 @@ public:
 	unsigned int getColActive() { return colliderPool->GetActiveLine(); };
 	void compactColliders(int active) {colliderPool->CompactPool(active);}
 
-	LilObj<PlayerController> addPC();
-
-	LilObj<Rotator> addRot(double angle);
-
 	LilObj<Behavior> addBehavior(const std::string &name) const;
 	ActiveTracker<Behavior*> getBehaviorsRaw() const { return behaviors->getPool();}
 	void compactBehaviors(int active) {behaviors->CompactPool(active);}
@@ -48,6 +44,8 @@ public:
 
 	//A flyweight should be implemented here soon.
 	//std::vector<Texture2D> sprites = std::vector<Texture2D>();
+
+	std::string CurrentLevel;
 
 private:
 	GameObjPool* objects;

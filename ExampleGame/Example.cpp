@@ -15,8 +15,10 @@ int main(int argc, char* argv[])
 		std::cout << "Launching as Client\n";
 	}
 	
-	//e->LoadLevel("Level.dat");
+	//e->LoadLevel("Level.lvl");
 	e->InjectAssets("assets", SINGLEIMAGES);
+	e->InjectAssets("assets", DATA);
+	e->LoadLevel("Level");
 	e->Run();
 
 	Engine::DestroyGameInstance();

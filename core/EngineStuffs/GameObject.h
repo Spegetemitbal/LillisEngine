@@ -45,8 +45,6 @@ public:
 
 	void SetSprite(std::string name);
 	LilObj<RectangleCollider> CreateCollider(float w, float h, int id);
-	LilObj<PlayerController> CreatePlayerController();
-	LilObj<Rotator> CreateRotator(double angle);
 
 	unsigned int GetID() const {return entityID;};
 
@@ -87,8 +85,6 @@ public:
 protected:
 	std::string sprite;
 	LilObj<RectangleCollider> collider;
-	LilObj<PlayerController> player;
-	LilObj<Rotator> rotator;
 	unordered_map<std::string, LilObj<Behavior>> behaviorMap;
 
 	//Whether the object is turned on or not
