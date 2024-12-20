@@ -1,6 +1,6 @@
 #pragma once
 
-DLLUSAGE class Timing
+class Timing
 {
 public:
     Timing() = default;

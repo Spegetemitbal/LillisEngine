@@ -1,5 +1,4 @@
 #include "Rotator.h"
-#include "../GameObject.h"
 
 Behavior* Rotator::CreateRotator(char* loc)
 {

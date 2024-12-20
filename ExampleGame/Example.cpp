@@ -1,4 +1,6 @@
 #include "../core/Lillis.h"
+#include "Rotator.h"
+#include "PlayerController.h"
 
 int main(int argc, char* argv[])
 {
@@ -18,6 +20,8 @@ int main(int argc, char* argv[])
 	//e->LoadLevel("Level.lvl");
 	e->InjectAssets("assets", SINGLEIMAGES);
 	e->InjectAssets("assets", DATA);
+	BehaviorSystem::RegisterBehavior("PlayerController", sizeof(PlayerController), PlayerController::CreatePlayerController);
+	BehaviorSystem::RegisterBehavior("Rotator", sizeof(Rotator), Rotator::CreateRotator);
 	e->LoadLevel("Level");
 	e->Run();
 

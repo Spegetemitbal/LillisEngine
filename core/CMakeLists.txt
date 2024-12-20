@@ -11,10 +11,12 @@ file(
         *.cpp
 )
 
+
 add_library(LillisLib SHARED ${CORE_INC} ${CORE_SRC})
 
 # if (WIN32) remove System/System_Win32.cpp and System/System_Win32.h
 IF(WIN32)
+    set_target_properties(LillisLib PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
     list(REMOVE_ITEM CORE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/System/System_Win32.cpp)
     list(REMOVE_ITEM CORE_INC ${CMAKE_CURRENT_SOURCE_DIR}/System/System_Win32.h)
 ENDIF(WIN32)

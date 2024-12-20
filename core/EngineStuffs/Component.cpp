@@ -1,6 +1,6 @@
 #include "Component.h"
 
-unsigned int Component::nextID = 1;
+//unsigned int Component::nextID = 1;
 
 void Component::SetActive(bool active)
 {

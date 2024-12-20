@@ -1,6 +1,4 @@
-#include "../GameObject.h"
 #include "PlayerController.h"
-#include "../../Utils/Events/InputEvent.h"
 
 Behavior* PlayerController::CreatePlayerController(char* loc)
 {

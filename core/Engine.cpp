@@ -2,9 +2,6 @@
 
 #include "Utils/Timing.h"
 
-#include "EngineStuffs/Behaviors/Rotator.h"
-#include "EngineStuffs/Behaviors/PlayerController.h"
-
 //Creates window, Initializes low level systems and loads scene.
 Engine::Engine()
 {
@@ -39,9 +36,6 @@ Engine::Engine()
     Timing::Init();
 
     WORLD = DBG_NEW GameObjectManager();
-
-    BehaviorSystem::RegisterBehavior("PlayerController", sizeof(PlayerController), PlayerController::CreatePlayerController);
-    BehaviorSystem::RegisterBehavior("Rotator", sizeof(Rotator), Rotator::CreateRotator);
 }
 
 //Clears everything
@@ -156,7 +150,7 @@ void Engine::frameStep()
     {
         if (behvs[i]->GetActive())
         {
-            behvs[i]->Update(0.1);
+            behvs[i]->Update((float)Timing::deltaTime);
         }
     }
 

@@ -1,6 +1,5 @@
 #pragma once
-#include "Behavior.h"
-#include "../Transform.h"
+#include "Lillis.h"
 
 class GameObject;
 

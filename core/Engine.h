@@ -24,7 +24,7 @@ struct EngineState
     bool isEditor;
 };
 
-class DLLUSAGE Engine
+class Engine
 {
 public:
     static Engine* Game;

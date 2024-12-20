@@ -1,6 +1,5 @@
 #pragma once
-#include "Behavior.h"
-#include "../MemoryManagement/Serializer.h"
+#include "Lillis.h"
 
 class GameObject;
 

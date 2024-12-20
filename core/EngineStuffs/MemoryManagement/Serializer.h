@@ -7,7 +7,7 @@
 
 #include <string>
 
-DLLUSAGE class Serializer {
+class Serializer {
   public:
   template <typename T>
   size_t InsertToBuffer(T* object)

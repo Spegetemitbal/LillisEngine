@@ -33,8 +33,9 @@ protected:
 	bool isActive = false;
 	//If disabled, is not garbage data, but won't be read.
 	bool isEnabled = false;
+
+	//Perhaps add a map of these or some way to have a different string of IDs for each component!
+	inline static unsigned int nextID = 1;
 private:
 	unsigned int entityID = 0;
-	//Perhaps add a map of these or some way to have a different string of IDs for each component!
-	static unsigned int nextID;
 };

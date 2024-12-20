@@ -2,7 +2,6 @@
 
 //Wipe these later.
 #include "Behavior.h"
-#include "../MemoryManagement/Serializer.h"
 
 typedef Behavior*( *BehaviorFactory )(char* loc);
 //typedef void( *BehaviorSerialize )( const Behavior* _Behavior, Serializer& o_Buffer );

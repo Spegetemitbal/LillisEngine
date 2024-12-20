@@ -7,7 +7,7 @@
 
 
 
-DLLUSAGE class FrameTimer {
+class FrameTimer {
 public:
     FrameTimer() = delete;
     //Minimum frames is 2
@@ -24,7 +24,7 @@ private:
     bool ranOut = false;
 };
 
-DLLUSAGE class Timer {
+class Timer {
 public:
     Timer() = delete;
     //Must be above 0

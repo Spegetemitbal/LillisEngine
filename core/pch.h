@@ -47,11 +47,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifdef LILLISENG
-#define DLLUSAGE __declspec(dllexport)
-#else
-#define DLLUSAGE __declspec(dllimport)
-#endif
+
 
 //Put logging here too
 
