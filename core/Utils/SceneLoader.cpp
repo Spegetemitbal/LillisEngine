@@ -149,7 +149,6 @@ void SceneLoader::LoadData(const std::string& fileName)
 	}
 
 	stream.close();
-	WORLD->CurrentLevel = data.getFileName();
 }
 
 SceneLoader* SceneLoader::SCL = nullptr;

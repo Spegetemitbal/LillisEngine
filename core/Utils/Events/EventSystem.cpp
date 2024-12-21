@@ -19,7 +19,15 @@ void EventSystem::addListener(EventType type, EventListener* pListener)
 {
 	if (IsInitted)
 	{
-		Listeners.insert(std::pair< EventType, EventListener* >(type, pListener));
+		Listeners.insert(std::pair(type, pListener));
+	}
+}
+
+void EventSystem::addCallback(EventType type, EventCallback pCallback)
+{
+	if (IsInitted)
+	{
+		Callbacks.insert(std::pair(type, pCallback));
 	}
 }
 
@@ -36,6 +44,24 @@ void EventSystem::removeListener(EventType type, EventListener* pListener)
 			if (iter->second == pListener)
 			{
 				Listeners.erase(iter);
+				break;//to prevent using invalidated iterator
+			}
+		}
+	}
+}
+
+void EventSystem::removeCallback(EventType type, EventCallback pCallback)
+{
+	if (IsInitted)
+	{
+		std::pair<std::multimap<EventType, EventCallback>::iterator, std::multimap<EventType, EventCallback>::iterator> ret;
+		ret = Callbacks.equal_range(type);
+		std::multimap<EventType, EventCallback>::iterator iter;
+		for (iter = ret.first; iter != ret.second; ++iter)
+		{
+			if (iter->second == pCallback)
+			{
+				Callbacks.erase(iter);
 				break;//to prevent using invalidated iterator
 			}
 		}
@@ -64,6 +90,29 @@ void EventSystem::removeListenerFromAllEvents(EventListener* pListener)
 		}
 	}
 }
+
+void EventSystem::removeCallbackFromAllEvents(EventCallback pCallback)
+{
+	if (IsInitted)
+	{
+		std::multimap<EventType, EventCallback>::iterator iter;
+		bool allTheWayThrough = false;
+		while (!allTheWayThrough)
+		{
+			allTheWayThrough = true;
+			for (iter = Callbacks.begin(); iter != Callbacks.end(); ++iter)
+			{
+				if (iter->second == pCallback)
+				{
+					Callbacks.erase(iter);
+					allTheWayThrough = false; //didn't make it the whole way through
+					break;//to prevent using invalidated iterator
+				}
+			}
+		}
+	}
+}
+
 
 //Singleton getter
 EventSystem* EventSystem::getInstance()
@@ -106,10 +155,12 @@ void EventSystem::init()
 void EventSystem::cleanup()
 {
 	Listeners.clear();
+	Callbacks.clear();
 	IsInitted = false;
 }
 
 //Checks for initialization and then just jumps to dispatch (perhaps simplify this)
+//Make non-blocking at some point with an event-bus called all at once!
 void EventSystem::fireEvent(const Event& theEvent)
 {
 	if (IsInitted)
@@ -117,6 +168,8 @@ void EventSystem::fireEvent(const Event& theEvent)
 		dispatchAllEvents(theEvent);
 	}
 }
+
+
 
 //Iterates through all listeners of the specific type and sends them the event.
 void EventSystem::dispatchAllEvents(const Event& theEvent)
@@ -130,6 +183,15 @@ void EventSystem::dispatchAllEvents(const Event& theEvent)
 		for (; iter != ret.second; ++iter)
 		{
 			iter->second->handleEvent(theEvent);
+		}
+
+		//then for callbacks
+		std::pair<std::multimap<EventType, EventCallback>::iterator, std::multimap<EventType, EventCallback>::iterator> ret2;
+		ret2 = Callbacks.equal_range(theEvent.getType());
+		auto iter2 = ret2.first;
+		for (; iter2 != ret2.second; ++iter2)
+		{
+			iter2->second(theEvent);
 		}
 	}
 }

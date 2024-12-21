@@ -19,8 +19,10 @@ struct EngineState
     GraphicsSystem* graphics;
     InputSystem* gameInputs;
     LILLIS::System* system;
-    PhysicsSystem* phys;
     bool quit;
+    bool isRunning;
+    std::string nextLevel;
+    bool loadNextLevel;
     bool isEditor;
 };
 
@@ -32,6 +34,10 @@ public:
     static Engine* GetGameInstance();
     static Engine* CreateGameInstance();
     static void DestroyGameInstance();
+
+    std::string CurrentLevel = std::string();
+
+    void Init(int screenWidth, int screenHeight, std::string gameName, std::vector<LILLIS::KeyCode>);
 
     void InjectAssets(const char* filePath, AssetType resourceType);
     void InjectSingleAsset(const char* filePath, AssetType resourceType);
@@ -45,12 +51,7 @@ private:
     ~Engine();
 
     //StackAllocator* FrameAllocator = DBG_NEW StackAllocator();
+    void SceneLoad(std::string Data);
     void frameStep();
-
-    //Everything past this point is game specific and to be wiped upon abstraction.
-    void restartGame();
-
-    LilObj<GameObject> p1;
-    LilObj<GameObject> p2;
 };
 

@@ -45,8 +45,6 @@ public:
 	//A flyweight should be implemented here soon.
 	//std::vector<Texture2D> sprites = std::vector<Texture2D>();
 
-	std::string CurrentLevel;
-
 private:
 	GameObjPool* objects;
 	ComponentPool<RectangleCollider>* colliderPool;

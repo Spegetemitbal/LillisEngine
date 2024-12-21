@@ -13,29 +13,6 @@ Engine::Engine()
 
     EventSystem* ev = EventSystem::createInstance();
     ev->init();
-
-    const int WIDTH = 640;
-    const int HEIGHT = 480;
-
-    engine.phys = DBG_NEW PhysicsSystem();
-
-    engine.graphics = DBG_NEW GraphicsSystem(WIDTH, HEIGHT, "Game");
-    if (!engine.graphics->Init())
-    {
-        exit(1);
-    }
-    
-    std::vector<LILLIS::KeyCode> importantKeys
-    {
-        LILLIS::W, LILLIS::S, LILLIS::A, LILLIS::D, LILLIS::ESC
-    };
-
-    engine.gameInputs = DBG_NEW InputSystem(importantKeys);
-    engine.gameInputs->setupKeyInputs(engine.graphics->GetWin());
-
-    Timing::Init();
-
-    WORLD = DBG_NEW GameObjectManager();
 }
 
 //Clears everything
@@ -44,9 +21,6 @@ Engine::~Engine()
     //WORLD->DelWorld();
     delete WORLD;
     //delete FrameAllocator
-
-    delete engine.phys;
-    engine.phys = nullptr;
 
     EventSystem* ev = EventSystem::getInstance();
     ev->cleanup();
@@ -65,6 +39,18 @@ Engine::~Engine()
 //Resets WORLD and loads a new scene.
 void Engine::LoadLevel(std::string Data)
 {
+    if (engine.isRunning)
+    {
+        engine.nextLevel = Data;
+        engine.loadNextLevel = true;
+    } else
+    {
+        SceneLoad(Data);
+    }
+}
+
+void Engine::SceneLoad(std::string Data)
+{
     if (WORLD == nullptr)
     {
         WORLD = DBG_NEW GameObjectManager();
@@ -75,12 +61,14 @@ void Engine::LoadLevel(std::string Data)
     }
     SceneLoader scl;
     scl.LoadData(Data);
+    CurrentLevel = Data;
 }
+
 
 //Game loop
 void Engine::Run()
 {
-    //restartGame();
+    engine.isRunning = true;
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&frameStep, engine, 0, true);
 #else
@@ -98,52 +86,15 @@ void Engine::Run()
 
 }
 
-//Wipe later
-void Engine::restartGame()
-{
-    if (WORLD->numObjects > 0)
-    {
-        WORLD->clearAll();
-    }
-
-    LoadLevel(WORLD->CurrentLevel);
-    /*
-    //Game specifics
-    p1 = WORLD->addObject(0, 0);
-    p1->CreateCollider(40, 40, 0);
-    p1->SetSprite("Player1");
-    p1->CreateBehaviorGeneric("PlayerController");
-
-    p2 = WORLD->addObject(0, 440);
-    p2->SetSprite("Player2");
-    p2->CreateCollider(40, 40, 1);
-    p2->CreateBehaviorGeneric("PlayerController");
-
-    LilObj<GameObject> goal = WORLD->addObject(600, 220);
-    goal->SetSprite("WinFlag");
-    goal->CreateCollider(40, 40, 2);
-
-    float pos = 100;
-    float ang = 20;
-    for (int i = 0; i < 3; i++)
-    {
-        LilObj<GameObject> spinny = WORLD->addObject(300, pos);
-        spinny->SetSprite("Angry");
-        spinny->CreateCollider(40, 40, 3);
-        spinny->CreateBehaviorGeneric("Rotator");
-        LilObj<Rotator> r = spinny->GetBehavior<Rotator>("Rotator");
-        r->setAngle(ang);
-        r->setBaseOffset(300, pos);
-        pos += 100;
-        ang += 30;
-    }*/
-
-}
-
 
 //Occurs every frame, the 'content' of the game loop
 void Engine::frameStep()
 {
+    if (engine.loadNextLevel)
+    {
+        SceneLoad(engine.nextLevel);
+        engine.loadNextLevel = false;
+    }
 
     ActiveTracker<Behavior*> behvs = WORLD->getBehaviorsRaw();
     for (int i = 0; i < behvs.size(); i++)
@@ -184,16 +135,11 @@ void Engine::frameStep()
 
     engine.graphics->PostDraw();
 
-    if (engine.phys->checkReset())
-    {
-        restartGame();
-        engine.phys->patchReset();
-    }
-
     //End of Frame Garbage collection
     WORLD->compactObjects(objects.GetNumActive());
     WORLD->compactObjects(col.GetNumActive());
     WORLD->compactColliders(behvs.GetNumActive());
+
 
     if (engine.gameInputs->getIsKeyDown(LILLIS::ESC))
     {
@@ -265,6 +211,24 @@ void Engine::InjectSingleAsset(const char* filePath, AssetType resourceType)
             break;
     }
 }
+
+void Engine::Init(int screenWidth, int screenHeight, std::string gameName, std::vector<LILLIS::KeyCode> keys)
+{
+
+    engine.graphics = DBG_NEW GraphicsSystem(screenWidth, screenHeight, gameName);
+    if (!engine.graphics->Init())
+    {
+        exit(1);
+    }
+
+    engine.gameInputs = DBG_NEW InputSystem(keys);
+    engine.gameInputs->setupKeyInputs(engine.graphics->GetWin());
+
+    Timing::Init();
+
+    WORLD = DBG_NEW GameObjectManager();
+}
+
 
 //Singleton getter
 Engine* Engine::GetGameInstance()
