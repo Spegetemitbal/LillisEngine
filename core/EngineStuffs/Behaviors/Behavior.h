@@ -17,6 +17,8 @@ public:
 	}
 	virtual ~Behavior() {};
 
+	Behavior(const Behavior& behavior) = default;
+
 	void handleEvent(const Event& theEvent) {}
 
 	std::string GetName() { return BehaviorName; }

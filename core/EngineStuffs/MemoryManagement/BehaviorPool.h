@@ -31,7 +31,7 @@ public:
         mHead = mPool;
     }
 
-    LilObj<Behavior> CreateBehavior(std::string typeID)
+    LilObj<Behavior> CreateBehavior(const std::string& typeID)
     {
         BehaviorData B = BehaviorSystem::GetBehavior(typeID);
         try
@@ -64,9 +64,10 @@ public:
 
         if (f != poolDir.end())
         {
-            //size_t index = distance(poolDir.begin(), f);
+            size_t index = std::distance(poolDir.begin(), f);
             objMap.erase(Bhvr->GetID());
             poolDir.erase(f);
+            inactive++;
         }
     }
 
@@ -75,15 +76,18 @@ public:
         mHead = mPool;
         objMap.clear();
         poolDir.clear();
+        UpdateEventPointers();
     }
 
     void CompactPool(int active) override
     {
-        if (active > 0)
+        if (inactive / mCount > 0.5)
         {
+            //TODO LISP2 compaction... or something
             UpdateEventPointers();
+            inactive = 0;
+            mCount = poolDir.size();
         }
-        //TODO LISP2 compaction... or something
     }
 
     ActiveTracker<Behavior*> getPool() {return {poolDir};}
@@ -94,7 +98,39 @@ protected:
 
     void ResizePool() override
     {
-        //TODO Should be similar to the others, but differing compaction sizes.
+        //Clear previous data (that isn't needed)
+        objMap.clear();
+        poolDir.resize(poolDir.size() * 2);
+        stackSize *= 2;
+        size_t numObjects = poolDir.size();
+        vector tempDir(poolDir);
+        poolDir.clear();
+
+        //Make new pool to copy things over to.
+        char* tempPool = DBG_NEW char[stackSize];
+
+        //Copy all active objects over from previous pool to new pool.
+        char* tempHead = tempPool;
+        for (int i = 0; i < tempDir.size(); i++)
+        {
+            //Find a safer way to do this!
+            BehaviorData B = BehaviorSystem::GetBehavior(tempDir[i]->GetName());
+            std::memcpy(tempHead, tempDir[i], B.byteSize);
+            poolDir.push_back(reinterpret_cast<Behavior*>(tempHead));
+            tempHead += B.byteSize;
+        }
+
+        //Final swap over.
+        delete[] mPool;
+        mPool = tempPool;
+        mHead = tempHead;
+        //Reload Map
+        for (int i = 0; i < poolDir.size(); i++)
+        {
+            objMap.emplace(poolDir[i]->GetID(), poolDir[i]);
+        }
+        inactive = 0;
+        mCount = poolDir.size();
         UpdateEventPointers();
     }
 private:
@@ -110,6 +146,7 @@ private:
         }
     }
 
+    int inactive = 0;
     size_t stackSize;
     char* mHead;
 };
