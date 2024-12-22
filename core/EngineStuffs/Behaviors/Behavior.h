@@ -25,6 +25,8 @@ public:
 	virtual void Serialize(Serializer& ser) {};
 	virtual void Deserialize(Serializer& ser) {};
 
+	virtual void LoadListeners() {}
+
 private:
 	std::string BehaviorName = "";
 

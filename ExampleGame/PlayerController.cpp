@@ -1,5 +1,11 @@
 #include "PlayerController.h"
 
+void PlayerController::LoadListeners()
+{
+	addListener(INPUT_EVENT);
+}
+
+
 Behavior* PlayerController::CreatePlayerController(char* loc)
 {
 	return new (loc)PlayerController();//G->CreatePlayerController();

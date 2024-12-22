@@ -4,8 +4,6 @@
 
 #include "GameEvent.h"
 
-//Note for improvement: Change the data structure, multimap is SUPER unintuitive.
-
 class Event;
 class EventListener;
 enum EventType;
@@ -29,6 +27,8 @@ public:
 	void removeCallback(EventType type, EventCallback pCallback);
 	void removeListenerFromAllEvents(EventListener* pListener);
 	void removeCallbackFromAllEvents(EventCallback pCallback);
+
+	void removeAllListeners() {Listeners.clear();};
 
 private:
 	static EventSystem* eventSystem;

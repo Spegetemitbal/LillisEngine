@@ -9,6 +9,7 @@
 #include <ostream>
 
 #include "../Behaviors/BehaviorSystem.h"
+#include "../Utils/Events/EventSystem.h"
 #include "MemoryPool.h"
 #include "pch.h"
 
@@ -44,6 +45,7 @@ public:
             Behavior* b = B.generator(mHead);
             poolDir.push_back(b);
             poolDir.back()->SetActive(true);
+            poolDir.back()->LoadListeners();
             objMap[poolDir.back()->GetID()] = poolDir.back();
             mCount++;
             mHead += sizeToAllocate;
@@ -59,9 +61,10 @@ public:
     void DestroyBehavior(Behavior* Bhvr)
     {
         auto f = std::find(poolDir.begin(), poolDir.end(), Bhvr);
+
         if (f != poolDir.end())
         {
-            size_t index = distance(poolDir.begin(), f);
+            //size_t index = distance(poolDir.begin(), f);
             objMap.erase(Bhvr->GetID());
             poolDir.erase(f);
         }
@@ -76,6 +79,10 @@ public:
 
     void CompactPool(int active) override
     {
+        if (active > 0)
+        {
+            UpdateEventPointers();
+        }
         //TODO LISP2 compaction... or something
     }
 
@@ -88,8 +95,21 @@ protected:
     void ResizePool() override
     {
         //TODO Should be similar to the others, but differing compaction sizes.
+        UpdateEventPointers();
     }
 private:
+
+    void UpdateEventPointers()
+    {
+        EventSystem* ev = EventSystem::getInstance();
+        ev->removeAllListeners();
+
+        for (int i = 0; i < poolDir.size(); i++)
+        {
+            poolDir[i]->LoadListeners();
+        }
+    }
+
     size_t stackSize;
     char* mHead;
 };
