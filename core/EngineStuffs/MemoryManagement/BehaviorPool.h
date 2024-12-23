@@ -12,6 +12,20 @@
 #include "../Utils/Events/EventSystem.h"
 #include "MemoryPool.h"
 #include "pch.h"
+#include "Utils/Events/InputEvent.h"
+
+struct ForwardingAddress
+{
+    ForwardingAddress(void* fwd, Behavior* bhv, size_t len)
+    {
+        forward = fwd;
+        origin = bhv;
+        objSize = len;
+    }
+    void* forward;
+    Behavior* origin;
+    size_t objSize;
+};
 
 class BehaviorHandler : public MemoryPool
 {
@@ -84,6 +98,37 @@ public:
         if (inactive / mCount > 0.5)
         {
             //TODO LISP2 compaction... or something
+
+            void* free = mPool;
+
+            std::vector<ForwardingAddress> addresses = std::vector<ForwardingAddress>();
+
+            //Load over everything.
+            for (int index = 0; index < poolDir.size(); ++index)
+            {
+                BehaviorData B = BehaviorSystem::GetBehavior(poolDir[index]->GetName());
+                addresses.emplace_back(free, poolDir[index], B.byteSize);
+                free += B.byteSize;
+            }
+
+            //Relocate
+            for (int index = 0; index < addresses.size(); ++index)
+            {
+                ForwardingAddress address = addresses[index];
+                if (address.forward != address.origin)
+                {
+                    poolDir[index] = (Behavior*)address.forward;
+                    std::memcpy(address.forward, address.origin, address.objSize);
+                }
+            }
+
+            //refill map.
+            objMap.clear();
+            for (int i = 0; i < poolDir.size(); i++)
+            {
+                objMap.emplace(poolDir[i]->GetID(), poolDir[i]);
+            }
+
             UpdateEventPointers();
             inactive = 0;
             mCount = poolDir.size();
@@ -150,6 +195,5 @@ private:
     size_t stackSize;
     char* mHead;
 };
-
 
 #endif //BEHAVIORPOOL_H
