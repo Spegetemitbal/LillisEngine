@@ -97,9 +97,9 @@ public:
     {
         if (inactive / mCount > 0.5)
         {
-            //TODO LISP2 compaction... or something
+            EventSystem* ev = EventSystem::getInstance();
 
-            void* free = mPool;
+            char* free = mPool;
 
             std::vector<ForwardingAddress> addresses = std::vector<ForwardingAddress>();
 
@@ -117,8 +117,9 @@ public:
                 ForwardingAddress address = addresses[index];
                 if (address.forward != address.origin)
                 {
+                    ev->removeListenerFromAllEvents(address.origin);
                     poolDir[index] = (Behavior*)address.forward;
-                    std::memcpy(address.forward, address.origin, address.objSize);
+                    std::memmove(address.forward, address.origin, address.objSize);
                 }
             }
 
@@ -143,6 +144,12 @@ protected:
 
     void ResizePool() override
     {
+        EventSystem* ev = EventSystem::getInstance();
+        for (auto & i : poolDir)
+        {
+            ev->removeListenerFromAllEvents(i);
+        }
+
         //Clear previous data (that isn't needed)
         objMap.clear();
         poolDir.resize(poolDir.size() * 2);
@@ -160,7 +167,7 @@ protected:
         {
             //Find a safer way to do this!
             BehaviorData B = BehaviorSystem::GetBehavior(tempDir[i]->GetName());
-            std::memcpy(tempHead, tempDir[i], B.byteSize);
+            std::memmove(tempHead, tempDir[i], B.byteSize);
             poolDir.push_back(reinterpret_cast<Behavior*>(tempHead));
             tempHead += B.byteSize;
         }
@@ -183,7 +190,6 @@ private:
     void UpdateEventPointers()
     {
         EventSystem* ev = EventSystem::getInstance();
-        ev->removeAllListeners();
 
         for (int i = 0; i < poolDir.size(); i++)
         {

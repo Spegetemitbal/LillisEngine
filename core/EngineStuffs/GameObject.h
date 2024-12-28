@@ -18,20 +18,16 @@ public:
 	};
 
 	//Probs make these private my guy.
-	GameObject(float x, float y)
+	GameObject(float x, float y, const std::string &name, std::string parent)
 	{
-		transform = Transform();
-		transform.x = x;
-		transform.y = y;
-
+		transform = Transform(x, y);
+		objName = name;
 		entityID = nextID;
 		nextID++;
 	};
 
 	~GameObject()
-	{
-
-	}
+	= default;
 
 	//Inactive objects are wiped.
 	void SetActive(bool active);
@@ -47,15 +43,16 @@ public:
 	LilObj<RectangleCollider> CreateCollider(float w, float h, int id);
 
 	unsigned int GetID() const {return entityID;};
+	std::string GetName() const {return objName;};
 
 	size_t SerializeTransform(char* buffer, size_t bufSize);
 	size_t DeSerializeTransform(char* buffer, size_t bufSize);
 
-	Transform transform;
+	Transform transform{};
 
 	//Behavior* getBehavior(LILLIS::string name);
 
-	LilObj<RectangleCollider> getCollider() { return collider; }
+	LilObj<RectangleCollider> getCollider() {return collider;};
 	std::string getSprite() { return sprite; }
 
 	LilObj<GameObject> thisObject;
@@ -65,7 +62,7 @@ public:
 	{
 		if (behaviorMap.find(name) != behaviorMap.end())
 		{
-			return {behaviorMap[name].GetPool(), behaviorMap[name].GetID()};
+			return {behaviorMap[name].GetPool(), entityID};
 		} else
 		{
 			return {};
@@ -84,8 +81,11 @@ public:
 
 protected:
 	std::string sprite;
+	std::string objName;
 	LilObj<RectangleCollider> collider;
 	unordered_map<std::string, LilObj<Behavior>> behaviorMap;
+
+	friend class GameObjPool;
 
 	//Whether the object is turned on or not
 	bool isEnabled = false;

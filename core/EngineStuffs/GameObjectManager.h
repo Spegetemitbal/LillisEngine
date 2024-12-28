@@ -8,6 +8,7 @@
 
 class GameObject;
 class GameObjPool;
+class SceneGraph;
 
 class GameObjectManager
 {
@@ -26,8 +27,12 @@ public:
 
 	//GameObject* findObject(GameObject g);
 
-	LilObj<GameObject> addObject();
-	LilObj<GameObject> addObject(float x, float y);
+	LilObj<GameObject> addObject(const std::string &name);
+	LilObj<GameObject> addObject(float x, float y, const std::string& name);
+	bool SetObjectParent(const std::string& parent, LilObj<GameObject> child);
+	void RemoveObjectParent(LilObj<GameObject> child);
+	void RunTransformHierarchy();
+	LilObj<GameObject> getObjectByName(const std::string& name);
 	ActiveTracker<GameObject*> getObjectsRaw() const;
 	unsigned int getObjActive() const;
 	void compactObjects(int active) const;
@@ -46,7 +51,9 @@ public:
 	//std::vector<Texture2D> sprites = std::vector<Texture2D>();
 
 private:
+
 	GameObjPool* objects;
+	SceneGraph* sceneGraph;
 	ComponentPool<RectangleCollider>* colliderPool;
 	BehaviorHandler* behaviors;
 };

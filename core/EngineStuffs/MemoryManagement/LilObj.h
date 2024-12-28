@@ -51,6 +51,28 @@ class LilObj
   MemoryPool* GetPool() {return pool;}
   unsigned int GetID() {return itemID;}
 
+  bool operator<(const LilObj& obj)
+  {
+    if (itemID < obj.GetID())
+    {
+      return true;
+    } else
+    {
+      return false;
+    }
+  }
+
+  bool operator==(const LilObj& obj)
+  {
+    if (obj.GetID() == itemID)
+    {
+      return true;
+    } else
+    {
+      return false;
+    }
+  }
+
   private:
   MemoryPool* pool;
   //All item IDs start at 1

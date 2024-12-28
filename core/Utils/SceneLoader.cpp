@@ -9,33 +9,14 @@
 
 #define WORLD GameObjectManager::world
 
-const int MAX_PARAMS = 10;
-
-SceneLoader::SceneLoader()
-{
-	//Map static componentCreate functions here.
-	//1347175252
-	//compMap['PLCT'] = PlayerController::CreatePlayerController;
-	//1380144195
-	compMap['RCTC'] = RectangleCollider::CreateRectangleCollider;
-	//1380144210
-	//compMap['RCTR'] = RectangleRenderer::CreateRectangleRenderer;
-	//1380930642
-	//compMap['ROTR'] = Rotator::CreateRotator;
-}
-
-SceneLoader::~SceneLoader()
-{
-	compMap.clear();
-}
-
 void SceneLoader::LoadData(const std::string& fileName)
 {
-	if (ResourceManager::DataFiles.find(fileName) == ResourceManager::DataFiles.end())
+	SceneInfo info = AnalyzeScene(fileName);
+	if (info.numObjects == 0)
 	{
-		std::cout << "File " << fileName << " does not exist!" << '\n';
 		return;
 	}
+
 	FileDataWrapper data = ResourceManager::DataFiles[fileName];
 	std::ifstream stream;
 	stream.open(data.getFilePath());
@@ -54,20 +35,20 @@ void SceneLoader::LoadData(const std::string& fileName)
 		if (word == "Object")
 		{
 			float x, y;
+			std::string name, parent;
 			stream >> x;
 			stream >> y;
+			stream >> name;
+			stream >> parent;
 
 			//Intake texture ID here
-
-			//std::cout << word << " " << x << " " << y << " " << std::endl;
-
-			//stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			LilObj<GameObject> G = WORLD->addObject(x, y, name);
+			if (parent != "NONE")
+			{
+				WORLD->SetObjectParent(parent, G);
+			}
 
 			std::string component;
-			LilObj<GameObject> G = WORLD->addObject();
-			G->transform.x = x;
-			G->transform.y = y;
-			G->transform.z = 0;
 
 			//1162757196
 			while (component != ";")
@@ -151,4 +132,36 @@ void SceneLoader::LoadData(const std::string& fileName)
 	stream.close();
 }
 
-SceneLoader* SceneLoader::SCL = nullptr;
+SceneInfo SceneLoader::AnalyzeScene(const std::string &fileName)
+{
+	SceneInfo info = SceneInfo();
+
+	if (ResourceManager::DataFiles.find(fileName) == ResourceManager::DataFiles.end())
+	{
+		std::cout << "File " << fileName << " does not exist!" << '\n';
+		return {};
+	}
+	FileDataWrapper data = ResourceManager::DataFiles[fileName];
+	std::ifstream stream;
+	stream.open(data.getFilePath());
+
+	Serializer ser = Serializer();
+
+	if (!stream.is_open())
+	{
+		return {};
+	}
+
+	std::string word;
+	while (stream.good())
+	{
+		stream >> word;
+		if (word == "Object")
+		{
+			info.numObjects++;
+		}
+	}
+
+	stream.close();
+	return info;
+}

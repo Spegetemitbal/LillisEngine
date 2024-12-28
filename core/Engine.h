@@ -22,7 +22,7 @@ struct EngineState
     bool quit;
     bool isRunning;
     std::string nextLevel;
-    bool loadNextLevel;
+    bool loadNextLevel = false;
     bool isEditor;
 };
 

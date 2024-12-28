@@ -1,5 +1,6 @@
 #include "GameObject.h"
 #include "GameObjectManager.h"
+#include "Utils/Events/ObjectAliveEvent.h"
 
 #define WORLD GameObjectManager::world
 
@@ -8,13 +9,16 @@ void GameObject::SetSprite(std::string name)
 	sprite = name;
 }
 
+
+
 //Sets object for deletion.
 void GameObject::SetActive(bool active)
 {
 	isActive = active;
 	if (!isActive)
 	{
-		transform = Transform();
+		//EventSystem::getInstance()->fireEvent(ObjectAliveEvent(entityID, false, true));
+		//transform = Transform();
 		//sprite = nullptr;
 		collider = LilObj<RectangleCollider>();
 		behaviorMap.clear();

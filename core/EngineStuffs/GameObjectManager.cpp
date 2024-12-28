@@ -1,10 +1,12 @@
 #include "GameObjectManager.h"
 #include "GameObject.h"
 #include "MemoryManagement/GameObjPool.h"
+#include "SceneGraph.h"
 
 GameObjectManager::GameObjectManager()
 {
 	objects = DBG_NEW GameObjPool(10);
+	sceneGraph = DBG_NEW SceneGraph(objects);
 	colliderPool = DBG_NEW ComponentPool<RectangleCollider>(10);
 	behaviors = DBG_NEW BehaviorHandler(50);
 }
@@ -13,33 +15,37 @@ GameObjectManager::~GameObjectManager()
 { 
 	//clearAll();
 	delete objects;
+	delete sceneGraph;
 	delete colliderPool;
 	delete behaviors;
 }
 
-LilObj<GameObject> GameObjectManager::addObject()
+LilObj<GameObject> GameObjectManager::addObject(const std::string& name)
 {
-	GameObject* g = objects->AddObject();
+	GameObject* g = objects->AddObject(0, 0, name);
 	LilObj<GameObject> ob = {objects, g->GetID()};
 	g->thisObject = ob;
-	g->transform.x = 0;
-	g->transform.y = 0;
-	g->transform.z = 0;
+	g->transform.localPosition.x = 0;
+	g->transform.localPosition.y = 0;
+	g->transform.localPosition.z = 0;
 	numObjects++;
 	return ob;
 }
 
-LilObj<GameObject> GameObjectManager::addObject(float x, float y)
+LilObj<GameObject> GameObjectManager::addObject(float x, float y, const std::string& name)
 {
-	GameObject* g = objects->AddObject();
+	GameObject* g = objects->AddObject(x, y, name);
 	LilObj<GameObject> ob = {objects, g->GetID()};
 	g->thisObject = ob;
-	g->transform.x = x;
-	g->transform.y = y;
-	g->transform.z = 0;
 	numObjects++;
 	return ob;
 }
+
+LilObj<GameObject> GameObjectManager::getObjectByName(const std::string &name)
+{
+	return objects->GetObjectByName(name);
+}
+
 
 LilObj<RectangleCollider> GameObjectManager::addCollider(float w, float h, int id)
 {
@@ -52,10 +58,13 @@ LilObj<RectangleCollider> GameObjectManager::addCollider(float w, float h, int i
 
 void GameObjectManager::clearAll()
 {
-	objects->ClearPool();
-	colliderPool->ClearPool();
-	behaviors->ClearPool();
-	numObjects = 0;
+	if (numObjects > 0)
+	{
+		objects->ClearPool();
+		colliderPool->ClearPool();
+		behaviors->ClearPool();
+		numObjects = 0;
+	}
 	//sprites.clear();
 }
 
@@ -63,6 +72,42 @@ LilObj<Behavior> GameObjectManager::addBehavior(const std::string &name) const
 {
 	return behaviors->CreateBehavior(name);
 }
+
+bool GameObjectManager::SetObjectParent(const std::string& parent, LilObj<GameObject> child)
+{
+	if (child.Exists())
+	{
+		LilObj<GameObject> g = getObjectByName(parent);
+		if (g.Exists())
+		{
+			sceneGraph->SetParent(g, child);
+			return true;
+		} else
+		{
+			std::cout << "Cannot find parent object" << '\n';
+			return false;
+		}
+	} else
+	{
+		std::cout << "Child doesn't exist" << '\n';
+		return false;
+	}
+}
+
+void GameObjectManager::RemoveObjectParent(LilObj<GameObject> child)
+{
+	if (child.Exists())
+	{
+		sceneGraph->RemoveParent(child);
+	}
+}
+
+void GameObjectManager::RunTransformHierarchy()
+{
+	sceneGraph->DoForwardKinematics();
+}
+
+
 
 
 ActiveTracker<GameObject*> GameObjectManager::getObjectsRaw() const { return objects->getPool(); };

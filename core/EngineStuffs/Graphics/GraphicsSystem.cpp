@@ -73,7 +73,7 @@ void GraphicsSystem::RenderSprite(GameObject& g)
 	{
 		//std::cout << g.transform.x << " " << g.transform.y << '\n';
 	}
-	testSpr->DrawSprite(tex, glm::vec2(g.transform.x, g.transform.y), glm::vec2(tex.Width, tex.Height));
+	testSpr->DrawSprite(tex, glm::vec2(g.transform.GlobalPosition().x, g.transform.GlobalPosition().y), glm::vec2(tex.Width, tex.Height));
 }
 
 void GraphicsSystem::PreDraw()

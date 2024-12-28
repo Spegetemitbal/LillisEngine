@@ -22,6 +22,6 @@ void Rotator::Update(float deltaTime)
 		myAngle -= M_PI * 2;
 	}
 
-	thisObject->transform.x = (DIST * cos(myAngle)) + offsetX;
-	thisObject->transform.y = (DIST * sin(myAngle)) + offsetY;
+	thisObject->transform.localPosition.x = (DIST * cos(myAngle)) + offsetX;
+	thisObject->transform.localPosition.y = (DIST * sin(myAngle)) + offsetY;
 }

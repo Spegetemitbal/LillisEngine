@@ -186,12 +186,12 @@ void EventSystem::dispatchAllEvents(const Event& theEvent)
 		}
 
 		//then for callbacks
-		std::pair<std::multimap<EventType, EventCallback>::iterator, std::multimap<EventType, EventCallback>::iterator> ret2;
-		ret2 = Callbacks.equal_range(theEvent.getType());
-		auto iter2 = ret2.first;
-		for (; iter2 != ret2.second; ++iter2)
+		std::pair<std::multimap<EventType, EventCallback>::iterator, std::multimap<EventType, EventCallback>::iterator> ret3;
+		ret3 = Callbacks.equal_range(theEvent.getType());
+		auto iter3 = ret3.first;
+		for (; iter3 != ret3.second; ++iter3)
 		{
-			iter2->second(theEvent);
+			iter3->second(theEvent);
 		}
 	}
 }

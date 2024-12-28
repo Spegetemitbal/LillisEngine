@@ -20,7 +20,8 @@ bool RectangleCollider::CheckCollision(RectangleCollider other)
 	Transform thisTransform = thisObject->transform;
 	Transform thatTransform = other.thisObject->transform;
 
-	if (abs(thisTransform.x - thatTransform.x) < thisWidth + otherWidth && abs(thisTransform.y - thatTransform.y) < thisHeight + otherHeight)
+	if (abs(thisTransform.GlobalPosition().x - thatTransform.GlobalPosition().x)
+		< thisWidth + otherWidth && abs(thisTransform.GlobalPosition().y - thatTransform.GlobalPosition().y) < thisHeight + otherHeight)
 	{
 		EventSystem* e = EventSystem::getInstance();
 		e->fireEvent(CollisionEvent(tag, other.tag));

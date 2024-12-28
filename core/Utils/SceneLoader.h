@@ -1,18 +1,18 @@
 #pragma once
 #include "../EngineStuffs/Component.h"
 
-typedef Component* (*componentFunction)(GameObject* G, int* param);
+struct SceneInfo
+{
+	size_t numObjects = 0;
+};
 
 class SceneLoader
 {
 public:
-	static SceneLoader* SCL;
 
-	SceneLoader();
-	~SceneLoader();
+	SceneLoader() = default;
+	~SceneLoader() = default;
 
 	static void LoadData(const std::string& fileName);
-
-private:
-	std::unordered_map<int, componentFunction> compMap;
+	static SceneInfo AnalyzeScene(const std::string& fileName);
 };

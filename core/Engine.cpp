@@ -59,8 +59,7 @@ void Engine::SceneLoad(std::string Data)
     {
         WORLD->clearAll();
     }
-    SceneLoader scl;
-    scl.LoadData(Data);
+    SceneLoader::LoadData(Data);
     CurrentLevel = Data;
 }
 
@@ -95,6 +94,8 @@ void Engine::frameStep()
         SceneLoad(engine.nextLevel);
         engine.loadNextLevel = false;
     }
+
+    WORLD->RunTransformHierarchy();
 
     ActiveTracker<Behavior*> behvs = WORLD->getBehaviorsRaw();
     for (int i = 0; i < behvs.size(); i++)

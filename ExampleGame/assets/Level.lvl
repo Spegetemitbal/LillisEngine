@@ -1,28 +1,28 @@
-Object 0 0
+Object 0 0 Player1 NONE
 Collider 40 40 0
 Sprite Player1
 Behavior PlayerController )
 ;
-Object 0 440
+Object 0 440 Player2 Player1
 Collider 40 40 1
 Sprite Player2
 Behavior PlayerController )
 ;
-Object 600 220
+Object 600 220 WinFlag NONE
 Sprite WinFlag
 Collider 40 40 2
 ;
-Object 300 100
+Object 300 100 Enemy1 NONE
 Sprite Angry
 Collider 40 40 3
 Behavior Rotator 20d 300f 100f )
 ;
-Object 300 200
+Object 300 200 Enemy2 NONE
 Sprite Angry
 Collider 40 40 3
 Behavior Rotator 50d 300f 200f )
 ;
-Object 300 300
+Object 300 300 Enemy3 NONE
 Sprite Angry
 Collider 40 40 3
 Behavior Rotator 80d 300f 300f )

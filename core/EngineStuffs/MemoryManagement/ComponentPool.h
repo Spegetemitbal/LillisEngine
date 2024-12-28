@@ -108,34 +108,40 @@ public:
 		//Two finger compaction
 		void CompactPool(int active) override
 		{
-			if (active / activeLine < 0.5)
+			if (active / activeLine > 0.5)
 			{
 				size_t freeSpace = 0;
-				size_t scan = activeLine;
+				size_t scan = 0;
+				//First is origin, second is forwarding
+				std::vector<std::pair<size_t,size_t>> forwarding = std::vector<std::pair<size_t,size_t>>();
 
-				while (freeSpace < scan)
+				while (scan < activeLine)
 				{
-					while (activeCheckDir[freeSpace]->GetActive() == true && freeSpace < scan)
+					if (poolDir[scan]->GetActive())
 					{
+						forwarding.emplace_back(scan, freeSpace);
 						freeSpace++;
 					}
+					scan++;
+				}
 
-					while (activeCheckDir[scan]->GetActive() == false && freeSpace < scan)
-					{
-						scan--;
-					}
-
-					if (freeSpace < scan)
-					{
-						Comp compacted = *poolDir[freeSpace];
-						*activeCheckDir[freeSpace] = *activeCheckDir[scan];
-						*poolDir[scan] = compacted;
-						POOL_PARENT::objMap[activeCheckDir[freeSpace]->GetID()] = poolDir[freeSpace];
-						POOL_PARENT::objMap[activeCheckDir[scan]->GetID()] = poolDir[scan];
-						activeLine--;
-					}
+				for (int i = 0; i < forwarding.size(); i++)
+				{
+					pair<size_t,size_t> f = forwarding[i];
+					SwapObjects(poolDir[f.first], poolDir[f.second]);
+					activeLine--;
 				}
 			}
+		}
+
+		void SwapObjects(Comp* obj1, Comp* obj2)
+		{
+			objMap[obj1->GetID()] = obj2;
+			objMap[obj2->GetID()] = obj1;
+
+			Comp temp = *obj1;
+			*obj1 = *obj2;
+			*obj2 = temp;
 		}
 
 	ActiveTracker<Comp*> getPool() {return {poolDir};}

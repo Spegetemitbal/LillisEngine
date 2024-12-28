@@ -28,8 +28,6 @@ public:
 	void removeListenerFromAllEvents(EventListener* pListener);
 	void removeCallbackFromAllEvents(EventCallback pCallback);
 
-	void removeAllListeners() {Listeners.clear();};
-
 private:
 	static EventSystem* eventSystem;
 	//Swapping over because br0ke
