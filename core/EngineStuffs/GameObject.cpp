@@ -17,7 +17,7 @@ void GameObject::SetActive(bool active)
 	isActive = active;
 	if (!isActive)
 	{
-		//EventSystem::getInstance()->fireEvent(ObjectAliveEvent(entityID, false, true));
+		WORLD->RemoveObjectParent(thisObject, true);
 		//transform = Transform();
 		//sprite = nullptr;
 		collider = LilObj<RectangleCollider>();

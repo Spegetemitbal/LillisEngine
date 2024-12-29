@@ -30,7 +30,7 @@ public:
 	LilObj<GameObject> addObject(const std::string &name);
 	LilObj<GameObject> addObject(float x, float y, const std::string& name);
 	bool SetObjectParent(const std::string& parent, LilObj<GameObject> child);
-	void RemoveObjectParent(LilObj<GameObject> child);
+	void RemoveObjectParent(LilObj<GameObject> child, bool inactive = false);
 	void RunTransformHierarchy();
 	LilObj<GameObject> getObjectByName(const std::string& name);
 	ActiveTracker<GameObject*> getObjectsRaw() const;

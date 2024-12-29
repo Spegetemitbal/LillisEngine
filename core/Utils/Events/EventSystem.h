@@ -28,9 +28,11 @@ public:
 	void removeListenerFromAllEvents(EventListener* pListener);
 	void removeCallbackFromAllEvents(EventCallback pCallback);
 
+	//Further implementation later
+
+
 private:
 	static EventSystem* eventSystem;
-	//Swapping over because br0ke
 	std::multimap< EventType, EventListener* > Listeners;
 	std::multimap< EventType, EventCallback > Callbacks;
 	bool IsInitted = false;

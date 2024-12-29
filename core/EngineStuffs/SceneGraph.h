@@ -6,21 +6,28 @@
 #define SCENEGRAPH_H
 
 #include "MemoryManagement/GameObjPool.h"
-#include "Utils/Events/EventListener.h"
 
-class SceneGraph : public EventListener
+enum ObjectRemovalFlag
+{
+    OBJECTREMOVAL_NONE,
+    OBJECTREMOVAL_DESTROY,
+    OBJECTREMOVAL_DISABLE
+};
+
+class SceneGraph
 {
 public:
     SceneGraph() = delete;
-    ~SceneGraph();
+    ~SceneGraph() = default;
     SceneGraph(GameObjPool* gameObjPool);
 
     void SetParent(LilObj<GameObject> parent, LilObj<GameObject> child);
-    void RemoveParent(LilObj<GameObject> child);
+    void RemoveParent(LilObj<GameObject> child, ObjectRemovalFlag removalFlag);
     LilObj<GameObject> GetParent(LilObj<GameObject> child);
     void DoForwardKinematics();
+    void ClearHierarchy();
+
 private:
-    void handleEvent(const Event& theEvent) override;
     GameObjPool* mObjPool;
 
     //child first, parent second

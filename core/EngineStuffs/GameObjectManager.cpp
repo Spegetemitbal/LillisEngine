@@ -60,6 +60,7 @@ void GameObjectManager::clearAll()
 {
 	if (numObjects > 0)
 	{
+		sceneGraph->ClearHierarchy();
 		objects->ClearPool();
 		colliderPool->ClearPool();
 		behaviors->ClearPool();
@@ -94,11 +95,15 @@ bool GameObjectManager::SetObjectParent(const std::string& parent, LilObj<GameOb
 	}
 }
 
-void GameObjectManager::RemoveObjectParent(LilObj<GameObject> child)
+void GameObjectManager::RemoveObjectParent(LilObj<GameObject> child, bool inactive)
 {
 	if (child.Exists())
 	{
-		sceneGraph->RemoveParent(child);
+		if (inactive)
+		{
+			sceneGraph->RemoveParent(child, ObjectRemovalFlag::OBJECTREMOVAL_DESTROY);
+		}
+		sceneGraph->RemoveParent(child, ObjectRemovalFlag::OBJECTREMOVAL_NONE);
 	}
 }
 

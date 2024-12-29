@@ -16,9 +16,9 @@ public:
     bool getEnabled() const {return mEnabled;};
     bool getDeleted() const {return mDeleted;};
 private:
-    unsigned int mID;
-    bool mEnabled;
-    bool mDeleted;
+    unsigned int mID = 0;
+    bool mEnabled = false;
+    bool mDeleted = false;
 };
 
 #endif //OBJECTALIVEEVENT_H

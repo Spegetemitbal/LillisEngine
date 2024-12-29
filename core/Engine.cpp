@@ -8,7 +8,7 @@ Engine::Engine()
     engine = EngineState();
     engine.quit = false;
 
-    engine.system = LILLIS::System::Create();
+    engine.system = System::Create();
     engine.system->Init();
 
     EventSystem* ev = EventSystem::createInstance();

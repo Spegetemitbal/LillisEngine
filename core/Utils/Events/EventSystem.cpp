@@ -1,6 +1,7 @@
 #include "EventSystem.h"
 #include "Event.h"
 #include "EventListener.h"
+#include "../StackAllocator.h"
 
 EventSystem* EventSystem::eventSystem = nullptr;
 
