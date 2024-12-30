@@ -35,6 +35,8 @@ private:
     //parent first, child second
     std::multimap<unsigned int, unsigned int> parentMap;
     unsigned int numInheritedObjects = 0;
+
+    const int MAX_GRAPH_DEPTH = 5;
 };
 
 
