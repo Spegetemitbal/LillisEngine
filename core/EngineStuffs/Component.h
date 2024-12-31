@@ -36,6 +36,5 @@ protected:
 
 	//Perhaps add a map of these or some way to have a different string of IDs for each component!
 	inline static unsigned int nextID = 1;
-private:
 	unsigned int entityID = 0;
 };

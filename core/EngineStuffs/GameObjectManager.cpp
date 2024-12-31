@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "MemoryManagement/GameObjPool.h"
 #include "SceneGraph.h"
+#include "Graphics/RenderOrder.h"
 
 GameObjectManager::GameObjectManager()
 {
@@ -9,6 +10,7 @@ GameObjectManager::GameObjectManager()
 	sceneGraph = DBG_NEW SceneGraph(objects);
 	colliderPool = DBG_NEW ComponentPool<RectangleCollider>(10);
 	spritePool = DBG_NEW ComponentPool<Sprite>(10);
+	renderOrder = DBG_NEW RenderOrder(spritePool);
 	behaviors = DBG_NEW BehaviorHandler(50);
 }
 
@@ -18,6 +20,7 @@ GameObjectManager::~GameObjectManager()
 	delete objects;
 	delete sceneGraph;
 	delete spritePool;
+	delete renderOrder;
 	delete colliderPool;
 	delete behaviors;
 }
@@ -64,6 +67,12 @@ LilObj<Sprite> GameObjectManager::addSprite(const std::string& name)
 	s->image = name;
 	return {spritePool, s->GetID()};
 }
+
+void GameObjectManager::setSpriteLayer(Sprite* spr)
+{
+	renderOrder->MoveSprite({spritePool, spr->GetID()});
+}
+
 
 void GameObjectManager::clearAll()
 {

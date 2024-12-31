@@ -1,5 +1,5 @@
 #pragma once
-#include "Component.h"
+#include "../Component.h"
 #include "MemoryPool.h"
 #include <cstring>
 
@@ -147,20 +147,20 @@ public:
 			Comp temp = *obj1;
 			*obj1 = *obj2;
 			*obj2 = temp;
-
-			auto it1 = std::find(poolDir.begin(), poolDir.end(), obj1);
-			size_t index1 = distance(poolDir.begin(), it1);
-			auto it2 = std::find(poolDir.begin(), poolDir.end(), obj2);
-			size_t index2 = distance(poolDir.begin(), it2);
-
-			Comp* temp2 = poolDir[index1];
-			poolDir[index1] = poolDir[index2];
-			poolDir[index2] = temp2;
 		}
 
 	ActiveTracker<Comp*> getPool() {return {poolDir};}
 
 	protected:
+
+		friend class RenderOrder;
+		friend class SpatialPartitioner;
+
+		unsigned int FindObjectIndex(Comp* g)
+		{
+			auto it = std::find(poolDir.begin(), poolDir.end(), g);
+			return std::distance(poolDir.begin(), it);
+		}
 
 		void ResizePool() override
 		{

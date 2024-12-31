@@ -9,6 +9,7 @@
 class GameObject;
 class GameObjPool;
 class SceneGraph;
+class RenderOrder;
 
 class GameObjectManager
 {
@@ -43,6 +44,7 @@ public:
 	void compactColliders(int active) {colliderPool->CompactPool(active);}
 
 	LilObj<Sprite> addSprite(const std::string& name);
+	void setSpriteLayer(Sprite* spr);
 	ActiveTracker<Sprite*> getSpritesRaw() const { return spritePool->getPool(); };
 	unsigned int getSprActive() { return spritePool->GetActiveLine(); };
 	void compactSprites(int active) {spritePool->CompactPool(active);}
@@ -60,6 +62,7 @@ private:
 	GameObjPool* objects;
 	SceneGraph* sceneGraph;
 	ComponentPool<Sprite>* spritePool;
+	RenderOrder* renderOrder;
 	ComponentPool<RectangleCollider>* colliderPool;
 	BehaviorHandler* behaviors;
 };

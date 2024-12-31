@@ -23,6 +23,9 @@ public:
     glm::vec2 getRenderLocation();
     unsigned int getRenderRotation();
     glm::vec2 getRenderScale();
+    unsigned int getLayer() const {return layer;}
+    void SetLayer(unsigned int lyr);
+private:
     unsigned int layer = 0;
 };
 

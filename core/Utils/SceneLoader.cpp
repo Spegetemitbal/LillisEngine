@@ -68,8 +68,11 @@ void SceneLoader::LoadData(const std::string& fileName)
 					if (component == "Sprite")
 					{
 						std::string spriteName;
+						unsigned int lyr;
 						stream >> spriteName;
-						G->CreateSprite(spriteName);
+						LilObj<Sprite> s = G->CreateSprite(spriteName);
+						stream >> lyr;
+						s->SetLayer(lyr);
 					}
 					if (component == "Behavior")
 					{

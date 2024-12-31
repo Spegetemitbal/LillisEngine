@@ -5,11 +5,19 @@
 #include "Sprite.h"
 
 #include "EngineStuffs/GameObject.h"
+#include "EngineStuffs/GameObjectManager.h"
 
 Sprite::Sprite(const std::string& spr)
 {
     image = spr;
 }
+
+void Sprite::SetLayer(unsigned int lyr)
+{
+    layer = lyr;
+    GameObjectManager::world->setSpriteLayer(this);
+}
+
 
 glm::vec2 Sprite::getRenderLocation()
 {

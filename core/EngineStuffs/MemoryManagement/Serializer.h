@@ -30,6 +30,37 @@ class Serializer {
     buffer.erase(0, sizeof(T));
     return sizeof(T);
   }
+
+  size_t InsertStringToBuffer(std::string* object)
+  {
+    const char* object_as_bytes = object->c_str();
+    size_t stringSize = 0;
+    for (int i = 0; object_as_bytes[i] != '\0'; i++)
+    {
+      buffer.push_back(object_as_bytes[i]);
+      stringSize++;
+    }
+    return stringSize;
+  }
+
+  size_t GetStringFromBuffer(std::string* object)
+  {
+    if (buffer.length() == 0) return 0;
+
+    size_t stringSize = 0;
+    for (int i = 0; buffer[i] != '\0'; i++)
+    {
+      object->push_back(buffer[i]);
+      buffer.erase(buffer.front());
+      stringSize++;
+      if (i + 1 == buffer.length())
+      {
+        return 0;
+      }
+    }
+    return stringSize;
+  }
+
   private:
   std::string buffer;
 };

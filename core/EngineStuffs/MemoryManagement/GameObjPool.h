@@ -123,15 +123,6 @@ public:
 		GameObject temp = *obj1;
 		*obj1 = *obj2;
 		*obj2 = temp;
-
-		auto it1 = std::find(poolDir.begin(), poolDir.end(), obj1);
-		size_t index1 = distance(poolDir.begin(), it1);
-		auto it2 = std::find(poolDir.begin(), poolDir.end(), obj2);
-		size_t index2 = distance(poolDir.begin(), it2);
-
-		GameObject* temp2 = poolDir[index1];
-		poolDir[index1] = poolDir[index2];
-		poolDir[index2] = temp2;
 	}
 
 	ActiveTracker<GameObject*> getPool() {return {poolDir};}
