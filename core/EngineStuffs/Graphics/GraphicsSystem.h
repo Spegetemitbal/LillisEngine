@@ -5,6 +5,7 @@
 #include "../../Utils/ResourceManager.h"
 #include "LillisWindow.h"
 #include "Camera.h"
+#include "Sprite.h"
 #include "../GameObject.h"
 
 class GraphicsSystem
@@ -20,7 +21,7 @@ public:
 	void Update();
 
 	void PreDraw();
-	void RenderSprite(GameObject& g);
+	void RenderSprite(Sprite& spr);
 	void PostDraw();
 
 	LillisWindow* GetWin() { return &_win; }
@@ -32,7 +33,7 @@ public:
 
 private:
 
-	SpriteRenderer* testSpr;
+	SpriteRenderer* defaultRenderer;
 	LILLIS::Camera testCam;
 
 	LillisWindow _win;

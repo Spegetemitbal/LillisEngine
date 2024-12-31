@@ -42,6 +42,11 @@ public:
 	unsigned int getColActive() { return colliderPool->GetActiveLine(); };
 	void compactColliders(int active) {colliderPool->CompactPool(active);}
 
+	LilObj<Sprite> addSprite(const std::string& name);
+	ActiveTracker<Sprite*> getSpritesRaw() const { return spritePool->getPool(); };
+	unsigned int getSprActive() { return spritePool->GetActiveLine(); };
+	void compactSprites(int active) {spritePool->CompactPool(active);}
+
 	LilObj<Behavior> addBehavior(const std::string &name) const;
 	ActiveTracker<Behavior*> getBehaviorsRaw() const { return behaviors->getPool();}
 	void compactBehaviors(int active) {behaviors->CompactPool(active);}
@@ -54,6 +59,7 @@ private:
 
 	GameObjPool* objects;
 	SceneGraph* sceneGraph;
+	ComponentPool<Sprite>* spritePool;
 	ComponentPool<RectangleCollider>* colliderPool;
 	BehaviorHandler* behaviors;
 };

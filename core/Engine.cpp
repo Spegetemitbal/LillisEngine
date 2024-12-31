@@ -122,14 +122,14 @@ void Engine::frameStep()
 
     engine.graphics->PreDraw();
 
-    ActiveTracker<GameObject*> objects = WORLD->getObjectsRaw();
-    unsigned int lastObj = WORLD->getObjActive();
-    for (int i = 0; i < lastObj; i++)
+    ActiveTracker<Sprite*> sprites = WORLD->getSpritesRaw();
+    unsigned int lastSpr = WORLD->getSprActive();
+    for (int i = 0; i < lastSpr; i++)
     {
-        if (!objects[i]->getSprite().empty())
+        if (sprites[i]->GetActive())
         {
             //Might be dereferencing something you shouldn't.
-            engine.graphics->RenderSprite(*objects[i]);
+            engine.graphics->RenderSprite(*sprites[i]);
         }
     }
 
@@ -137,7 +137,7 @@ void Engine::frameStep()
     engine.graphics->PostDraw();
 
     //End of Frame Garbage collection
-    WORLD->compactObjects(objects.GetNumActive());
+    WORLD->compactObjects(sprites.GetNumActive());
     WORLD->compactObjects(col.GetNumActive());
     WORLD->compactColliders(behvs.GetNumActive());
 

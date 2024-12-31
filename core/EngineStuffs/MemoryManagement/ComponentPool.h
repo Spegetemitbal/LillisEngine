@@ -136,21 +136,31 @@ public:
 
 		void SwapObjects(Comp* obj1, Comp* obj2)
 		{
+			if (obj1 == obj2)
+			{
+				return;
+			}
+
 			objMap[obj1->GetID()] = obj2;
 			objMap[obj2->GetID()] = obj1;
 
 			Comp temp = *obj1;
 			*obj1 = *obj2;
 			*obj2 = temp;
+
+			auto it1 = std::find(poolDir.begin(), poolDir.end(), obj1);
+			size_t index1 = distance(poolDir.begin(), it1);
+			auto it2 = std::find(poolDir.begin(), poolDir.end(), obj2);
+			size_t index2 = distance(poolDir.begin(), it2);
+
+			Comp* temp2 = poolDir[index1];
+			poolDir[index1] = poolDir[index2];
+			poolDir[index2] = temp2;
 		}
 
 	ActiveTracker<Comp*> getPool() {return {poolDir};}
 
 	protected:
-
-		void SortPool()
-		{
-		}
 
 		void ResizePool() override
 		{

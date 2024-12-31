@@ -39,7 +39,8 @@ public:
 	//For cache efficiency, 
 	//std::vector<Behavior> behaviors = std::vector<Behavior>();
 
-	void SetSprite(std::string name);
+	void SetSpriteImage(const std::string &name);
+	LilObj<Sprite> CreateSprite(const std::string &image);
 	LilObj<RectangleCollider> CreateCollider(float w, float h, int id);
 
 	unsigned int GetID() const {return entityID;};
@@ -53,7 +54,7 @@ public:
 	//Behavior* getBehavior(LILLIS::string name);
 
 	LilObj<RectangleCollider> getCollider() {return collider;};
-	std::string getSprite() { return sprite; }
+	LilObj<Sprite> getSprite() { return sprite; }
 
 	LilObj<GameObject> thisObject;
 
@@ -80,8 +81,8 @@ public:
 	}
 
 protected:
-	std::string sprite;
 	std::string objName;
+	LilObj<Sprite> sprite;
 	LilObj<RectangleCollider> collider;
 	unordered_map<std::string, LilObj<Behavior>> behaviorMap;
 

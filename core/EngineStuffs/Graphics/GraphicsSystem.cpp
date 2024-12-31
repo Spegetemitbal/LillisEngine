@@ -51,7 +51,7 @@ bool GraphicsSystem::Init()
 	ResourceManager::GetShader("Default").Use().SetInteger("image", 0);
 	ResourceManager::GetShader("Default").SetMatrix4("projection", testCam.projectionMatrix());
 	// set render-specific controls
-	testSpr = DBG_NEW SpriteRenderer(ResourceManager::GetShader("Default"));
+	defaultRenderer = DBG_NEW SpriteRenderer(ResourceManager::GetShader("Default"));
 	// load textures
 
 	//For the love of god, move the sprite holder here.
@@ -61,19 +61,16 @@ bool GraphicsSystem::Init()
 
 void GraphicsSystem::ShutDown()
 {
-	delete testSpr;
+	delete defaultRenderer;
 	_win.DelWindow();
 	glfwTerminate();
 }
 
-void GraphicsSystem::RenderSprite(GameObject& g)
+void GraphicsSystem::RenderSprite(Sprite& spr)
 {
-	Texture2D tex = ResourceManager::GetTexture(g.getSprite());
-	if (g.getSprite() == "p1")
-	{
-		//std::cout << g.transform.x << " " << g.transform.y << '\n';
-	}
-	testSpr->DrawSprite(tex, glm::vec2(g.transform.GlobalPosition().x, g.transform.GlobalPosition().y), glm::vec2(tex.Width, tex.Height));
+	Texture2D tex = ResourceManager::GetTexture(spr.image);
+	defaultRenderer->DrawSprite(tex, spr.getRenderLocation(),
+		glm::vec2(tex.Width, tex.Height) * spr.getRenderScale(), spr.getRenderRotation());
 }
 
 void GraphicsSystem::PreDraw()
@@ -94,7 +91,7 @@ void GraphicsSystem::Update()
 
 	//At one point, render them all here.
 
-	testSpr->DrawSprite(ResourceManager::GetTexture("face"),
+	defaultRenderer->DrawSprite(ResourceManager::GetTexture("face"),
 		glm::vec2(200.0f, 200.0f), glm::vec2(300.0f, 400.0f), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	glfwSwapBuffers(_win.window);

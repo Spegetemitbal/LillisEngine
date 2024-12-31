@@ -4,9 +4,12 @@
 
 #define WORLD GameObjectManager::world
 
-void GameObject::SetSprite(std::string name)
+void GameObject::SetSpriteImage(const std::string &name)
 {
-	sprite = name;
+	if (sprite.Exists())
+	{
+		sprite->image = name;
+	}
 }
 
 
@@ -20,7 +23,23 @@ void GameObject::SetActive(bool active)
 		WORLD->RemoveObjectParent(thisObject, true);
 		//transform = Transform();
 		//sprite = nullptr;
+		if (collider.Exists())
+		{
+			collider->SetActive(false);
+		}
+		if (sprite.Exists())
+		{
+			sprite->SetActive(false);
+		}
+		for (auto b : behaviorMap)
+		{
+			if (b.second.Exists())
+			{
+				b.second->SetActive(false);
+			}
+		}
 		collider = LilObj<RectangleCollider>();
+		sprite = LilObj<Sprite>();
 		behaviorMap.clear();
 	} else
 	{
@@ -36,6 +55,16 @@ LilObj<RectangleCollider> GameObject::CreateCollider(float w, float h, int id)
 		collider->setControlledObject(thisObject);
 	}
 	return collider;
+}
+
+LilObj<Sprite> GameObject::CreateSprite(const std::string &image)
+{
+	if (!sprite.Exists())
+	{
+		sprite = WORLD->addSprite(image);
+		sprite->setControlledObject(thisObject);
+	}
+	return sprite;
 }
 
 LilObj<Behavior> GameObject::CreateBehaviorGeneric(const std::string& name)

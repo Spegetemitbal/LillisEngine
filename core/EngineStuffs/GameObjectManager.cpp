@@ -8,6 +8,7 @@ GameObjectManager::GameObjectManager()
 	objects = DBG_NEW GameObjPool(10);
 	sceneGraph = DBG_NEW SceneGraph(objects);
 	colliderPool = DBG_NEW ComponentPool<RectangleCollider>(10);
+	spritePool = DBG_NEW ComponentPool<Sprite>(10);
 	behaviors = DBG_NEW BehaviorHandler(50);
 }
 
@@ -16,6 +17,7 @@ GameObjectManager::~GameObjectManager()
 	//clearAll();
 	delete objects;
 	delete sceneGraph;
+	delete spritePool;
 	delete colliderPool;
 	delete behaviors;
 }
@@ -56,6 +58,13 @@ LilObj<RectangleCollider> GameObjectManager::addCollider(float w, float h, int i
 	return {colliderPool, r->GetID()};
 }
 
+LilObj<Sprite> GameObjectManager::addSprite(const std::string& name)
+{
+	Sprite* s = spritePool->AddComponent();
+	s->image = name;
+	return {spritePool, s->GetID()};
+}
+
 void GameObjectManager::clearAll()
 {
 	if (numObjects > 0)
@@ -63,6 +72,7 @@ void GameObjectManager::clearAll()
 		sceneGraph->ClearHierarchy();
 		objects->ClearPool();
 		colliderPool->ClearPool();
+		spritePool->ClearPool();
 		behaviors->ClearPool();
 		numObjects = 0;
 	}

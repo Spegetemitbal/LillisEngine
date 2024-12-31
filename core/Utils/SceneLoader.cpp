@@ -69,7 +69,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 					{
 						std::string spriteName;
 						stream >> spriteName;
-						G->SetSprite(spriteName);
+						G->CreateSprite(spriteName);
 					}
 					if (component == "Behavior")
 					{

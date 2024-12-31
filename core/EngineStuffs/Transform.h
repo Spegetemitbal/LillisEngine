@@ -12,8 +12,8 @@ public:
 		localPosition.z = zSet;
 	}
 	glm::vec3 localPosition;
-	unsigned int localRotation;
-	glm::vec2 localScale;
+	unsigned int localRotation = 0;
+	glm::vec2 localScale = { 1.0f, 1.0f };
 
 	glm::vec3 GlobalPosition() const {return globalPosition;};
 	unsigned int GlobalRotation() const {return globalRotation;};

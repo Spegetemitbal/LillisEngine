@@ -208,7 +208,7 @@ void SceneGraph::DoForwardKinematics()
             GameObject* parentObj = mObjPool->GetObjByID<GameObject>(childMap[obj->GetID()]);
             obj->transform.globalPosition = parentObj->transform.globalPosition + obj->transform.localPosition;
             obj->transform.globalRotation = parentObj->transform.globalRotation + obj->transform.localRotation;
-            obj->transform.globalScale = parentObj->transform.globalScale + obj->transform.localScale;
+            obj->transform.globalScale = parentObj->transform.globalScale * obj->transform.localScale;
         } else
         {
             obj->transform.globalPosition = obj->transform.localPosition;
