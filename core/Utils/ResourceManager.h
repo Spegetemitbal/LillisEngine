@@ -28,11 +28,25 @@ using namespace LILLIS;
 
 enum AssetType
 {
-    SINGLEIMAGES = 0,
-    SPRITESHEET,
+    SPRITE = 0,
     SHADERS,
     SOUNDS,
     DATA
+};
+
+enum SpriteType
+{
+    SPR_AUTO = 0,
+    SPR_UNIFORM,
+    SPR_MANUAL
+};
+
+struct TexImportData
+{
+    SpriteType spriteType;
+    int numSprites, width, height;
+    //First is height/width, then position
+    std::vector<std::pair<glm::vec2, glm::vec2>> data;
 };
 
 class ResourceManager
@@ -43,28 +57,32 @@ public:
     //FOR THE LOVE OF ALL THAT IS HOLY, MOVE THIS ELSEWHERE!!!
 
     static std::map<std::string, Shader>    Shaders;
-    static std::map<std::string, Texture2D> SingleImages;
-    static std::map<std::string, Texture2D> SpriteSheets;
+    static std::map<std::string, Texture2D> SpriteTexs;
+    static std::map<std::string, TexImportData> SpriteInfo;
     static std::map<std::string, FileDataWrapper> DataFiles;
+    static std::string ImportFileName;
 
     // loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
     static Shader    LoadShader(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile, std::string name);
-    // retrieves a stored sader
-    static Shader    GetShader(std::string name);
+    // retrieves a stored shader
+    static Shader    GetShader(const std::string& name);
     // loads (and generates) a texture from file
-    static Texture2D LoadTexture(const char* file, bool alpha, bool isSpriteSheet);
+    static Texture2D LoadTexture(const char* file, bool alpha);
+    //Load sprite import data
+    static void LoadImportInfo(const char* path);
+    static void LoadImportInfo(const std::string& importFileName);
     // loads all textures in file
-    static void LoadTextureRecursive(const char* path, bool alpha, bool isSpriteSheet);
+    static void LoadTextureRecursive(const char* path, bool alpha);
     // loads all shaders in file
     static void LoadShaderRecursive(const char* path);
     // loads all Data resources in file
     static void LoadDataRecursive(const char* path);
     // loads single data
-    static void LoadData(const char* path);
+    static FileDataWrapper LoadData(const char* path);
     // retrieves a file by name
-    static FileDataWrapper GetData(std::string name);
+    static FileDataWrapper GetData(const std::string& name);
     // retrieves a stored texture
-    static Texture2D GetTexture(std::string name);
+    static Texture2D GetTexture(const std::string& name);
     // properly de-allocates all loaded resources
     static void      Clear();
     //Loads default pipeline as "Default"
@@ -75,5 +93,5 @@ private:
     // loads and generates a shader from file
     static Shader    loadShaderFromFile(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile = nullptr);
     // loads a single texture from file
-    static Texture2D loadTextureFromFile(const char* file, bool alpha);
+    static Texture2D loadTextureFromFile(const char* name,const char* file, bool alpha);
 };

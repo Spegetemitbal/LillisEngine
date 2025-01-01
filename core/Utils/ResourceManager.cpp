@@ -15,10 +15,11 @@
 #include <utility>
 
 // Instantiate static variables
-std::map<std::string, Texture2D>ResourceManager::SingleImages = std::map<std::string, Texture2D>();
+std::map<std::string, Texture2D>ResourceManager::SpriteTexs = std::map<std::string, Texture2D>();
 std::map<std::string, Shader>ResourceManager::Shaders = std::map<std::string, Shader>();
-std::map<std::string, Texture2D>ResourceManager::SpriteSheets = std::map<std::string, Texture2D>();
 std::map<std::string, FileDataWrapper>ResourceManager::DataFiles = std::map<std::string, FileDataWrapper>();
+std::map<std::string, TexImportData> ResourceManager::SpriteInfo = std::map<std::string, TexImportData>();
+std::string ResourceManager::ImportFileName = "";
 
 
 Shader ResourceManager::LoadShader(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile, std::string name)
@@ -27,41 +28,36 @@ Shader ResourceManager::LoadShader(const char* vShaderFile, const char* fShaderF
     return Shaders[name];
 }
 
-Shader ResourceManager::GetShader(std::string name)
+Shader ResourceManager::GetShader(const std::string& name)
 {
     if (Shaders.find(name) != Shaders.end())
     {
         return Shaders[name];
     }
+    return {};
 }
 
-Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, bool isSpriteSheet)
+Texture2D ResourceManager::LoadTexture(const char* file, bool alpha)
 {
-    std::filesystem::path path(file);
-
-    if (isSpriteSheet)
+    if (SpriteInfo.empty())
     {
-        SpriteSheets[path.stem().string()] = loadTextureFromFile(file, alpha);
-        return SpriteSheets[path.stem().string()];
-    } else
-    {
-        SingleImages[path.stem().string()] = loadTextureFromFile(file, alpha);
-        return SingleImages[path.stem().string()];
+        std::cout << "Import data required for reading";
+        return {};
     }
+    std::filesystem::path path(file);
+    SpriteTexs[path.stem().string()] = loadTextureFromFile(path.stem().string().data(),file, alpha);
+    return SpriteTexs[path.stem().string()];
 }
 
-Texture2D ResourceManager::GetTexture(std::string name)
+Texture2D ResourceManager::GetTexture(const std::string& name)
 {
-    if (SingleImages.find(name) != SingleImages.end())
+    if (SpriteTexs.find(name) != SpriteTexs.end())
     {
-        return SingleImages[name];
-    } else if (SpriteSheets.find(name) != SpriteSheets.end())
-    {
-        return SpriteSheets[name];
+        return SpriteTexs[name];
     } else
     {
         std::cout << name << " not found" << std::endl;
-        return Texture2D();
+        return {};
     }
 }
 
@@ -71,7 +67,7 @@ void ResourceManager::Clear()
     for (auto iter : Shaders)
         glDeleteProgram(iter.second.ID);
     // (properly) delete all textures
-    for (auto iter : SingleImages)
+    for (auto iter : SpriteTexs)
         glDeleteTextures(1, &iter.second.ID);
 }
 
@@ -133,8 +129,16 @@ Shader ResourceManager::loadDefaultPipeline()
     return Shaders["Default"];
 }
 
-Texture2D ResourceManager::loadTextureFromFile(const char* file, bool alpha)
+Texture2D ResourceManager::loadTextureFromFile(const char* name,const char* file, bool alpha)
 {
+    if (!SpriteInfo.contains(name))
+    {
+        std::cout << "No import data found, unable to import";
+        return {};
+    }
+
+    TexImportData importData = SpriteInfo[name];
+
     // create texture object
     Texture2D texture;
     if (alpha)
@@ -149,10 +153,46 @@ Texture2D ResourceManager::loadTextureFromFile(const char* file, bool alpha)
     texture.Generate(width, height, data);
     // and finally free image data
     stbi_image_free(data);
+
+    int numRead = 0;
+    switch (importData.spriteType)
+    {
+        case SPR_AUTO:
+            texture.spriteLocations.push_back({{width, height},{0,0}});
+            break;
+        case SPR_UNIFORM:
+            glm::vec2 spriteGrid = {width / importData.width, height / importData.height};
+            for (int i = 1; i <= importData.height; i++)
+            {
+                for (int j = 1; j <= importData.width; j++)
+                {
+                    if (numRead == importData.numSprites)
+                    {
+                        break;
+                    }
+                    texture.spriteLocations.push_back({spriteGrid,{spriteGrid.x * j,spriteGrid.y * i}});
+                    numRead++;
+                }
+                if (numRead == importData.numSprites)
+                {
+                    break;
+                }
+            }
+            break;
+        case SPR_MANUAL:
+            break;
+    }
+
     return texture;
 }
 
-void ResourceManager::LoadTextureRecursive(const char* path, bool alpha, bool isSpriteSheet) {
+void ResourceManager::LoadTextureRecursive(const char* path, bool alpha) {
+    if (SpriteInfo.empty())
+    {
+        std::cout << "Import data required for reading";
+        return;
+    }
+
     if (std::filesystem::exists(path)
         && std::filesystem::is_directory(path)) {
         // Loop through each item (file or subdirectory) in
@@ -161,15 +201,7 @@ void ResourceManager::LoadTextureRecursive(const char* path, bool alpha, bool is
              std::filesystem::recursive_directory_iterator(path)) {
             if (std::filesystem::is_regular_file(entry) && entry.path().extension().string() == ".png" || entry.path().extension().string() == ".jpg")
                 {
-                //std::cout << entry.path().stem();
-                //paths.emplace_back(entry.path().filename());
-                if (isSpriteSheet)
-                {
-                    SpriteSheets[entry.path().stem().string()] = loadTextureFromFile(entry.path().string().data(), alpha);
-                } else
-                {
-                    SingleImages[entry.path().stem().string()] = loadTextureFromFile(entry.path().string().data(), alpha);
-                }
+                    SpriteTexs[entry.path().stem().string()] = loadTextureFromFile(entry.path().stem().string().data(),entry.path().string().data(), alpha);
                 }
              }
         }
@@ -254,25 +286,31 @@ void ResourceManager::LoadShaderRecursive(const char* path)
 
 }
 
-FileDataWrapper ResourceManager::GetData(std::string name)
+FileDataWrapper ResourceManager::GetData(const std::string& name)
 {
     if (DataFiles.find(name) != DataFiles.end())
     {
         return DataFiles[name];
     }
-    //Add an empty return value ig...
+    return {};
 }
 
 //Currently will load anything you want, use sparingly.
-void ResourceManager::LoadData(const char *path)
+FileDataWrapper ResourceManager::LoadData(const char *path)
 {
     std::filesystem::path resourcePath(path);
     try
     {
+        if (DataFiles.contains(resourcePath.stem().string()))
+        {
+            return DataFiles[resourcePath.stem().string()];
+        }
         DataFiles[resourcePath.stem().string()] = FileDataWrapper(path);
+        return DataFiles[resourcePath.stem().string()];
     } catch (...)
     {
         std::cerr << "Invalid File" << std::endl;
+        return {};
     }
 }
 
@@ -296,6 +334,62 @@ void ResourceManager::LoadDataRecursive(const char *path)
     else {
         // Handle the case where the directory doesn't exist
         std::cerr << "Directory not found." << std::endl;
+    }
+}
+
+void ResourceManager::LoadImportInfo(const char* path)
+{
+    std::ifstream stream;
+    stream.open(path);
+
+    if (!stream.is_open())
+    {
+        return;
+    }
+
+    std::string word;
+    while (stream.good())
+    {
+        stream >> word;
+        if (word == "SPRITE")
+        {
+            std::string name, importType;
+            stream >> name;
+            stream >> importType;
+            SpriteInfo.emplace(name, TexImportData());
+
+            if (importType == "Auto")
+            {
+                SpriteInfo[name].spriteType = SPR_AUTO;
+                SpriteInfo[name].numSprites = 1;
+            } else if (importType == "Uniform")
+            {
+                int numSprites, width, height;
+                stream >> numSprites;
+                stream >> width;
+                stream >> height;
+                SpriteInfo[name].spriteType = SPR_UNIFORM;
+                SpriteInfo[name].numSprites = numSprites;
+                SpriteInfo[name].width = width;
+                SpriteInfo[name].height = height;
+            } else if (importType == "Manual")
+            {
+                std::cout << "Manual size spritesheet not implemented yet, ending load";
+                break;
+            }
+        }
+    }
+    stream.close();
+}
+
+void ResourceManager::LoadImportInfo(const std::string& importFileName)
+{
+    if (DataFiles.find(importFileName) != DataFiles.end())
+    {
+        if (DataFiles[importFileName].getFileType() == "import")
+        {
+            LoadImportInfo(DataFiles[importFileName].getFilePath().c_str());
+        }
     }
 }
 

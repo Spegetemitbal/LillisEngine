@@ -165,11 +165,8 @@ void Engine::InjectAssets(const char* filePath, AssetType resourceType)
 {
     switch (resourceType)
     {
-        case SINGLEIMAGES:
-            ResourceManager::LoadTextureRecursive(filePath, true, false);
-            break;
-        case SPRITESHEET:
-            ResourceManager::LoadTextureRecursive(filePath, true, true);
+        case SPRITE:
+            ResourceManager::LoadTextureRecursive(filePath, true);
             break;
         case SHADERS:
             ResourceManager::LoadShaderRecursive(filePath);
@@ -192,11 +189,8 @@ void Engine::InjectSingleAsset(const char* filePath, AssetType resourceType)
 
     switch (resourceType)
     {
-        case SINGLEIMAGES:
-            ResourceManager::LoadTexture(filePath, true, false);
-            break;
-        case SPRITESHEET:
-            ResourceManager::LoadTexture(filePath, true, true);
+        case SPRITE:
+            ResourceManager::LoadTexture(filePath, true);
             break;
         case SHADERS:
             std::cerr << "SINGLE SHADER INSERTION PROHIBITED" << '\n';
@@ -212,6 +206,12 @@ void Engine::InjectSingleAsset(const char* filePath, AssetType resourceType)
             break;
     }
 }
+
+void Engine::LoadImportData(const char *filePath)
+{
+    ResourceManager::LoadImportInfo(filePath);
+}
+
 
 void Engine::Init(int screenWidth, int screenHeight, std::string gameName, std::vector<LILLIS::KeyCode> keys)
 {

@@ -10,6 +10,8 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include <glm/vec2.hpp>
+
 // Texture2D is able to store and configure a texture in OpenGL.
 // It also hosts utility functions for easy management.
 class Texture2D
@@ -30,6 +32,10 @@ public:
     unsigned int Filter_Min; // filtering mode if texture pixels < screen pixels
     unsigned int Filter_Max; // filtering mode if texture pixels > screen pixels
     // constructor (sets default texture modes)
+
+    //First is height/width, then position
+    std::vector<std::pair<glm::vec2, glm::vec2>> spriteLocations;
+
     Texture2D();
     // generates texture from image data
     void Generate(unsigned int width, unsigned int height, unsigned char* data);

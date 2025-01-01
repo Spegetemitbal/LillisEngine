@@ -41,6 +41,7 @@ public:
 
     void InjectAssets(const char* filePath, AssetType resourceType);
     void InjectSingleAsset(const char* filePath, AssetType resourceType);
+    void LoadImportData(const char* filePath);
 
     void LoadLevel(std::string Data);
     void Run();
