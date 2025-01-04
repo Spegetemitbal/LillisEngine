@@ -1,33 +1,33 @@
 Object 0 0 Player1 NONE
 Collider 40 40 0
-Sprite Player1 1
+Sprite UniformTest 1 40 40
 Behavior PlayerController )
 ;
 Object 0 440 Player2 Player1
 Collider 40 40 1
-Sprite Player2 1
+Sprite Player2 1 40 40
 Behavior PlayerController )
 ;
 Object 600 220 WinFlag NONE
-Sprite WinFlag 1
+Sprite WinFlag 1 40 40
 Collider 40 40 2
 ;
 Object 300 100 Enemy1 NONE
-Sprite Angry 1
+Sprite Angry 1 30 30
 Collider 40 40 3
 Behavior Rotator 20d 300f 100f )
 ;
 Object 300 200 Enemy2 NONE
-Sprite Angry 1
+Sprite Angry 1 40 40
 Collider 40 40 3
 Behavior Rotator 50d 300f 200f )
 ;
 Object 300 300 Enemy3 NONE
-Sprite Angry 1
+Sprite Angry 1 40 40
 Collider 40 40 3
 Behavior Rotator 80d 300f 300f )
 ;
 Object 0 0 Background NONE
-Sprite Background 0
+Sprite Background 0 0 0
 ;
 END

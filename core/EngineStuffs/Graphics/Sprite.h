@@ -20,6 +20,7 @@ public:
 
     std::string image;
     glm::vec2 offset = glm::vec2(0, 0);
+    glm::vec2 renderSize = glm::vec2(0, 0);
     glm::vec2 getRenderLocation();
     unsigned int getRenderRotation();
     glm::vec2 getRenderScale();

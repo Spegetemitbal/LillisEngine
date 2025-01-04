@@ -17,32 +17,51 @@ SpriteRenderer::~SpriteRenderer()
 void SpriteRenderer::initRenderData()
 {
     // configure VAO/VBO
-    unsigned int VBO;
-    float vertices[] = {
-        // pos      // tex
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f,
-
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f
-    };
+    //Maybe swap to triangle strips for efficiency?
 
     glGenVertexArrays(1, &this->quadVAO);
-    glGenBuffers(1, &VBO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glGenBuffers(2, VBO);
 
     glBindVertexArray(this->quadVAO);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glEnableVertexAttribArray(1);
+
+
+    float positions[] = {
+        0.0f, 1.0f,
+        1.0f, 0.0f,
+        0.0f, 0.0f,
+
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f
+    };
+
+    float texCoords[] = {
+        0.0f, 1.0f,
+        1.0f, 0.0f,
+        0.0f, 0.0f,
+
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f
+    };
+
+    //load positions
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+
+    // Load texture coordinates.
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+
+    //glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
-void SpriteRenderer::DrawSprite(const Texture2D& texture, glm::vec2 position,
+void SpriteRenderer::DrawSprite(const Texture2D& texture, glm::vec2 position, int frame,
     glm::vec2 size, float rotate, glm::vec3 color)
 {
     // prepare transformations
@@ -59,10 +78,26 @@ void SpriteRenderer::DrawSprite(const Texture2D& texture, glm::vec2 position,
     this->shader.SetMatrix4("model", model);
     this->shader.SetVector3f("spriteColor", color);
 
+    glm::vec4 spriteQuad = texture.spriteLocations[frame];
+    float texCoords[] =
+    {
+        spriteQuad.x, spriteQuad.w,
+        spriteQuad.y, spriteQuad.z,
+        spriteQuad.x, spriteQuad.z,
+
+        spriteQuad.x, spriteQuad.w,
+        spriteQuad.y, spriteQuad.w,
+        spriteQuad.y, spriteQuad.z
+    };
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(texCoords), texCoords);
+
     glActiveTexture(GL_TEXTURE0);
     texture.Bind();
 
     glBindVertexArray(this->quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }

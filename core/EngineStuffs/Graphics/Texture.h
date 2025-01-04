@@ -11,6 +11,7 @@
 #define TEXTURE_H
 
 #include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 
 // Texture2D is able to store and configure a texture in OpenGL.
 // It also hosts utility functions for easy management.
@@ -33,8 +34,9 @@ public:
     unsigned int Filter_Max; // filtering mode if texture pixels > screen pixels
     // constructor (sets default texture modes)
 
-    //First is height/width, then position
-    std::vector<std::pair<glm::vec2, glm::vec2>> spriteLocations;
+    //Min x, max x, min y, max y
+    std::vector<glm::vec4> spriteLocations;
+    std::vector<glm::vec2> spriteSizes;
 
     Texture2D();
     // generates texture from image data

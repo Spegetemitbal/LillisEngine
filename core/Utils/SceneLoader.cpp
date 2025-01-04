@@ -68,11 +68,22 @@ void SceneLoader::LoadData(const std::string& fileName)
 					if (component == "Sprite")
 					{
 						std::string spriteName;
-						unsigned int lyr;
+						unsigned int lyr, sprWidth, sprHeight;
 						stream >> spriteName;
 						LilObj<Sprite> s = G->CreateSprite(spriteName);
 						stream >> lyr;
+						stream >> sprWidth;
+						stream >> sprHeight;
 						s->SetLayer(lyr);
+						if (sprWidth == 0 && sprHeight == 0)
+						{
+							//Add import settings to determine default size later.
+							Texture2D tex = ResourceManager::GetTexture(s->image);
+							s->renderSize = tex.spriteSizes[0];
+						} else
+						{
+							s->renderSize = {sprWidth, sprHeight};
+						}
 					}
 					if (component == "Behavior")
 					{

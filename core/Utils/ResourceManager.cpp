@@ -64,10 +64,10 @@ Texture2D ResourceManager::GetTexture(const std::string& name)
 void ResourceManager::Clear()
 {
     // (properly) delete all shaders	
-    for (auto iter : Shaders)
+    for (const auto& iter : Shaders)
         glDeleteProgram(iter.second.ID);
     // (properly) delete all textures
-    for (auto iter : SpriteTexs)
+    for (const auto& iter : SpriteTexs)
         glDeleteTextures(1, &iter.second.ID);
 }
 
@@ -148,6 +148,7 @@ Texture2D ResourceManager::loadTextureFromFile(const char* name,const char* file
     }
     // load image
     int width, height, nrChannels;
+    //stbi_set_flip_vertically_on_load(1);
     unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
     // now generate texture
     texture.Generate(width, height, data);
@@ -158,19 +159,23 @@ Texture2D ResourceManager::loadTextureFromFile(const char* name,const char* file
     switch (importData.spriteType)
     {
         case SPR_AUTO:
-            texture.spriteLocations.push_back({{width, height},{0,0}});
+            texture.spriteLocations.emplace_back(0.0f,1.0f,0.0f,1.0f);
+            texture.spriteSizes.emplace_back(width, height);
             break;
         case SPR_UNIFORM:
-            glm::vec2 spriteGrid = {width / importData.width, height / importData.height};
-            for (int i = 1; i <= importData.height; i++)
+            glm::vec2 spriteGrid = {1.0f / (float)importData.width, 1.0f / (float)importData.height};
+            for (int i = 0; i < importData.height; i++)
             {
-                for (int j = 1; j <= importData.width; j++)
+                for (int j = 0; j <= importData.width; j++)
                 {
-                    if (numRead == importData.numSprites)
+                    if (numRead >= importData.numSprites)
                     {
                         break;
                     }
-                    texture.spriteLocations.push_back({spriteGrid,{spriteGrid.x * j,spriteGrid.y * i}});
+                    float x = spriteGrid.x * (float)j;
+                    float y = spriteGrid.y * (float)i;
+                    texture.spriteLocations.emplace_back(x, x + spriteGrid.x, y, y + spriteGrid.y);
+                    texture.spriteSizes.emplace_back(spriteGrid.x * (float)width, spriteGrid.y * (float)height);
                     numRead++;
                 }
                 if (numRead == importData.numSprites)

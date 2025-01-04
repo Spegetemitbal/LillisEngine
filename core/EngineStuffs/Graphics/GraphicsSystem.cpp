@@ -69,8 +69,8 @@ void GraphicsSystem::ShutDown()
 void GraphicsSystem::RenderSprite(Sprite& spr)
 {
 	Texture2D tex = ResourceManager::GetTexture(spr.image);
-	defaultRenderer->DrawSprite(tex, spr.getRenderLocation(),
-		glm::vec2(tex.Width, tex.Height) * spr.getRenderScale(), spr.getRenderRotation());
+	defaultRenderer->DrawSprite(tex, spr.getRenderLocation(), 0,
+		spr.renderSize * spr.getRenderScale(), spr.getRenderRotation());
 }
 
 void GraphicsSystem::PreDraw()
@@ -82,20 +82,7 @@ void GraphicsSystem::PreDraw()
 //Don't call until rearchitectured.
 void GraphicsSystem::Update()
 {
-	//int width, height;
-	//glfwGetFramebufferSize(window, &width, &height);
-	const float ratio = _width / (float)_height;
 
-	glViewport(0, 0, _width, _height);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	//At one point, render them all here.
-
-	defaultRenderer->DrawSprite(ResourceManager::GetTexture("face"),
-		glm::vec2(200.0f, 200.0f), glm::vec2(300.0f, 400.0f), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-
-	glfwSwapBuffers(_win.window);
-	glfwPollEvents();
 }
 
 void GraphicsSystem::PostDraw()
