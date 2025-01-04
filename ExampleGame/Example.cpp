@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 	events->addCallback((EventType)COLLISION_EVENT ,handleEvent);
 
 	//e->LoadLevel("Level.lvl");
-	e->LoadImportData("assets/Imports.lilimp");
+	e->LoadImportData("assets/StaticData.lil");
 	e->InjectAssets("assets", SPRITE);
 	e->InjectAssets("assets", DATA);
 	BehaviorSystem::RegisterBehavior("PlayerController", sizeof(PlayerController), PlayerController::CreatePlayerController);

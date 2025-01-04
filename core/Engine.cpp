@@ -209,7 +209,7 @@ void Engine::InjectSingleAsset(const char* filePath, AssetType resourceType)
 
 void Engine::LoadImportData(const char *filePath)
 {
-    ResourceManager::LoadImportInfo(filePath);
+    ResourceManager::LoadProjectInfo(filePath);
 }
 
 

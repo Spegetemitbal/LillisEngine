@@ -24,6 +24,7 @@
 // handles. All functions and resources are static and no 
 // public constructor is defined.
 
+class Animation;
 using namespace LILLIS;
 
 enum AssetType
@@ -60,7 +61,10 @@ public:
     static std::map<std::string, Texture2D> SpriteTexs;
     static std::map<std::string, TexImportData> SpriteInfo;
     static std::map<std::string, FileDataWrapper> DataFiles;
-    static std::string ImportFileName;
+    //static std::map<std::string, GameObject> Prefabs;
+    static std::map<std::string, Animation> Animations;
+    static std::string SettingsFileName;
+
 
     // loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
     static Shader    LoadShader(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile, std::string name);
@@ -68,9 +72,9 @@ public:
     static Shader    GetShader(const std::string& name);
     // loads (and generates) a texture from file
     static Texture2D LoadTexture(const char* file, bool alpha);
-    //Load sprite import data
-    static void LoadImportInfo(const char* path);
-    static void LoadImportInfo(const std::string& importFileName);
+    //Loads all project specific data, including settings, imports, and prefabs/animations
+    static void LoadProjectInfo(const char* path);
+    static void LoadProjectInfo(const std::string& importFileName);
     // loads all textures in file
     static void LoadTextureRecursive(const char* path, bool alpha);
     // loads all shaders in file

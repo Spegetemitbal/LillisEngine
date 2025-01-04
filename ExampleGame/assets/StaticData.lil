@@ -1,0 +1,14 @@
+SPRITE Angry Auto
+SPRITE Background Auto
+SPRITE Player1 Auto
+SPRITE Player2 Auto
+SPRITE Test Auto
+SPRITE WinFlag Auto
+SPRITE UniformTest Uniform 3 2 2
+ANIMATION Player1Idle 3 LOOP
+KeyFrame 0 1
+Sprite 0 0 0 40 40
+KeyFrame 0.05 1
+Sprite 1 0 0 40 40
+KeyFrame 0.1 1
+Sprite 2 0 0 40 40

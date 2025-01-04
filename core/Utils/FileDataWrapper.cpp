@@ -20,9 +20,6 @@ FileDataWrapper::FileDataWrapper(const char *file)
     } else if (tempFileType == ".lil")
     {
         fileType = "settings";
-    } else if (tempFileType == ".lilimp")
-    {
-        fileType = "import";
     } else
     {
         std::cout << "Unrecognized file type: " << tempFileType << std::endl;

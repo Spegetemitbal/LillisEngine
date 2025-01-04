@@ -8,6 +8,7 @@
 ******************************************************************/
 #include "ResourceManager.h"
 #include "../EngineStuffs/Graphics/DefaultRenderPipeline.h"
+#include "../EngineStuffs/Graphics/Animation.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -19,7 +20,8 @@ std::map<std::string, Texture2D>ResourceManager::SpriteTexs = std::map<std::stri
 std::map<std::string, Shader>ResourceManager::Shaders = std::map<std::string, Shader>();
 std::map<std::string, FileDataWrapper>ResourceManager::DataFiles = std::map<std::string, FileDataWrapper>();
 std::map<std::string, TexImportData> ResourceManager::SpriteInfo = std::map<std::string, TexImportData>();
-std::string ResourceManager::ImportFileName = "";
+std::map<std::string, Animation> ResourceManager::Animations = std::map<std::string, Animation>();
+std::string ResourceManager::SettingsFileName;
 
 
 Shader ResourceManager::LoadShader(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile, std::string name)
@@ -342,7 +344,7 @@ void ResourceManager::LoadDataRecursive(const char *path)
     }
 }
 
-void ResourceManager::LoadImportInfo(const char* path)
+void ResourceManager::LoadProjectInfo(const char* path)
 {
     std::ifstream stream;
     stream.open(path);
@@ -382,18 +384,74 @@ void ResourceManager::LoadImportInfo(const char* path)
                 std::cout << "Manual size spritesheet not implemented yet, ending load";
                 break;
             }
+        } else if (word == "ANIMATION")
+        {
+            std::string name, repType;
+            RepeatType repeatType = REPEAT_STOP;
+            int numKeyFrames;
+            stream >> name;
+            stream >> numKeyFrames;
+            stream >> repType;
+            if (repType == "LOOP")
+            {
+                repeatType = REPEAT_LOOP;
+            } else if (repType == "CLAMP")
+            {
+                repeatType = REPEAT_CLAMP;
+            }
+            Animations.emplace(name, Animation(repeatType));
+
+            for (int i = 0; i < numKeyFrames; i++)
+            {
+                std::string kFrameCheck;
+                stream >> kFrameCheck;
+                if (kFrameCheck == "KeyFrame")
+                {
+                    float time;
+                    int numParams;
+                    stream >> time;
+                    stream >> numParams;
+                    Animations[name].insertKeyFrame({time});
+                    for (int j = 0; j < numParams; j++)
+                    {
+                        std::string paramType;
+                        stream >> paramType;
+                        if (paramType == "Sprite")
+                        {
+                            int frame;
+                            float offX, offY, szX, szY;
+                            KeyFrame& keyFrame = Animations[name].getKeyFrame(i);
+                            stream >> frame;
+                            stream >> offX;
+                            stream >> offY;
+                            stream >> szX;
+                            stream >> szY;
+                            keyFrame.hasSpriteData = true;
+                            keyFrame.fsd.sprFrame = frame;
+                            keyFrame.fsd.sprOffset = {offX, offY};
+                            keyFrame.fsd.sprSize = {szX, szY};
+                        } else if (paramType == "Collider")
+                        {
+                            std::cout << "Collider param not Implemented yet";
+                        } else if (paramType == "Transform")
+                        {
+                            std::cout << "Transform param not Implemented yet";
+                        }
+                    }
+                }
+            }
         }
     }
     stream.close();
 }
 
-void ResourceManager::LoadImportInfo(const std::string& importFileName)
+void ResourceManager::LoadProjectInfo(const std::string& importFileName)
 {
     if (DataFiles.find(importFileName) != DataFiles.end())
     {
         if (DataFiles[importFileName].getFileType() == "import")
         {
-            LoadImportInfo(DataFiles[importFileName].getFilePath().c_str());
+            LoadProjectInfo(DataFiles[importFileName].getFilePath().c_str());
         }
     }
 }
