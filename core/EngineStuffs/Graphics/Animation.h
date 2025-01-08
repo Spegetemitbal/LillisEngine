@@ -1,5 +1,4 @@
-#include <utility>
-#include <glm/vec2.hpp>
+
 
 //
 // Created by Somed on 1/4/2025.
@@ -7,6 +6,9 @@
 
 #ifndef ANIMATION_H
 #define ANIMATION_H
+
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 enum RepeatType
 {
@@ -17,7 +19,7 @@ enum RepeatType
 
 struct FrameTransformData
 {
-  glm::vec2 objPos = glm::vec2(0.0f);
+  glm::vec3 objPos = glm::vec3(0.0f);
   glm::vec2 objScale = glm::vec2(0.0f);
   unsigned int objRot = 0;
 };
@@ -27,6 +29,7 @@ struct FrameSpriteData
   int sprFrame = 0;
   glm::vec2 sprOffset = glm::vec2(0.0f);
   glm::vec2 sprSize = glm::vec2(-1.0f);
+  //std::string sprImage = "";
   //unsigned int sprRot = 0;
 };
 
@@ -40,9 +43,9 @@ class KeyFrame
 {
 public:
 
-  KeyFrame(float frt) {frameTime = frt;}
+  KeyFrame(float frt) {frameDuration = frt;}
 
-  float frameTime = 0.0f;
+  float frameDuration = 0.0f;
   //Object transformation data
   bool hasTransformData = false;
   FrameTransformData ftd;

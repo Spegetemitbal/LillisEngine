@@ -85,6 +85,24 @@ void SceneLoader::LoadData(const std::string& fileName)
 							s->renderSize = {sprWidth, sprHeight};
 						}
 					}
+					if (component == "Animator")
+					{
+						std::string animType;
+						stream >> animType;
+						if (animType == "Single")
+						{
+							std::string animName;
+							stream >> animName;
+							G->CreateSingleAnimator(&ResourceManager::Animations[animName]);
+						} else if (animType == "Multiple")
+						{
+							//Assume multiple
+							std::string stateObjName;
+							stream >> stateObjName;
+							//G->CreateSingleAnimator(&StaticDataManager::AnimStates[animName]);
+							std::cout << "State based animation not implemented" << '\n';
+						}
+					}
 					if (component == "Behavior")
 					{
 						//std::stringstream ss;

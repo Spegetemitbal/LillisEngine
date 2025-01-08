@@ -69,7 +69,7 @@ void GraphicsSystem::ShutDown()
 void GraphicsSystem::RenderSprite(Sprite& spr)
 {
 	Texture2D tex = ResourceManager::GetTexture(spr.image);
-	defaultRenderer->DrawSprite(tex, spr.getRenderLocation(), 0,
+	defaultRenderer->DrawSprite(tex, spr.getRenderLocation(), spr.frame,
 		spr.renderSize * spr.getRenderScale(), spr.getRenderRotation());
 }
 

@@ -1,6 +1,7 @@
 Object 0 0 Player1 NONE
 Collider 40 40 0
 Sprite UniformTest 1 40 40
+Animator Single Player1Idle
 Behavior PlayerController )
 ;
 Object 0 440 Player2 Player1

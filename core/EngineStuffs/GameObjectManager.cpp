@@ -10,6 +10,7 @@ GameObjectManager::GameObjectManager()
 	sceneGraph = DBG_NEW SceneGraph(objects);
 	colliderPool = DBG_NEW ComponentPool<RectangleCollider>(10);
 	spritePool = DBG_NEW ComponentPool<Sprite>(10);
+	animatorPool = DBG_NEW ComponentPool<Animator>(10);
 	renderOrder = DBG_NEW RenderOrder(spritePool);
 	behaviors = DBG_NEW BehaviorHandler(50);
 }
@@ -20,6 +21,7 @@ GameObjectManager::~GameObjectManager()
 	delete objects;
 	delete sceneGraph;
 	delete spritePool;
+	delete animatorPool;
 	delete renderOrder;
 	delete colliderPool;
 	delete behaviors;
@@ -73,6 +75,21 @@ void GameObjectManager::setSpriteLayer(Sprite* spr)
 	renderOrder->MoveSprite({spritePool, spr->GetID()});
 }
 
+LilObj<Animator> GameObjectManager::addSingleAnimator(Animation *anim)
+{
+	Animator* a = animatorPool->AddComponent();
+	a->SetSingleAnimation(anim);
+	return {animatorPool, a->GetID()};
+}
+
+
+LilObj<Animator> GameObjectManager::addAnimator(StateObject* stateObj)
+{
+	Animator* a = animatorPool->AddComponent();
+	a->SetMultiAnimation(stateObj);
+	return {animatorPool, a->GetID()};
+}
+
 
 void GameObjectManager::clearAll()
 {
@@ -82,6 +99,7 @@ void GameObjectManager::clearAll()
 		objects->ClearPool();
 		colliderPool->ClearPool();
 		spritePool->ClearPool();
+		animatorPool->ClearPool();
 		behaviors->ClearPool();
 		numObjects = 0;
 	}

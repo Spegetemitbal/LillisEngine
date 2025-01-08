@@ -18,7 +18,7 @@ public:
 	};
 
 	//Probs make these private my guy.
-	GameObject(float x, float y, const std::string &name, std::string parent)
+	GameObject(float x, float y, const std::string &name, const std::string& parent)
 	{
 		transform = Transform(x, y);
 		objName = name;
@@ -42,6 +42,8 @@ public:
 	void SetSpriteImage(const std::string &name);
 	LilObj<Sprite> CreateSprite(const std::string &image);
 	LilObj<RectangleCollider> CreateCollider(float w, float h, int id);
+	LilObj<Animator> CreateSingleAnimator(Animation* anim);
+	LilObj<Animator> CreateAnimator(StateObject* stateObj);
 
 	unsigned int GetID() const {return entityID;};
 	std::string GetName() const {return objName;};
@@ -83,6 +85,7 @@ public:
 protected:
 	std::string objName;
 	LilObj<Sprite> sprite;
+	LilObj<Animator> animator;
 	LilObj<RectangleCollider> collider;
 	unordered_map<std::string, LilObj<Behavior>> behaviorMap;
 

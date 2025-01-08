@@ -168,7 +168,7 @@ Texture2D ResourceManager::loadTextureFromFile(const char* name,const char* file
             glm::vec2 spriteGrid = {1.0f / (float)importData.width, 1.0f / (float)importData.height};
             for (int i = 0; i < importData.height; i++)
             {
-                for (int j = 0; j <= importData.width; j++)
+                for (int j = 0; j < importData.width; j++)
                 {
                     if (numRead >= importData.numSprites)
                     {

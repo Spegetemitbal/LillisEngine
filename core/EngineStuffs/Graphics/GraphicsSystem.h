@@ -6,6 +6,7 @@
 #include "LillisWindow.h"
 #include "Camera.h"
 #include "Sprite.h"
+#include "Animator.h"
 #include "../GameObject.h"
 
 class GraphicsSystem

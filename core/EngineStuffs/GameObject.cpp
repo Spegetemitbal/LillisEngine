@@ -1,6 +1,5 @@
 #include "GameObject.h"
 #include "GameObjectManager.h"
-#include "Utils/Events/ObjectAliveEvent.h"
 
 #define WORLD GameObjectManager::world
 
@@ -11,8 +10,6 @@ void GameObject::SetSpriteImage(const std::string &name)
 		sprite->image = name;
 	}
 }
-
-
 
 //Sets object for deletion.
 void GameObject::SetActive(bool active)
@@ -31,6 +28,10 @@ void GameObject::SetActive(bool active)
 		{
 			sprite->SetActive(false);
 		}
+		if (animator.Exists())
+		{
+			animator->SetActive(false);
+		}
 		for (auto b : behaviorMap)
 		{
 			if (b.second.Exists())
@@ -40,6 +41,7 @@ void GameObject::SetActive(bool active)
 		}
 		collider = LilObj<RectangleCollider>();
 		sprite = LilObj<Sprite>();
+		animator = LilObj<Animator>();
 		behaviorMap.clear();
 	} else
 	{
@@ -66,6 +68,29 @@ LilObj<Sprite> GameObject::CreateSprite(const std::string &image)
 	}
 	return sprite;
 }
+
+LilObj<Animator> GameObject::CreateSingleAnimator(Animation *anim)
+{
+	if (!animator.Exists())
+	{
+		animator = WORLD->addSingleAnimator(anim);
+		animator->setControlledObject(thisObject);
+		animator->ConnectComponents();
+	}
+	return animator;
+}
+
+LilObj<Animator> GameObject::CreateAnimator(StateObject *stateObj)
+{
+	if (!animator.Exists())
+	{
+		animator = WORLD->addAnimator(stateObj);
+		animator->setControlledObject(thisObject);
+		animator->ConnectComponents();
+	}
+	return animator;
+}
+
 
 LilObj<Behavior> GameObject::CreateBehaviorGeneric(const std::string& name)
 {

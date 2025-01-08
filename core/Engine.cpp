@@ -95,6 +95,16 @@ void Engine::frameStep()
         engine.loadNextLevel = false;
     }
 
+    ActiveTracker<Animator*> anims = WORLD->getAnimatorsRaw();
+    unsigned int lastAnim = WORLD->getAnimActive();
+    for (int i = 0; i < lastAnim; i++)
+    {
+        if (anims[i]->GetActive())
+        {
+            anims[i]->Update(Timing::deltaTime);
+        }
+    }
+
     WORLD->RunTransformHierarchy();
 
     ActiveTracker<Behavior*> behvs = WORLD->getBehaviorsRaw();
@@ -140,6 +150,7 @@ void Engine::frameStep()
     WORLD->compactObjects(sprites.GetNumActive());
     WORLD->compactObjects(col.GetNumActive());
     WORLD->compactColliders(behvs.GetNumActive());
+    WORLD->compactAnimators(anims.GetNumActive());
 
 
     if (engine.gameInputs->getIsKeyDown(LILLIS::ESC))
