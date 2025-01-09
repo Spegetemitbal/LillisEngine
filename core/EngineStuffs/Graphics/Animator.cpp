@@ -20,17 +20,71 @@ void Animator::Update(double deltaTime)
         return;
     }
 
+    Animation* currentAnim;
+    //If not a single-animation, it is confirmed that there is a connected state machine.
+    if (singleAnimation)
+    {
+        currentAnim = singleAnimation;
+    } else
+    {
+        currentAnim = mCurrentState->anim;
+        totalTime += deltaTime;
+        if (mCurrentState->maxStateTime <= totalTime && mCurrentState->maxStateTime > 0)
+        {
+            for (const auto& stlist : mCurrentState->toStates)
+            {
+                if (stlist.second == COND_FIXED_TIME)
+                {
+                    SwapState(stlist.first);
+                    return;
+                }
+                if (stlist.second == COND_FIXED_TIME_RETURN)
+                {
+                    SwapState(previousState);
+                    return;
+                }
+            }
+        }
+    }
+
     animTime += deltaTime;
-    if (animTime >= mAnim->getKeyFrame(currentKeyFrame).frameDuration)
+    if (animTime >= currentAnim->getKeyFrame(currentKeyFrame).frameDuration)
     {
         if (goingForward)
         {
             currentKeyFrame++;
-            if (mAnim->getKeyFrameCount() == currentKeyFrame)
+            if (currentAnim->getKeyFrameCount() == currentKeyFrame)
             {
-                switch (mAnim->getRepeatType())
+                switch (currentAnim->getRepeatType())
                 {
                     case REPEAT_STOP:
+                        if (!singleAnimation)
+                        {
+                            for (const auto& stlist : mCurrentState->toStates)
+                            {
+                                if (swapAtEndAnim)
+                                {
+                                    if (stlist.second == COND_USER_END_ANIM)
+                                    {
+                                        swapAtEndAnim = false;
+                                        SwapState(stlist.first);
+                                        return;
+                                    }
+                                } else
+                                {
+                                    if (stlist.second == COND_END_ANIM)
+                                    {
+                                        SwapState(stlist.first);
+                                        return;
+                                    }
+                                    if (stlist.second == COND_END_ANIM_RETURN)
+                                    {
+                                        SwapState(previousState);
+                                        return;
+                                    }
+                                }
+                            }
+                        }
                         isGoing = false;
                         break;
                     case REPEAT_LOOP:
@@ -61,17 +115,39 @@ void Animator::Update(double deltaTime)
         }
         animTime = 0;
     }
-    //currentState = stateObject->GetCurrentState(stateTime);
 }
+
+void Animator::SwapState(const std::string &newState)
+{
+    animTime = 0;
+    totalTime = 0;
+    currentKeyFrame = 0;
+    goingForward = true;
+    const std::string prev = previousState;
+    mCurrentState = stateObject->GetStateByName(newState);
+    previousState = prev;
+    SwapKeyFrame();
+}
+
 
 void Animator::SwapKeyFrame()
 {
-    KeyFrame kf = mAnim->getKeyFrame(currentKeyFrame);
+    Animation* currentAnim;
+    if (singleAnimation)
+    {
+        currentAnim = singleAnimation;
+    } else
+    {
+        currentAnim = mCurrentState->anim;
+    }
+
+    KeyFrame kf = currentAnim->getKeyFrame(currentKeyFrame);
     if (kf.hasSpriteData)
     {
         if (sprt.Exists())
         {
             sprt->frame = kf.fsd.sprFrame;
+            sprt->image = kf.fsd.sprImage;
             sprt->offset = kf.fsd.sprOffset;
             sprt->renderSize = kf.fsd.sprSize;
         } else
@@ -108,11 +184,23 @@ void Animator::SwapKeyFrame()
 
 void Animator::ForceChangeState(const std::string &newState)
 {
-
+    if (!singleAnimation)
+    {
+        SwapState(newState);
+    }
 }
 
 
 bool Animator::ChangeState(const std::string &newState)
 {
-    return true;
+    if (!singleAnimation)
+    {
+        if (stateObject->GetValidStateChange(mCurrentState->name, newState))
+        {
+            SwapState(newState);
+            return true;
+        }
+        return false;
+    }
+    return false;
 }

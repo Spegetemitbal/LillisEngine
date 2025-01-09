@@ -8,7 +8,7 @@
 ******************************************************************/
 #include "ResourceManager.h"
 #include "../EngineStuffs/Graphics/DefaultRenderPipeline.h"
-#include "../EngineStuffs/Graphics/Animation.h"
+#include "../EngineStuffs/StateObject.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -21,6 +21,7 @@ std::map<std::string, Shader>ResourceManager::Shaders = std::map<std::string, Sh
 std::map<std::string, FileDataWrapper>ResourceManager::DataFiles = std::map<std::string, FileDataWrapper>();
 std::map<std::string, TexImportData> ResourceManager::SpriteInfo = std::map<std::string, TexImportData>();
 std::map<std::string, Animation> ResourceManager::Animations = std::map<std::string, Animation>();
+std::map<std::string, StateObject> ResourceManager::StateObjects = std::map<std::string, StateObject>();
 std::string ResourceManager::SettingsFileName;
 
 
@@ -418,15 +419,18 @@ void ResourceManager::LoadProjectInfo(const char* path)
                         stream >> paramType;
                         if (paramType == "Sprite")
                         {
+                            std::string spriteImage;
                             int frame;
                             float offX, offY, szX, szY;
                             KeyFrame& keyFrame = Animations[name].getKeyFrame(i);
+                            stream >> spriteImage;
                             stream >> frame;
                             stream >> offX;
                             stream >> offY;
                             stream >> szX;
                             stream >> szY;
                             keyFrame.hasSpriteData = true;
+                            keyFrame.fsd.sprImage = spriteImage;
                             keyFrame.fsd.sprFrame = frame;
                             keyFrame.fsd.sprOffset = {offX, offY};
                             keyFrame.fsd.sprSize = {szX, szY};
@@ -440,6 +444,9 @@ void ResourceManager::LoadProjectInfo(const char* path)
                     }
                 }
             }
+        } else if (word == "LILSTATE")
+        {
+
         }
     }
     stream.close();

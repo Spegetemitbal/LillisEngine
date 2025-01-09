@@ -27,6 +27,7 @@ struct FrameTransformData
 struct FrameSpriteData
 {
   int sprFrame = 0;
+  std::string sprImage;
   glm::vec2 sprOffset = glm::vec2(0.0f);
   glm::vec2 sprSize = glm::vec2(-1.0f);
   //std::string sprImage = "";

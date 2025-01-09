@@ -21,20 +21,24 @@ public:
     void SetSingleAnimation(Animation* anim)
     {
         singleAnim = true;
-        mAnim = anim;
+        singleAnimation = anim;
+        mCurrentState = nullptr;
         stateObject = nullptr;
     }
 
     void SetMultiAnimation(StateObject* stateObj)
     {
         singleAnim = false;
-        mAnim = nullptr;
+        singleAnimation = nullptr;
         stateObject = stateObj;
+        mCurrentState = stateObject->GetStateByName(stateObject->GetDefaultState());
     }
+
+    bool swapAtEndAnim = false;
 
     bool ChangeState(const std::string& newState);
     void ForceChangeState(const std::string& newState);
-    std::string GetState() const {return currentState;}
+    std::string GetState() const {return mCurrentState->name;}
     void SetGoing(bool moving) {isGoing = moving;}
 
     void ResetAnim()
@@ -42,6 +46,7 @@ public:
         currentKeyFrame = 0;
         animTime = 0;
         isGoing = true;
+        goingForward = true;
         SwapKeyFrame();
     }
     void Update(double deltaTime);
@@ -50,14 +55,18 @@ private:
 
     //No interpolation yet.
     void SwapKeyFrame();
+    void SwapState(const std::string& newState);
 
     bool singleAnim = false;
     //Find way of changing state manually through this, and also getting data back.
-    std::string currentState;
+    std::string previousState;
     StateObject* stateObject = nullptr;
 
-    Animation* mAnim = nullptr;
+    Animation* singleAnimation = nullptr;
+
+    LilState* mCurrentState = nullptr;
     double animTime = 0;
+    double totalTime = 0;
     size_t currentKeyFrame = 0;
     bool isGoing = true;
     bool goingForward = true;

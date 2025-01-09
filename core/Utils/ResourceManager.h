@@ -25,6 +25,7 @@
 // public constructor is defined.
 
 class Animation;
+class StateObject;
 using namespace LILLIS;
 
 enum AssetType
@@ -62,6 +63,7 @@ public:
     static std::map<std::string, TexImportData> SpriteInfo;
     static std::map<std::string, FileDataWrapper> DataFiles;
     //static std::map<std::string, GameObject> Prefabs;
+    static std::map<std::string, StateObject> StateObjects;
     static std::map<std::string, Animation> Animations;
     static std::string SettingsFileName;
 
