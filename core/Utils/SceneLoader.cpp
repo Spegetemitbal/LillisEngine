@@ -99,8 +99,8 @@ void SceneLoader::LoadData(const std::string& fileName)
 							//Assume multiple
 							std::string stateObjName;
 							stream >> stateObjName;
-							//G->CreateSingleAnimator(&StaticDataManager::AnimStates[animName]);
-							std::cout << "State based animation not implemented" << '\n';
+							G->CreateAnimator(&ResourceManager::StateObjects[stateObjName]);
+							//std::cout << "State based animation not implemented" << '\n';
 						}
 					}
 					if (component == "Behavior")

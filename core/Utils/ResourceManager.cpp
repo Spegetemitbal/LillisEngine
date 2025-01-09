@@ -444,9 +444,45 @@ void ResourceManager::LoadProjectInfo(const char* path)
                     }
                 }
             }
-        } else if (word == "LILSTATE")
+        } else if (word == "STATEMACHINE")
         {
+            std::string name;
+            int numStates;
+            stream >> name;
+            stream >> numStates;
+            StateObjects.emplace(name, StateObject(name));
+            for (int i = 0; i < numStates; i++)
+            {
+                LilState mState;
+                std::string item, stateName, animName;
+                double maxTime;
+                int numToStates;
+                stream >> item;
+                stream >> stateName;
+                stream >> animName;
+                stream >> maxTime;
+                stream >> numToStates;
+                if (item == "State")
+                {
+                    mState.name = stateName;
+                    mState.anim = &Animations[animName];
+                    mState.maxStateTime = maxTime;
+                    for (int j = 0; j < numToStates; j++)
+                    {
+                        std::string toStateName, frItem;
+                        int cond;
+                        stream >> frItem;
+                        stream >> toStateName;
+                        stream >> cond;
+                        if (frItem == "ToState")
+                        {
+                            mState.toStates.emplace(toStateName, (LilStateChangeConditions)cond);
+                            StateObjects[name].AddNewState(mState);
+                        }
+                    }
 
+                }
+            }
         }
     }
     stream.close();
