@@ -6,6 +6,7 @@
 #include "../GameObject.h"
 #include "Sprite.h"
 #include "../Physics/RectangleCollider.h"
+#include "Utils/Events/StateChangeEvent.h"
 
 void Animator::ConnectComponents()
 {
@@ -119,6 +120,7 @@ void Animator::Update(double deltaTime)
 
 void Animator::SwapState(const std::string &newState)
 {
+    EventSystem::getInstance()->fireEvent(StateChangeEvent(entityID, stateObject->GetName(), mCurrentState->name, newState));
     animTime = 0;
     totalTime = 0;
     currentKeyFrame = 0;

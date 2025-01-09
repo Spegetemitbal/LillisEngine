@@ -31,7 +31,7 @@ class StateObject {
 public:
 
     explicit StateObject(const std::string& n) {systemName = n;};
-    StateObject() = delete;
+    StateObject() = default;
     ~StateObject() = default;
 
     void AddNewState(const LilState& state)

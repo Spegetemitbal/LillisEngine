@@ -464,6 +464,10 @@ void ResourceManager::LoadProjectInfo(const char* path)
                 stream >> numToStates;
                 if (item == "State")
                 {
+                    if (i == 0)
+                    {
+                        StateObjects[name].SetDefaultState(stateName);
+                    }
                     mState.name = stateName;
                     mState.anim = &Animations[animName];
                     mState.maxStateTime = maxTime;

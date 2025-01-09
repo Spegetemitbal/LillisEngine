@@ -32,6 +32,7 @@ public:
         singleAnimation = nullptr;
         stateObject = stateObj;
         mCurrentState = stateObject->GetStateByName(stateObject->GetDefaultState());
+        previousState = mCurrentState->name;
     }
 
     bool swapAtEndAnim = false;

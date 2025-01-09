@@ -5,14 +5,14 @@ SPRITE Player2 Auto
 SPRITE Test Auto
 SPRITE WinFlag Auto
 SPRITE UniformTest Uniform 6 2 3
-ANIMATION Player1Idle 3 LOOP
+ANIMATION Player1Idle 3 STOP
 KeyFrame 0.5 1
 Sprite UniformTest 0 0 0 40 40
 KeyFrame 0.5 1
 Sprite UniformTest 1 0 0 40 40
 KeyFrame 0.5 1
 Sprite UniformTest 2 0 0 40 40
-ANIMATION Player1Moving 3 LOOP
+ANIMATION Player1Moving 3 STOP
 KeyFrame 0.5 1
 Sprite UniformTest 3 0 0 40 40
 KeyFrame 0.5 1
