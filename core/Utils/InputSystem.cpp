@@ -1,14 +1,23 @@
 #include "InputSystem.h"
 
+#include "Events/MouseEvent.h"
+
 std::vector<InputSystem*> InputSystem::_instances;
 
 InputSystem::InputSystem(std::vector<LILLIS::KeyCode> keysToMonitor) : _isEnabled(true) {
     for (int key : keysToMonitor) {
         _keys[key] = false;
     }
+
+    for (int i = 0; i < 3; i++)
+    {
+        _mouseButtons.push_back(false);
+    }
+
     // Add this instance to the list of instances
     InputSystem::_instances.push_back(this);
     evSys = EventSystem::getInstance();
+    _window = nullptr;
 }
 
 InputSystem::~InputSystem() {
@@ -27,6 +36,16 @@ bool InputSystem::getIsKeyDown(int key) {
     return result;
 }
 
+bool InputSystem::getIsMouseButtonDown(int key)
+{
+    if (key > 0 && key < 3)
+    {
+        return _mouseButtons[key];
+    }
+    return false;
+}
+
+
 void InputSystem::setIsKeyDown(int key, bool isDown) {
     std::map<int, bool>::iterator it = _keys.find(key);
     if (it != _keys.end()) {
@@ -35,14 +54,64 @@ void InputSystem::setIsKeyDown(int key, bool isDown) {
     }
 }
 
+void InputSystem::setMouseIsKeyDown(int key, bool isDown)
+{
+    _mouseButtons[key] = isDown;
+    evSys->fireEvent(MouseEvent(key, isDown));
+}
+
+
 void InputSystem::setupKeyInputs(const LillisWindow* window) {
-    glfwSetKeyCallback(window->window, InputSystem::callback);
+    _window = window;
+    glfwSetKeyCallback(window->window, InputSystem::keyboard_callback);
+    glfwSetCursorPosCallback(window->window, InputSystem::mouse_pos_callback);
+    glfwSetMouseButtonCallback(window->window, InputSystem::mouse_button_callback);
 }
 
 //Eventually add an ENUM abstraction.
-void InputSystem::callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void InputSystem::keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // Send key event to all KeyInput instances
     for (InputSystem* keyInput : _instances) {
         keyInput->setIsKeyDown(key, action != GLFW_RELEASE);
     }
 }
+
+void InputSystem::mouse_pos_callback(GLFWwindow *window, double xPos, double yPos)
+{
+    for (InputSystem* keyInput : _instances) {
+        keyInput->mouseXpos = xPos;
+        keyInput->mouseYPos = yPos;
+    }
+}
+
+void InputSystem::mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
+{
+    for (InputSystem* keyInput : _instances) {
+        keyInput->setMouseIsKeyDown(button, action != GLFW_RELEASE);
+    }
+}
+
+void InputSystem::setMouseType(LILLIS::MouseSetting ms)
+{
+    if (_window == nullptr)
+    {
+        return;
+    }
+
+    mouseSetting = ms;
+
+    switch (ms)
+    {
+        case LILLIS::NORMAL_CURSOR:
+            glfwSetInputMode(_window->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            break;
+        case LILLIS::HIDDEN_CURSOR:
+            glfwSetInputMode(_window->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+            break;
+        case LILLIS::DISABLED_CURSOR:
+            glfwSetInputMode(_window->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            break;
+    }
+}
+
+
