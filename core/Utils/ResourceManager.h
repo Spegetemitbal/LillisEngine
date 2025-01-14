@@ -14,6 +14,7 @@
 #include "glad/gl.h"
 #include <filesystem>
 #include "EngineStuffs/Graphics/Texture.h"
+#include "EngineStuffs/Graphics/LilCursor.h"
 #include "EngineStuffs/Graphics/Shader.h"
 #include "Utils/FileDataWrapper.h"
 //#include "EngineStuffs/Audio/Sound.h"
@@ -40,7 +41,9 @@ enum SpriteType
 {
     SPR_AUTO = 0,
     SPR_UNIFORM,
-    SPR_MANUAL
+    SPR_MANUAL,
+    SPR_CURSOR,
+    SPR_WINDOW_IMAGE
 };
 
 struct TexImportData
@@ -61,6 +64,7 @@ public:
     static std::map<std::string, Shader>    Shaders;
     static std::map<std::string, Texture2D> SpriteTexs;
     static std::map<std::string, TexImportData> SpriteInfo;
+    static std::map<std::string, LilCursor> Cursors;
     static std::map<std::string, FileDataWrapper> DataFiles;
     //static std::map<std::string, GameObject> Prefabs;
     static std::map<std::string, StateObject> StateObjects;

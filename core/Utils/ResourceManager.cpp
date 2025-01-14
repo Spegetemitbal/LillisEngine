@@ -22,6 +22,7 @@ std::map<std::string, FileDataWrapper>ResourceManager::DataFiles = std::map<std:
 std::map<std::string, TexImportData> ResourceManager::SpriteInfo = std::map<std::string, TexImportData>();
 std::map<std::string, Animation> ResourceManager::Animations = std::map<std::string, Animation>();
 std::map<std::string, StateObject> ResourceManager::StateObjects = std::map<std::string, StateObject>();
+std::map<std::string, LilCursor>ResourceManager::Cursors = std::map<std::string, LilCursor>();
 std::string ResourceManager::SettingsFileName;
 
 
@@ -384,6 +385,12 @@ void ResourceManager::LoadProjectInfo(const char* path)
             {
                 std::cout << "Manual size spritesheet not implemented yet, ending load";
                 break;
+            } else if (importType == "Cursor")
+            {
+                SpriteInfo[name].spriteType = SPR_CURSOR;
+            } else if (importType == "WindowImage")
+            {
+                SpriteInfo[name].spriteType = SPR_WINDOW_IMAGE;
             }
         } else if (word == "ANIMATION")
         {

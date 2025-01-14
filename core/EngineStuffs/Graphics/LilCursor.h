@@ -12,10 +12,9 @@ class LilCursor {
 public:
     LilCursor() = delete;
     ~LilCursor() = default;
-    LilCursor(Texture2D* texture);
+    LilCursor(int width, int height, unsigned char* data);
 private:
     friend class GraphicsSystem;
-    //GLFWimage* mImage;
     GLFWcursor* mCursor;
 };
 

@@ -75,6 +75,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 						stream >> sprWidth;
 						stream >> sprHeight;
 						s->SetLayer(lyr);
+						s->frame = 0;
 						if (sprWidth == 0 && sprHeight == 0)
 						{
 							//Add import settings to determine default size later.
