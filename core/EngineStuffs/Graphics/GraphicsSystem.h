@@ -25,6 +25,9 @@ public:
 	void RenderSprite(Sprite& spr);
 	void PostDraw();
 
+	//Major allocation, do not use often.
+	void SetCursor(const std::string& imageName, unsigned int xHot, unsigned int yHot);
+
 	LillisWindow* GetWin() { return &_win; }
 
 	void closeWindow() { if (_win.window) { glfwSetWindowShouldClose(_win.window, GLFW_TRUE); } }
@@ -36,6 +39,8 @@ private:
 
 	SpriteRenderer* defaultRenderer;
 	LILLIS::Camera testCam;
+
+	std::unordered_map<std::string, GLFWcursor*> _cursors;
 
 	LillisWindow _win;
 	std::string _windowName = "";

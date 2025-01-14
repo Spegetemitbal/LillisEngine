@@ -94,3 +94,26 @@ void GraphicsSystem::PostDraw()
 	glfwSwapBuffers(_win.window);
 	glfwPollEvents();
 }
+
+void GraphicsSystem::SetCursor(const std::string &imageName, unsigned int xHot, unsigned int yHot)
+{
+	if (_cursors.find(imageName) != _cursors.end())
+	{
+		glfwSetCursor(_win.window, _cursors[imageName]);
+		return;
+	}
+
+	Texture2D tex = ResourceManager::GetTexture(imageName);
+	GLubyte* pixels = DBG_NEW GLubyte[tex.Width * tex.Height * 4];
+	glActiveTexture(GL_TEXTURE0);
+	tex.Bind();
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+	GLFWimage image;
+	image.width = tex.Width;
+	image.height = tex.Height;
+	image.pixels = pixels;
+	_cursors.try_emplace(imageName,glfwCreateCursor(&image, xHot, yHot));
+	glfwSetCursor(_win.window, _cursors[imageName]);
+	delete pixels;
+}
