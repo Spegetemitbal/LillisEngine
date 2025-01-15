@@ -89,6 +89,8 @@ void Engine::Run()
 //Occurs every frame, the 'content' of the game loop
 void Engine::frameStep()
 {
+    engine.gameInputs->UpdateControllers();
+
     if (engine.loadNextLevel)
     {
         SceneLoad(engine.nextLevel);

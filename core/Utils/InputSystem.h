@@ -33,10 +33,13 @@ public:
     bool getIsEnabled() { return _isEnabled; }
     void setIsEnabled(bool value) { _isEnabled = value; }
 
+
     glm::vec2 getMousePosition() const {return {mouseXpos, mouseYPos};}
 
     void setMouseType(LILLIS::MouseSetting ms);
     LILLIS::MouseSetting getMouseType() { return mouseSetting; }
+
+    void UpdateControllers();
 
 private:
     // Used internally to update key states.  Called by the GLFW callback.
@@ -50,6 +53,9 @@ private:
 
     double mouseXpos = 0, mouseYPos = 0;
 
+    static unsigned int numControllersConnected;
+    static std::vector<GLFWgamepadstate> _gamepadStates;
+
     // Workaround for C++ class using a c-style-callback
 public:
     // Must be called before any KeyInput instances will work
@@ -62,6 +68,10 @@ private:
         GLFWwindow* window, double xPos, double yPos);
     static void mouse_button_callback(
         GLFWwindow* window, int button, int action, int mods);
+    static void joystick_callback(
+        int jid, int event);
+
+    static void checkNumControllers();
     // Keep a list of all KeyInput instances and notify them all of key events
     static std::vector<InputSystem*> _instances;
 

@@ -1,8 +1,13 @@
 #include "InputSystem.h"
 
+#include "Events/ControllerAxisEvent.h"
+#include "Events/ControllerButtonEvent.h"
 #include "Events/MouseEvent.h"
 
 std::vector<InputSystem*> InputSystem::_instances;
+std::vector<GLFWgamepadstate> InputSystem::_gamepadStates;
+
+unsigned int InputSystem::numControllersConnected = 0;
 
 InputSystem::InputSystem(std::vector<LILLIS::KeyCode> keysToMonitor) : _isEnabled(true) {
     for (int key : keysToMonitor) {
@@ -66,6 +71,7 @@ void InputSystem::setupKeyInputs(const LillisWindow* window) {
     glfwSetKeyCallback(window->window, InputSystem::keyboard_callback);
     glfwSetCursorPosCallback(window->window, InputSystem::mouse_pos_callback);
     glfwSetMouseButtonCallback(window->window, InputSystem::mouse_button_callback);
+    glfwSetJoystickCallback(InputSystem::joystick_callback);
 }
 
 //Eventually add an ENUM abstraction.
@@ -91,6 +97,20 @@ void InputSystem::mouse_button_callback(GLFWwindow *window, int button, int acti
     }
 }
 
+void InputSystem::joystick_callback(int jid, int event)
+{
+    if (event == GLFW_CONNECTED)
+    {
+        checkNumControllers();
+    }
+    if (event == GLFW_DISCONNECTED)
+    {
+        checkNumControllers();
+    }
+    //Add event for this eventually.
+}
+
+
 void InputSystem::setMouseType(LILLIS::MouseSetting ms)
 {
     if (_window == nullptr)
@@ -113,5 +133,49 @@ void InputSystem::setMouseType(LILLIS::MouseSetting ms)
             break;
     }
 }
+
+void InputSystem::checkNumControllers()
+{
+    numControllersConnected = 0;
+    for (int i = 0; i < GLFW_JOYSTICK_LAST; i++)
+    {
+        int present = glfwJoystickIsGamepad(i);
+        numControllersConnected += present;
+    }
+
+    while (_gamepadStates.size() > numControllersConnected)
+    {
+        _gamepadStates.pop_back();
+    }
+}
+
+void InputSystem::UpdateControllers()
+{
+    if (numControllersConnected == 0)
+    {
+        return;
+    }
+
+    for (int i = 0; i < numControllersConnected; i++)
+    {
+        GLFWgamepadstate pastState = _gamepadStates[i];
+        if (glfwGetGamepadState(i, &_gamepadStates[i]))
+        {
+            for (int j = 0; j < GLFW_GAMEPAD_BUTTON_LAST; j++)
+            {
+                if (pastState.buttons[j] != _gamepadStates[i].buttons[j])
+                {
+                    evSys->fireEvent(ControllerButtonEvent(j, _gamepadStates[i].buttons[j] != GLFW_RELEASE));
+                }
+            }
+            for (int j = 0; j < GLFW_GAMEPAD_AXIS_LAST; j++)
+            {
+                evSys->fireEvent(ControllerAxisEvent(j, _gamepadStates[i].axes[j]));
+            }
+        }
+    }
+}
+
+
 
 
