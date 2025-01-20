@@ -407,9 +407,6 @@ void ResourceManager::LoadProjectInfo(const char* path)
             } else if (repType == "CLAMP")
             {
                 repeatType = REPEAT_CLAMP;
-            } else if (repType == "LOOPSNUB")
-            {
-                repeatType = REPEAT_LOOP_SNUB;
             }
             Animations.emplace(name, Animation(repeatType));
 

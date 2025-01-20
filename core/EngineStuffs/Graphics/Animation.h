@@ -16,7 +16,6 @@ enum RepeatType
 {
   REPEAT_STOP,
   REPEAT_LOOP,
-  REPEAT_LOOP_SNUB,
   REPEAT_CLAMP
 };
 

@@ -53,11 +53,12 @@ void Animator::Update(double deltaTime)
     KeyFrame& kframe = currentAnim->getKeyFrame(currentKeyFrame);
 
     //Update position based on spline if exists
-    if (currentAnim->followSpline)
+    if (currentAnim->followSpline && kframe.frameDuration > 0)
     {
         //Safety check
         if (currentAnim->spline.getInitted())
         {
+            //TODO Remove assumption that every frame has a spline point!
             SplineInfo s = currentAnim->spline.getPosition((animTime/kframe.frameDuration) + currentKeyFrame);
             thisObject->transform.localPosition.x = s.position.x + startPos.x;
             thisObject->transform.localPosition.y = s.position.y + startPos.y;
@@ -73,14 +74,6 @@ void Animator::Update(double deltaTime)
         if (goingForward)
         {
             currentKeyFrame++;
-            if (currentAnim->getKeyFrameCount() == currentKeyFrame + 1)
-            {
-                if (currentAnim->getRepeatType() == REPEAT_LOOP_SNUB)
-                {
-                    currentKeyFrame = 0;
-                    SwapKeyFrame();
-                }
-            }
             if (currentAnim->getKeyFrameCount() == currentKeyFrame)
             {
                 switch (currentAnim->getRepeatType())

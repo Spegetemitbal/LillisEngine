@@ -31,7 +31,7 @@ KeyFrame 0.5 1
 Transform 20 0 0 0 1 1
 KeyFrame 0.5 1
 Transform 0 40 0 0 1 1
-ANIMATION FigureEight 5 LOOPSNUB true false
+ANIMATION FigureEight 5 LOOP true false
 KeyFrame 0.5 0
 SplinePoint 50 20
 KeyFrame 0.5 0
@@ -40,5 +40,5 @@ KeyFrame 0.5 0
 SplinePoint -50 20
 KeyFrame 0.5 0
 SplinePoint -50 -20
-KeyFrame 0.5 0
+KeyFrame 0 0
 SplinePoint 50 20
