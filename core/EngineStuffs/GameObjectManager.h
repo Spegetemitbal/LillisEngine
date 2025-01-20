@@ -49,8 +49,7 @@ public:
 	unsigned int getSprActive() { return spritePool->GetActiveLine(); };
 	void compactSprites(int active) {spritePool->CompactPool(active);}
 
-	LilObj<Animator> addSingleAnimator(Animation* anim);
-	LilObj<Animator> addAnimator(StateObject* stateObj);
+	LilObj<Animator> addAnimator();
 	ActiveTracker<Animator*> getAnimatorsRaw() const { return animatorPool->getPool(); };
 	unsigned int getAnimActive() {return animatorPool->GetActiveLine(); };
 	void compactAnimators(int active) {animatorPool->CompactPool(active);}

@@ -5,14 +5,14 @@ SPRITE Player2 Auto
 SPRITE Test Auto
 SPRITE WinFlag Auto
 SPRITE UniformTest Uniform 6 2 3
-ANIMATION Player1Idle 3 STOP
+ANIMATION Player1Idle 3 STOP false false
 KeyFrame 0.5 1
 Sprite UniformTest 0 0 0 40 40
 KeyFrame 0.5 1
 Sprite UniformTest 1 0 0 40 40
 KeyFrame 0.5 1
 Sprite UniformTest 2 0 0 40 40
-ANIMATION Player1Moving 3 STOP
+ANIMATION Player1Moving 3 STOP false false
 KeyFrame 0.5 1
 Sprite UniformTest 3 0 0 40 40
 KeyFrame 0.5 1
@@ -24,3 +24,21 @@ State Idle Player1Idle 0 1
 ToState Moving 2
 State Moving Player1Moving 0 1
 ToState Idle 2
+ANIMATION Triangle 3 LOOP false false
+KeyFrame 0.5 1
+Transform -20 0 0 0 1 1
+KeyFrame 0.5 1
+Transform 20 0 0 0 1 1
+KeyFrame 0.5 1
+Transform 0 40 0 0 1 1
+ANIMATION FigureEight 5 LOOPSNUB true false
+KeyFrame 0.5 0
+SplinePoint 50 20
+KeyFrame 0.5 0
+SplinePoint 50 -20
+KeyFrame 0.5 0
+SplinePoint -50 20
+KeyFrame 0.5 0
+SplinePoint -50 -20
+KeyFrame 0.5 0
+SplinePoint 50 20

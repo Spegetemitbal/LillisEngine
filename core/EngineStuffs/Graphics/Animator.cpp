@@ -49,11 +49,38 @@ void Animator::Update(double deltaTime)
     }
 
     animTime += deltaTime;
-    if (animTime >= currentAnim->getKeyFrame(currentKeyFrame).frameDuration)
+
+    KeyFrame& kframe = currentAnim->getKeyFrame(currentKeyFrame);
+
+    //Update position based on spline if exists
+    if (currentAnim->followSpline)
+    {
+        //Safety check
+        if (currentAnim->spline.getInitted())
+        {
+            SplineInfo s = currentAnim->spline.getPosition((animTime/kframe.frameDuration) + currentKeyFrame);
+            thisObject->transform.localPosition.x = s.position.x + startPos.x;
+            thisObject->transform.localPosition.y = s.position.y + startPos.y;
+            if (currentAnim->rotSpline)
+            {
+                thisObject->transform.localRotation = std::atan2(s.direction.y, s.direction.x);
+            }
+        }
+    }
+
+    if (animTime >= kframe.frameDuration)
     {
         if (goingForward)
         {
             currentKeyFrame++;
+            if (currentAnim->getKeyFrameCount() == currentKeyFrame + 1)
+            {
+                if (currentAnim->getRepeatType() == REPEAT_LOOP_SNUB)
+                {
+                    currentKeyFrame = 0;
+                    SwapKeyFrame();
+                }
+            }
             if (currentAnim->getKeyFrameCount() == currentKeyFrame)
             {
                 switch (currentAnim->getRepeatType())
@@ -97,6 +124,8 @@ void Animator::Update(double deltaTime)
                         goingForward = false;
                         SwapKeyFrame();
                         break;
+                    default:
+                        break;
                 }
             } else
             {
@@ -128,6 +157,7 @@ void Animator::SwapState(const std::string &newState)
     const std::string prev = previousState;
     mCurrentState = stateObject->GetStateByName(newState);
     previousState = prev;
+    startPos = thisObject->transform.localPosition;
     SwapKeyFrame();
 }
 
@@ -172,15 +202,17 @@ void Animator::SwapKeyFrame()
 
     if (kf.hasTransformData)
     {
-        thisObject->transform.localPosition += kf.ftd.objPos;
-        thisObject->transform.localRotation += kf.ftd.objRot;
-        thisObject->transform.localScale += kf.ftd.objScale;
+        if (!currentAnim->followSpline)
+        {
+            thisObject->transform.localPosition = kf.ftd.objPos + startPos;
+        }
+        if (!currentAnim->rotSpline)
+        {
+            thisObject->transform.localRotation = kf.ftd.objRot + startRot;
+        }
+        thisObject->transform.localScale = kf.ftd.objScale;
     }
 
-    if (stateObject != nullptr)
-    {
-        //Not implemented yet
-    }
 }
 
 
@@ -206,3 +238,52 @@ bool Animator::ChangeState(const std::string &newState)
     }
     return false;
 }
+
+void Animator::SetSingleAnimation(Animation *anim)
+{
+    singleAnim = true;
+    singleAnimation = anim;
+    mCurrentState = nullptr;
+    stateObject = nullptr;
+    if (thisObject.Exists())
+    {
+        startPos = thisObject->transform.localPosition;
+        startRot = thisObject->transform.localRotation;
+    }
+}
+
+void Animator::SetMultiAnimation(StateObject *stateObj)
+{
+    singleAnim = false;
+    singleAnimation = nullptr;
+    stateObject = stateObj;
+    mCurrentState = stateObject->GetStateByName(stateObject->GetDefaultState());
+    previousState = mCurrentState->name;
+    if (thisObject.Exists())
+    {
+        startPos = thisObject->transform.localPosition;
+        startRot = thisObject->transform.localRotation;
+    }
+}
+
+void Animator::ResetAnim()
+{
+    currentKeyFrame = 0;
+    animTime = 0;
+    isGoing = true;
+    goingForward = true;
+    startPos = thisObject->transform.localPosition;
+    startRot = thisObject->transform.localRotation;
+    SwapKeyFrame();
+}
+
+void Animator::SetGoing(bool moving)
+{
+    if (moving)
+    {
+        startPos = thisObject->transform.localPosition;
+        startRot = thisObject->transform.localRotation;
+    }
+    isGoing = moving;
+}
+

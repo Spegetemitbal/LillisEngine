@@ -73,8 +73,9 @@ LilObj<Animator> GameObject::CreateSingleAnimator(Animation *anim)
 {
 	if (!animator.Exists())
 	{
-		animator = WORLD->addSingleAnimator(anim);
+		animator = WORLD->addAnimator();
 		animator->setControlledObject(thisObject);
+		animator->SetSingleAnimation(anim);
 		animator->ConnectComponents();
 	}
 	return animator;
@@ -84,8 +85,9 @@ LilObj<Animator> GameObject::CreateAnimator(StateObject *stateObj)
 {
 	if (!animator.Exists())
 	{
-		animator = WORLD->addAnimator(stateObj);
+		animator = WORLD->addAnimator();
 		animator->setControlledObject(thisObject);
+		animator->SetMultiAnimation(stateObj);
 		animator->ConnectComponents();
 	}
 	return animator;

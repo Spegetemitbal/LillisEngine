@@ -25,7 +25,7 @@ glm::vec2 Sprite::getRenderLocation()
     return {tr.x + offset.x, tr.y + offset.y};
 }
 
-unsigned int Sprite::getRenderRotation()
+float Sprite::getRenderRotation()
 {
     return thisObject->transform.GlobalRotation();
 }

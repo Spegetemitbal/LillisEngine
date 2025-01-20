@@ -18,38 +18,17 @@ public:
     ~Animator() = default;
     Animator() = default;
 
-    void SetSingleAnimation(Animation* anim)
-    {
-        singleAnim = true;
-        singleAnimation = anim;
-        mCurrentState = nullptr;
-        stateObject = nullptr;
-    }
-
-    void SetMultiAnimation(StateObject* stateObj)
-    {
-        singleAnim = false;
-        singleAnimation = nullptr;
-        stateObject = stateObj;
-        mCurrentState = stateObject->GetStateByName(stateObject->GetDefaultState());
-        previousState = mCurrentState->name;
-    }
+    void SetSingleAnimation(Animation* anim);
+    void SetMultiAnimation(StateObject* stateObj);
 
     bool swapAtEndAnim = false;
 
     bool ChangeState(const std::string& newState);
     void ForceChangeState(const std::string& newState);
     std::string GetState() const {return mCurrentState->name;}
-    void SetGoing(bool moving) {isGoing = moving;}
+    void SetGoing(bool moving);
 
-    void ResetAnim()
-    {
-        currentKeyFrame = 0;
-        animTime = 0;
-        isGoing = true;
-        goingForward = true;
-        SwapKeyFrame();
-    }
+    void ResetAnim();
     void Update(double deltaTime);
     void ConnectComponents();
 private:
@@ -66,7 +45,9 @@ private:
     Animation* singleAnimation = nullptr;
 
     LilState* mCurrentState = nullptr;
+    //the time per frame
     double animTime = 0;
+    //Used for states
     double totalTime = 0;
     size_t currentKeyFrame = 0;
     bool isGoing = true;
@@ -74,6 +55,9 @@ private:
 
     LilObj<RectangleCollider> rectCollider;
     LilObj<Sprite> sprt;
+
+    glm::vec3 startPos;
+    float startRot;
 };
 
 

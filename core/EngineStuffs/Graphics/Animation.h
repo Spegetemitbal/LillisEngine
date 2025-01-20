@@ -10,10 +10,13 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
+#include "LilSpline.h"
+
 enum RepeatType
 {
   REPEAT_STOP,
   REPEAT_LOOP,
+  REPEAT_LOOP_SNUB,
   REPEAT_CLAMP
 };
 
@@ -72,6 +75,9 @@ public:
   }
 
   ~Animation() = default;
+
+  LilSpline spline;
+  bool followSpline = false, rotSpline = false;
 
   RepeatType getRepeatType() {return repeatType;}
   void insertKeyFrame(KeyFrame k) {keyFrames.emplace_back(k);}

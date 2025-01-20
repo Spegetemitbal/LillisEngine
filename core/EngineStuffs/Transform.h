@@ -12,16 +12,16 @@ public:
 		localPosition.z = zSet;
 	}
 	glm::vec3 localPosition;
-	unsigned int localRotation = 0;
+	float localRotation = 0;
 	glm::vec2 localScale = { 1.0f, 1.0f };
 
 	glm::vec3 GlobalPosition() const {return globalPosition;};
-	unsigned int GlobalRotation() const {return globalRotation;};
+	float GlobalRotation() const {return globalRotation;};
 	glm::vec2 GlobalScale() const {return globalScale;};
 
 private:
 	friend class SceneGraph;
 	glm::vec3 globalPosition;
-	unsigned int globalRotation;
+	float globalRotation;
 	glm::vec2 globalScale;
 };

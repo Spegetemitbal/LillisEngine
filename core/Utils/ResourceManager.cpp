@@ -393,21 +393,37 @@ void ResourceManager::LoadProjectInfo(const char* path)
             }
         } else if (word == "ANIMATION")
         {
-            std::string name, repType;
+            std::string name, repType, hasSpline, splineRot;
             RepeatType repeatType = REPEAT_STOP;
             int numKeyFrames;
             stream >> name;
             stream >> numKeyFrames;
             stream >> repType;
+            stream >> hasSpline;
+            stream >> splineRot;
             if (repType == "LOOP")
             {
                 repeatType = REPEAT_LOOP;
             } else if (repType == "CLAMP")
             {
                 repeatType = REPEAT_CLAMP;
+            } else if (repType == "LOOPSNUB")
+            {
+                repeatType = REPEAT_LOOP_SNUB;
             }
             Animations.emplace(name, Animation(repeatType));
 
+            if (hasSpline == "true")
+            {
+                Animations[name].spline = LilSpline(numKeyFrames);
+                Animations[name].followSpline = true;
+                if (splineRot == "true")
+                {
+                    Animations[name].rotSpline = true;
+                }
+            }
+
+            std::vector<glm::vec2> positions;
             for (int i = 0; i < numKeyFrames; i++)
             {
                 std::string kFrameCheck;
@@ -423,12 +439,12 @@ void ResourceManager::LoadProjectInfo(const char* path)
                     {
                         std::string paramType;
                         stream >> paramType;
+                        KeyFrame& keyFrame = Animations[name].getKeyFrame(i);
                         if (paramType == "Sprite")
                         {
                             std::string spriteImage;
                             int frame;
                             float offX, offY, szX, szY;
-                            KeyFrame& keyFrame = Animations[name].getKeyFrame(i);
                             stream >> spriteImage;
                             stream >> frame;
                             stream >> offX;
@@ -445,10 +461,36 @@ void ResourceManager::LoadProjectInfo(const char* path)
                             std::cout << "Collider param not Implemented yet";
                         } else if (paramType == "Transform")
                         {
-                            std::cout << "Transform param not Implemented yet";
+                            float xPos, yPos, zPos, rot, xScale, yScale;
+                            stream >> xPos;
+                            stream >> yPos;
+                            stream >> zPos;
+                            stream >> rot;
+                            stream >> xScale;
+                            stream >> yScale;
+                            keyFrame.hasTransformData = true;
+                            keyFrame.ftd.objPos = {xPos, yPos, zPos};
+                            keyFrame.ftd.objRot = rot;
+                            keyFrame.ftd.objScale = {xScale, yScale};
                         }
                     }
                 }
+                if (hasSpline == "true")
+                {
+                    std::string splCheck;
+                    stream >> splCheck;
+                    if (splCheck == "SplinePoint")
+                    {
+                        float xPos, yPos;
+                        stream >> xPos;
+                        stream >> yPos;
+                        positions.emplace_back(xPos, yPos);
+                    }
+                }
+            }
+            if (hasSpline == "true")
+            {
+                Animations[name].spline.initPoints(positions);
             }
         } else if (word == "STATEMACHINE")
         {

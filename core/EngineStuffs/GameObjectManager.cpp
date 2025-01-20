@@ -75,18 +75,9 @@ void GameObjectManager::setSpriteLayer(Sprite* spr)
 	renderOrder->MoveSprite({spritePool, spr->GetID()});
 }
 
-LilObj<Animator> GameObjectManager::addSingleAnimator(Animation *anim)
+LilObj<Animator> GameObjectManager::addAnimator()
 {
 	Animator* a = animatorPool->AddComponent();
-	a->SetSingleAnimation(anim);
-	return {animatorPool, a->GetID()};
-}
-
-
-LilObj<Animator> GameObjectManager::addAnimator(StateObject* stateObj)
-{
-	Animator* a = animatorPool->AddComponent();
-	a->SetMultiAnimation(stateObj);
 	return {animatorPool, a->GetID()};
 }
 
