@@ -132,6 +132,7 @@ void Engine::frameStep()
         }
     }
 
+    WORLD->doRenderOrder();
     engine.graphics->PreDraw();
 
     ActiveTracker<Sprite*> sprites = WORLD->getSpritesRaw();

@@ -22,19 +22,19 @@ void PlayerController::Update(float deltaTime)
 
 	if (w)
 	{
-		t.localPosition.y -= speed;
+		t.Translate({0, -speed, 0});
 	}
 	else if (s)
 	{
-		t.localPosition.y += speed;
+		t.Translate({0, speed, 0});
 	}
 	if (a)
 	{
-		t.localPosition.x -= speed;
+		t.Translate({-speed, 0, 0});
 	}
 	else if (d)
 	{
-		t.localPosition.x += speed;
+		t.Translate({speed, 0, 0});
 	}
 	//std::cout << "PostMove: " << t.x << " " << t.y << '\n';
 }

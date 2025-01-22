@@ -6,11 +6,11 @@
 
 GameObjectManager::GameObjectManager()
 {
-	objects = DBG_NEW GameObjPool(10);
+	objects = DBG_NEW GameObjPool(50);
 	sceneGraph = DBG_NEW SceneGraph(objects);
-	colliderPool = DBG_NEW ComponentPool<RectangleCollider>(10);
-	spritePool = DBG_NEW ComponentPool<Sprite>(10);
-	animatorPool = DBG_NEW ComponentPool<Animator>(10);
+	colliderPool = DBG_NEW ComponentPool<RectangleCollider>(50);
+	spritePool = DBG_NEW ComponentPool<Sprite>(50);
+	animatorPool = DBG_NEW ComponentPool<Animator>(50);
 	renderOrder = DBG_NEW RenderOrder(spritePool);
 	behaviors = DBG_NEW BehaviorHandler(50);
 }
@@ -32,9 +32,7 @@ LilObj<GameObject> GameObjectManager::addObject(const std::string& name)
 	GameObject* g = objects->AddObject(0, 0, name);
 	LilObj<GameObject> ob = {objects, g->GetID()};
 	g->thisObject = ob;
-	g->transform.localPosition.x = 0;
-	g->transform.localPosition.y = 0;
-	g->transform.localPosition.z = 0;
+	g->transform.SetLocalPosition({ 0, 0, 0 });
 	numObjects++;
 	return ob;
 }
@@ -140,6 +138,10 @@ void GameObjectManager::RunTransformHierarchy()
 	sceneGraph->DoForwardKinematics();
 }
 
+void GameObjectManager::doRenderOrder()
+{
+	renderOrder->OrderByAxis();
+}
 
 
 

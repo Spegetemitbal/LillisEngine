@@ -60,11 +60,11 @@ void Animator::Update(double deltaTime)
         {
             //TODO Remove assumption that every frame has a spline point!
             SplineInfo s = currentAnim->spline.getPosition((animTime/kframe.frameDuration) + currentKeyFrame);
-            thisObject->transform.localPosition.x = s.position.x + startPos.x;
-            thisObject->transform.localPosition.y = s.position.y + startPos.y;
+            thisObject->transform.SetLocalPosition(
+                glm::vec3(s.position.x + startPos.x,s.position.y + startPos.y, thisObject->transform.LocalPosition().z));
             if (currentAnim->rotSpline)
             {
-                thisObject->transform.localRotation = std::atan2(s.direction.y, s.direction.x);
+                thisObject->transform.SetLocalRotation(std::atan2(s.direction.y, s.direction.x));
             }
         }
     }
@@ -150,7 +150,7 @@ void Animator::SwapState(const std::string &newState)
     const std::string prev = previousState;
     mCurrentState = stateObject->GetStateByName(newState);
     previousState = prev;
-    startPos = thisObject->transform.localPosition;
+    startPos = thisObject->transform.LocalPosition();
     SwapKeyFrame();
 }
 
@@ -197,13 +197,13 @@ void Animator::SwapKeyFrame()
     {
         if (!currentAnim->followSpline)
         {
-            thisObject->transform.localPosition = kf.ftd.objPos + startPos;
+            thisObject->transform.SetLocalPosition(kf.ftd.objPos + startPos);
         }
         if (!currentAnim->rotSpline)
         {
-            thisObject->transform.localRotation = kf.ftd.objRot + startRot;
+            thisObject->transform.SetLocalRotation(kf.ftd.objRot + startRot);
         }
-        thisObject->transform.localScale = kf.ftd.objScale;
+        thisObject->transform.SetLocalScale(kf.ftd.objScale);
     }
 
 }
@@ -240,8 +240,8 @@ void Animator::SetSingleAnimation(Animation *anim)
     stateObject = nullptr;
     if (thisObject.Exists())
     {
-        startPos = thisObject->transform.localPosition;
-        startRot = thisObject->transform.localRotation;
+        startPos = thisObject->transform.LocalPosition();
+        startRot = thisObject->transform.LocalRotation();
     }
 }
 
@@ -254,8 +254,8 @@ void Animator::SetMultiAnimation(StateObject *stateObj)
     previousState = mCurrentState->name;
     if (thisObject.Exists())
     {
-        startPos = thisObject->transform.localPosition;
-        startRot = thisObject->transform.localRotation;
+        startPos = thisObject->transform.LocalPosition();
+        startRot = thisObject->transform.LocalRotation();
     }
 }
 
@@ -265,8 +265,8 @@ void Animator::ResetAnim()
     animTime = 0;
     isGoing = true;
     goingForward = true;
-    startPos = thisObject->transform.localPosition;
-    startRot = thisObject->transform.localRotation;
+    startPos = thisObject->transform.LocalPosition();
+    startRot = thisObject->transform.LocalRotation();
     SwapKeyFrame();
 }
 
@@ -274,8 +274,8 @@ void Animator::SetGoing(bool moving)
 {
     if (moving)
     {
-        startPos = thisObject->transform.localPosition;
-        startRot = thisObject->transform.localRotation;
+        startPos = thisObject->transform.LocalPosition();
+        startRot = thisObject->transform.LocalRotation();
     }
     isGoing = moving;
 }

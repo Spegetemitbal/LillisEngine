@@ -13,7 +13,7 @@ public:
 	Component() {entityID = nextID; nextID++;};
 	virtual ~Component() {};
 
-	LilObj<GameObject> getObject() { return thisObject; }
+	LilObj<GameObject> getObject() const { return thisObject; }
 	void setControlledObject(LilObj<GameObject> g) { thisObject = g; }
 
 	unsigned int GetID() const { return entityID; }
