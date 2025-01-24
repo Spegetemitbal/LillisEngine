@@ -61,11 +61,14 @@ LilObj<RectangleCollider> GameObjectManager::addCollider(float w, float h, int i
 	return {colliderPool, r->GetID()};
 }
 
-LilObj<Sprite> GameObjectManager::addSprite(const std::string& name)
+LilObj<Sprite> GameObjectManager::addSprite(const std::string& name, unsigned int layer)
 {
+	//Probs refactor this later. Have component pools spit out smart pointers.
 	Sprite* s = spritePool->AddComponent();
-	s->image = name;
-	return {spritePool, s->GetID()};
+	LilObj<Sprite> sP = {spritePool, s->GetID()};
+	sP->image = name;
+	sP->SetLayer(layer);
+	return sP;
 }
 
 void GameObjectManager::setSpriteLayer(Sprite* spr)
@@ -90,6 +93,7 @@ void GameObjectManager::clearAll()
 		spritePool->ClearPool();
 		animatorPool->ClearPool();
 		behaviors->ClearPool();
+		renderOrder->Clear();
 		numObjects = 0;
 	}
 	//sprites.clear();
@@ -133,16 +137,20 @@ void GameObjectManager::RemoveObjectParent(LilObj<GameObject> child, bool inacti
 	}
 }
 
-void GameObjectManager::RunTransformHierarchy()
+std::unordered_set<unsigned int> GameObjectManager::RunTransformHierarchy()
 {
-	sceneGraph->DoForwardKinematics();
+	return sceneGraph->DoForwardKinematics();
 }
 
-void GameObjectManager::doRenderOrder()
+void GameObjectManager::doRenderOrder(const std::unordered_set<unsigned int>& toUpdate)
 {
-	renderOrder->OrderByAxis();
+	renderOrder->OrderByAxis(toUpdate);
 }
 
+void GameObjectManager::initRenderOrder()
+{
+	renderOrder->OrderAll();
+}
 
 
 ActiveTracker<GameObject*> GameObjectManager::getObjectsRaw() const { return objects->getPool(); };

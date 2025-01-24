@@ -40,7 +40,7 @@ public:
 	//std::vector<Behavior> behaviors = std::vector<Behavior>();
 
 	void SetSpriteImage(const std::string &name);
-	LilObj<Sprite> CreateSprite(const std::string &image);
+	LilObj<Sprite> CreateSprite(const std::string &image, unsigned int layer = 0);
 	LilObj<RectangleCollider> CreateCollider(float w, float h, int id);
 	LilObj<Animator> CreateSingleAnimator(Animation* anim);
 	LilObj<Animator> CreateAnimator(StateObject* stateObj);

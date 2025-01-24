@@ -197,33 +197,52 @@ LilObj<GameObject> SceneGraph::GetParent(LilObj<GameObject> child)
     return {};
 }
 
-
-void SceneGraph::DoForwardKinematics()
+//Parents are always to the left of children!
+std::unordered_set<unsigned int> SceneGraph::DoForwardKinematics()
 {
+    std::unordered_set<unsigned int> result;
+
     for (int i = 0; i < numInheritedObjects; i++)
     {
         GameObject* obj = mObjPool->poolDir[i];
-        if (childMap.contains(obj->GetID()))
+        if (obj->transform.toUpdate)
         {
-            GameObject* parentObj = mObjPool->GetObjByID<GameObject>(childMap[obj->GetID()]);
-            obj->transform.globalPosition = parentObj->transform.globalPosition + obj->transform.localPosition;
-            obj->transform.globalRotation = parentObj->transform.globalRotation + obj->transform.localRotation;
-            obj->transform.globalScale = parentObj->transform.globalScale * obj->transform.localScale;
-        } else
+            if (childMap.contains(obj->GetID()))
+            {
+                GameObject* parentObj = mObjPool->GetObjByID<GameObject>(childMap[obj->GetID()]);
+                obj->transform.globalPosition = parentObj->transform.globalPosition + obj->transform.localPosition;
+                obj->transform.globalRotation = parentObj->transform.globalRotation + obj->transform.localRotation;
+                obj->transform.globalScale = parentObj->transform.globalScale * obj->transform.localScale;
+            } else
+            {
+                obj->transform.globalPosition = obj->transform.localPosition;
+                obj->transform.globalRotation = obj->transform.localRotation;
+                obj->transform.globalScale = obj->transform.localScale;
+            }
+            if (obj->getSprite().Exists())
+            {
+                result.insert(obj->getSprite().GetID());
+            }
+            obj->transform.toUpdate = false;
+        }
+    }
+
+    for (unsigned int i = numInheritedObjects; i < mObjPool->activeLine; i++)
+    {
+        GameObject* obj = mObjPool->poolDir[i];
+        if (obj->transform.toUpdate)
         {
             obj->transform.globalPosition = obj->transform.localPosition;
             obj->transform.globalRotation = obj->transform.localRotation;
             obj->transform.globalScale = obj->transform.localScale;
+            if (obj->getSprite().Exists())
+            {
+                result.insert(obj->getSprite().GetID());
+            }
+            obj->transform.toUpdate = false;
         }
     }
-
-    for (unsigned int i = numInheritedObjects; i < mObjPool->poolDir.size(); i++)
-    {
-        GameObject* obj = mObjPool->poolDir[i];
-        obj->transform.globalPosition = obj->transform.localPosition;
-        obj->transform.globalRotation = obj->transform.localRotation;
-        obj->transform.globalScale = obj->transform.localScale;
-    }
+    return result;
 }
 
 void SceneGraph::ClearHierarchy()

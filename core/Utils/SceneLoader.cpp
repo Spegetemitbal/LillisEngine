@@ -70,11 +70,11 @@ void SceneLoader::LoadData(const std::string& fileName)
 						std::string spriteName;
 						unsigned int lyr, sprWidth, sprHeight;
 						stream >> spriteName;
-						LilObj<Sprite> s = G->CreateSprite(spriteName);
 						stream >> lyr;
+						LilObj<Sprite> s = G->CreateSprite(spriteName, lyr);
 						stream >> sprWidth;
 						stream >> sprHeight;
-						s->SetLayer(lyr);
+						//s->SetLayer(lyr);
 						s->frame = 0;
 						if (sprWidth == 0 && sprHeight == 0)
 						{

@@ -60,6 +60,7 @@ void Engine::SceneLoad(std::string Data)
         WORLD->clearAll();
     }
     SceneLoader::LoadData(Data);
+    WORLD->initRenderOrder();
     CurrentLevel = Data;
 }
 
@@ -107,7 +108,8 @@ void Engine::frameStep()
         }
     }
 
-    WORLD->RunTransformHierarchy();
+    //If causing issues, use a custom set with a frameAllocator.
+    std::unordered_set<unsigned int> toUpdate = WORLD->RunTransformHierarchy();
 
     ActiveTracker<Behavior*> behvs = WORLD->getBehaviorsRaw();
     for (int i = 0; i < behvs.size(); i++)
@@ -132,7 +134,7 @@ void Engine::frameStep()
         }
     }
 
-    WORLD->doRenderOrder();
+    WORLD->doRenderOrder(toUpdate);
     engine.graphics->PreDraw();
 
     ActiveTracker<Sprite*> sprites = WORLD->getSpritesRaw();

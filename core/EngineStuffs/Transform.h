@@ -7,14 +7,12 @@ class Transform
 public:
 	Transform(float xSet = 0, float ySet = 0, float zSet = 0)
 	{
-		localPosition.x = xSet;
-		localPosition.y = ySet;
-		localPosition.z = zSet;
+		localPosition = glm::vec3(xSet, ySet, zSet);
 	}
 
 	glm::vec3 LocalPosition() const {return localPosition;}
-	void Translate(glm::vec3 translation) {localPosition += translation; hasUpdated = true;}
-	void SetLocalPosition(glm::vec3 pos) {localPosition = pos; hasUpdated = true;}
+	void Translate(glm::vec3 translation) {localPosition += translation; toUpdate = true;}
+	void SetLocalPosition(glm::vec3 pos) {localPosition = pos; toUpdate = true;}
 
 	float LocalRotation() const {return localRotation;}
 	void Rotate(float rotation) {localRotation += rotation;}
@@ -29,7 +27,7 @@ public:
 
 private:
 
-	bool hasUpdated = false;
+	bool toUpdate = true;
 
 	glm::vec3 localPosition;
 	float localRotation = 0;

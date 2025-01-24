@@ -24,7 +24,7 @@ public:
     void SetParent(LilObj<GameObject> parent, LilObj<GameObject> child);
     void RemoveParent(LilObj<GameObject> child, ObjectRemovalFlag removalFlag);
     LilObj<GameObject> GetParent(LilObj<GameObject> child);
-    void DoForwardKinematics();
+    std::unordered_set<unsigned int> DoForwardKinematics();
     void ClearHierarchy();
 
 private:

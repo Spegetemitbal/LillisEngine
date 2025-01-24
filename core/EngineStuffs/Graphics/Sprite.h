@@ -28,6 +28,7 @@ public:
     unsigned int getLayer() const {return layer;}
     void SetLayer(unsigned int lyr);
 private:
+    friend class RenderOrder;
     unsigned int layer = 0;
 };
 

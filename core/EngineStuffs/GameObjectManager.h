@@ -32,7 +32,7 @@ public:
 	LilObj<GameObject> addObject(float x, float y, const std::string& name);
 	bool SetObjectParent(const std::string& parent, LilObj<GameObject> child);
 	void RemoveObjectParent(LilObj<GameObject> child, bool inactive = false);
-	void RunTransformHierarchy();
+	std::unordered_set<unsigned int> RunTransformHierarchy();
 	LilObj<GameObject> getObjectByName(const std::string& name);
 	ActiveTracker<GameObject*> getObjectsRaw() const;
 	unsigned int getObjActive() const;
@@ -43,9 +43,10 @@ public:
 	unsigned int getColActive() { return colliderPool->GetActiveLine(); };
 	void compactColliders(int active) {colliderPool->CompactPool(active);}
 
-	LilObj<Sprite> addSprite(const std::string& name);
+	LilObj<Sprite> addSprite(const std::string& name, unsigned int layer = 0);
 	void setSpriteLayer(Sprite* spr);
-	void doRenderOrder();
+	void doRenderOrder(const std::unordered_set<unsigned int>& toUpdate);
+	void initRenderOrder();
 	ActiveTracker<Sprite*> getSpritesRaw() const { return spritePool->getPool(); };
 	unsigned int getSprActive() { return spritePool->GetActiveLine(); };
 	void compactSprites(int active) {spritePool->CompactPool(active);}

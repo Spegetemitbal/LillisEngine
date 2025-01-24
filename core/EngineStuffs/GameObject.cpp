@@ -59,11 +59,11 @@ LilObj<RectangleCollider> GameObject::CreateCollider(float w, float h, int id)
 	return collider;
 }
 
-LilObj<Sprite> GameObject::CreateSprite(const std::string &image)
+LilObj<Sprite> GameObject::CreateSprite(const std::string &image, unsigned int layer)
 {
 	if (!sprite.Exists())
 	{
-		sprite = WORLD->addSprite(image);
+		sprite = WORLD->addSprite(image, layer);
 		sprite->setControlledObject(thisObject);
 	}
 	return sprite;
