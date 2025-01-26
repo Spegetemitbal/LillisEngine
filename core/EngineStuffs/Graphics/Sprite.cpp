@@ -18,6 +18,13 @@ void Sprite::SetLayer(unsigned int lyr)
     GameObjectManager::world->setSpriteLayer(this);
 }
 
+glm::vec2 Sprite::getRenderCenter()
+{
+    glm::vec2 pos = getRenderLocation();
+    return {pos.x + (renderSize.x / 2), pos.y + (renderSize.y / 2)};
+}
+
+
 
 glm::vec2 Sprite::getRenderLocation()
 {

@@ -23,6 +23,7 @@ public:
     glm::vec2 renderSize = glm::vec2(0.0f, 0.0f);
     unsigned int frame = 0;
     glm::vec2 getRenderLocation();
+    glm::vec2 getRenderCenter();
     float getRenderRotation();
     glm::vec2 getRenderScale();
     unsigned int getLayer() const {return layer;}

@@ -41,7 +41,7 @@ bool GraphicsSystem::Init()
 		return false;
 	}
 
-	testCam = LILLIS::Camera(glm::vec2(0, 0), _width, _height);
+	mainCamera = LILLIS::Camera(glm::vec2(0, 0), _width, _height);
 	
 	glfwSetErrorCallback(error_callback);
 
@@ -49,7 +49,7 @@ bool GraphicsSystem::Init()
 	ResourceManager::loadDefaultPipeline();
 	// configure shaders
 	ResourceManager::GetShader("Default").Use().SetInteger("image", 0);
-	ResourceManager::GetShader("Default").SetMatrix4("projection", testCam.projectionMatrix());
+	ResourceManager::GetShader("Default").SetMatrix4("projection", mainCamera.projectionMatrix());
 	// set render-specific controls
 	defaultRenderer = DBG_NEW SpriteRenderer(ResourceManager::GetShader("Default"));
 	// load textures

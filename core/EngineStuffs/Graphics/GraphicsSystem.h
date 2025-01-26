@@ -28,6 +28,21 @@ public:
 	//Major allocation, do not use often.
 	void SetCursor(const std::string& imageName, unsigned int xHot, unsigned int yHot);
 
+	glm::vec2 GetCameraPosition() const
+	{
+		return mainCamera.position;
+	}
+
+	glm::vec2 GetCameraDimensions() const
+	{
+		return {mainCamera.WIDTH, mainCamera.HEIGHT};
+	}
+
+	void SetCameraPosition(const glm::vec2& pos)
+	{
+		mainCamera.position = pos;
+	}
+
 	LillisWindow* GetWin() { return &_win; }
 
 	void closeWindow() { if (_win.window) { glfwSetWindowShouldClose(_win.window, GLFW_TRUE); } }
@@ -38,7 +53,7 @@ public:
 private:
 
 	SpriteRenderer* defaultRenderer;
-	LILLIS::Camera testCam;
+	LILLIS::Camera mainCamera;
 
 	std::unordered_map<std::string, GLFWcursor*> _cursors;
 
