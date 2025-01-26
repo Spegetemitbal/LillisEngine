@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "Utils/ResourceLoader.h"
 #include "Utils/Timing.h"
 
 //Creates window, Initializes low level systems and loads scene.
@@ -182,16 +183,16 @@ void Engine::InjectAssets(const char* filePath, AssetType resourceType)
     switch (resourceType)
     {
         case SPRITE:
-            ResourceManager::LoadTextureRecursive(filePath, true);
+            ResourceLoader::LoadTextureRecursive(filePath, true);
             break;
         case SHADERS:
-            ResourceManager::LoadShaderRecursive(filePath);
+            ResourceLoader::LoadShaderRecursive(filePath);
             break;
         case SOUNDS:
             std::cout << "Not implemented yet" << '\n';
             break;
         case DATA:
-            ResourceManager::LoadDataRecursive(filePath);
+            ResourceLoader::LoadDataRecursive(filePath);
             break;
         default:
             std::cerr << "INVALID ASSET INSERTION" << '\n';
@@ -206,7 +207,7 @@ void Engine::InjectSingleAsset(const char* filePath, AssetType resourceType)
     switch (resourceType)
     {
         case SPRITE:
-            ResourceManager::LoadTexture(filePath, true);
+            ResourceLoader::LoadTexture(filePath, true);
             break;
         case SHADERS:
             std::cerr << "SINGLE SHADER INSERTION PROHIBITED" << '\n';
@@ -215,7 +216,7 @@ void Engine::InjectSingleAsset(const char* filePath, AssetType resourceType)
             std::cout << "Not implemented yet" << '\n';
             break;
         case DATA:
-            ResourceManager::LoadData(filePath);
+            ResourceLoader::LoadData(filePath);
             break;
         default:
             std::cerr << "INVALID ASSET INSERTION" << '\n';
@@ -225,7 +226,7 @@ void Engine::InjectSingleAsset(const char* filePath, AssetType resourceType)
 
 void Engine::LoadImportData(const char *filePath)
 {
-    ResourceManager::LoadProjectInfo(filePath);
+    ResourceLoader::LoadProjectInfo(filePath);
 }
 
 

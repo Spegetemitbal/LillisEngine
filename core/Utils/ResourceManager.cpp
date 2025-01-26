@@ -8,21 +8,18 @@
 ******************************************************************/
 #include "ResourceManager.h"
 #include "../EngineStuffs/Graphics/DefaultRenderPipeline.h"
-#include "../EngineStuffs/StateObject.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <filesystem>
 #include <utility>
 
+#include "StaticDataManager.h"
+
 // Instantiate static variables
 std::map<std::string, Texture2D>ResourceManager::SpriteTexs = std::map<std::string, Texture2D>();
 std::map<std::string, Shader>ResourceManager::Shaders = std::map<std::string, Shader>();
 std::map<std::string, FileDataWrapper>ResourceManager::DataFiles = std::map<std::string, FileDataWrapper>();
-std::map<std::string, TexImportData> ResourceManager::SpriteInfo = std::map<std::string, TexImportData>();
-std::map<std::string, Animation> ResourceManager::Animations = std::map<std::string, Animation>();
-std::map<std::string, StateObject> ResourceManager::StateObjects = std::map<std::string, StateObject>();
-std::string ResourceManager::SettingsFileName;
 
 
 Shader ResourceManager::LoadShader(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile, std::string name)
@@ -42,7 +39,7 @@ Shader ResourceManager::GetShader(const std::string& name)
 
 Texture2D ResourceManager::LoadTexture(const char* file, bool alpha)
 {
-    if (SpriteInfo.empty())
+    if (StaticDataManager::SpriteInfo.empty())
     {
         std::cout << "Import data required for reading";
         return {};
@@ -134,13 +131,13 @@ Shader ResourceManager::loadDefaultPipeline()
 
 Texture2D ResourceManager::loadTextureFromFile(const char* name,const char* file, bool alpha)
 {
-    if (!SpriteInfo.contains(name))
+    if (!StaticDataManager::SpriteInfo.contains(name))
     {
         std::cout << "No import data found, unable to import";
         return {};
     }
 
-    TexImportData importData = SpriteInfo[name];
+    TexImportData importData = StaticDataManager::SpriteInfo[name];
 
     // create texture object
     Texture2D texture;
@@ -195,7 +192,7 @@ Texture2D ResourceManager::loadTextureFromFile(const char* name,const char* file
 }
 
 void ResourceManager::LoadTextureRecursive(const char* path, bool alpha) {
-    if (SpriteInfo.empty())
+    if (StaticDataManager::SpriteInfo.empty())
     {
         std::cout << "Import data required for reading";
         return;
@@ -342,209 +339,6 @@ void ResourceManager::LoadDataRecursive(const char *path)
     else {
         // Handle the case where the directory doesn't exist
         std::cerr << "Directory not found." << std::endl;
-    }
-}
-
-void ResourceManager::LoadProjectInfo(const char* path)
-{
-    std::ifstream stream;
-    stream.open(path);
-
-    if (!stream.is_open())
-    {
-        return;
-    }
-
-    std::string word;
-    while (stream.good())
-    {
-        stream >> word;
-        if (word == "SPRITE")
-        {
-            std::string name, importType;
-            stream >> name;
-            stream >> importType;
-            SpriteInfo.emplace(name, TexImportData());
-
-            if (importType == "Auto")
-            {
-                SpriteInfo[name].spriteType = SPR_AUTO;
-                SpriteInfo[name].numSprites = 1;
-            } else if (importType == "Uniform")
-            {
-                int numSprites, width, height;
-                stream >> numSprites;
-                stream >> width;
-                stream >> height;
-                SpriteInfo[name].spriteType = SPR_UNIFORM;
-                SpriteInfo[name].numSprites = numSprites;
-                SpriteInfo[name].width = width;
-                SpriteInfo[name].height = height;
-            } else if (importType == "Manual")
-            {
-                std::cout << "Manual size spritesheet not implemented yet, ending load";
-                break;
-            } else if (importType == "Cursor")
-            {
-                SpriteInfo[name].spriteType = SPR_CURSOR;
-            } else if (importType == "WindowImage")
-            {
-                SpriteInfo[name].spriteType = SPR_WINDOW_IMAGE;
-            }
-        } else if (word == "ANIMATION")
-        {
-            std::string name, repType, hasSpline, splineRot;
-            RepeatType repeatType = REPEAT_STOP;
-            int numKeyFrames;
-            stream >> name;
-            stream >> numKeyFrames;
-            stream >> repType;
-            stream >> hasSpline;
-            stream >> splineRot;
-            if (repType == "LOOP")
-            {
-                repeatType = REPEAT_LOOP;
-            } else if (repType == "CLAMP")
-            {
-                repeatType = REPEAT_CLAMP;
-            }
-            Animations.emplace(name, Animation(repeatType));
-
-            if (hasSpline == "true")
-            {
-                Animations[name].spline = LilSpline(numKeyFrames);
-                Animations[name].followSpline = true;
-                if (splineRot == "true")
-                {
-                    Animations[name].rotSpline = true;
-                }
-            }
-
-            std::vector<glm::vec2> positions;
-            for (int i = 0; i < numKeyFrames; i++)
-            {
-                std::string kFrameCheck;
-                stream >> kFrameCheck;
-                if (kFrameCheck == "KeyFrame")
-                {
-                    float time;
-                    int numParams;
-                    stream >> time;
-                    stream >> numParams;
-                    Animations[name].insertKeyFrame({time});
-                    for (int j = 0; j < numParams; j++)
-                    {
-                        std::string paramType;
-                        stream >> paramType;
-                        KeyFrame& keyFrame = Animations[name].getKeyFrame(i);
-                        if (paramType == "Sprite")
-                        {
-                            std::string spriteImage;
-                            int frame;
-                            float offX, offY, szX, szY;
-                            stream >> spriteImage;
-                            stream >> frame;
-                            stream >> offX;
-                            stream >> offY;
-                            stream >> szX;
-                            stream >> szY;
-                            keyFrame.hasSpriteData = true;
-                            keyFrame.fsd.sprImage = spriteImage;
-                            keyFrame.fsd.sprFrame = frame;
-                            keyFrame.fsd.sprOffset = {offX, offY};
-                            keyFrame.fsd.sprSize = {szX, szY};
-                        } else if (paramType == "Collider")
-                        {
-                            std::cout << "Collider param not Implemented yet";
-                        } else if (paramType == "Transform")
-                        {
-                            float xPos, yPos, zPos, rot, xScale, yScale;
-                            stream >> xPos;
-                            stream >> yPos;
-                            stream >> zPos;
-                            stream >> rot;
-                            stream >> xScale;
-                            stream >> yScale;
-                            keyFrame.hasTransformData = true;
-                            keyFrame.ftd.objPos = {xPos, yPos, zPos};
-                            keyFrame.ftd.objRot = rot;
-                            keyFrame.ftd.objScale = {xScale, yScale};
-                        }
-                    }
-                }
-                if (hasSpline == "true")
-                {
-                    std::string splCheck;
-                    stream >> splCheck;
-                    if (splCheck == "SplinePoint")
-                    {
-                        float xPos, yPos;
-                        stream >> xPos;
-                        stream >> yPos;
-                        positions.emplace_back(xPos, yPos);
-                    }
-                }
-            }
-            if (hasSpline == "true")
-            {
-                Animations[name].spline.initPoints(positions);
-            }
-        } else if (word == "STATEMACHINE")
-        {
-            std::string name;
-            int numStates;
-            stream >> name;
-            stream >> numStates;
-            StateObjects.emplace(name, StateObject(name));
-            for (int i = 0; i < numStates; i++)
-            {
-                LilState mState;
-                std::string item, stateName, animName;
-                double maxTime;
-                int numToStates;
-                stream >> item;
-                stream >> stateName;
-                stream >> animName;
-                stream >> maxTime;
-                stream >> numToStates;
-                if (item == "State")
-                {
-                    if (i == 0)
-                    {
-                        StateObjects[name].SetDefaultState(stateName);
-                    }
-                    mState.name = stateName;
-                    mState.anim = &Animations[animName];
-                    mState.maxStateTime = maxTime;
-                    for (int j = 0; j < numToStates; j++)
-                    {
-                        std::string toStateName, frItem;
-                        int cond;
-                        stream >> frItem;
-                        stream >> toStateName;
-                        stream >> cond;
-                        if (frItem == "ToState")
-                        {
-                            mState.toStates.emplace(toStateName, (LilStateChangeConditions)cond);
-                            StateObjects[name].AddNewState(mState);
-                        }
-                    }
-
-                }
-            }
-        }
-    }
-    stream.close();
-}
-
-void ResourceManager::LoadProjectInfo(const std::string& importFileName)
-{
-    if (DataFiles.find(importFileName) != DataFiles.end())
-    {
-        if (DataFiles[importFileName].getFileType() == "import")
-        {
-            LoadProjectInfo(DataFiles[importFileName].getFilePath().c_str());
-        }
     }
 }
 

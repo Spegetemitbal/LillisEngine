@@ -7,6 +7,8 @@
 
 #include <cctype>
 
+#include "StaticDataManager.h"
+
 #define WORLD GameObjectManager::world
 
 void SceneLoader::LoadData(const std::string& fileName)
@@ -94,13 +96,13 @@ void SceneLoader::LoadData(const std::string& fileName)
 						{
 							std::string animName;
 							stream >> animName;
-							G->CreateSingleAnimator(&ResourceManager::Animations[animName]);
+							G->CreateSingleAnimator(&StaticDataManager::Animations[animName]);
 						} else if (animType == "Multiple")
 						{
 							//Assume multiple
 							std::string stateObjName;
 							stream >> stateObjName;
-							G->CreateAnimator(&ResourceManager::StateObjects[stateObjName]);
+							G->CreateAnimator(&StaticDataManager::StateObjects[stateObjName]);
 							//std::cout << "State based animation not implemented" << '\n';
 						}
 					}
