@@ -1,36 +1,47 @@
-#include "SceneLoader.h"
-#include "../EngineStuffs/GameObject.h"
-#include "../EngineStuffs/GameObjectManager.h"
-#include "../EngineStuffs/MemoryManagement/Serializer.h"
-#include "../EngineStuffs/Behaviors/BehaviorSystem.h"
-#include "ResourceManager.h"
+//
+// Created by Somed on 1/27/2025.
+//
 
-#include <cctype>
+#include "Prototype.h"
 
 #include "StaticDataManager.h"
+#include "EngineStuffs/GameObject.h"
+#include "EngineStuffs/GameObjectManager.h"
+
+std::unordered_map<std::string, unsigned int> Prototype::numExisting = std::unordered_map<std::string, unsigned int>();
 
 #ifndef WORLD
 #define WORLD GameObjectManager::world
 #endif
 
-void SceneLoader::LoadData(const std::string& fileName)
+LilObj<GameObject> Prototype::CreatePrototype(const std::string &name, glm::vec2 pos, float rot)
 {
-	SceneInfo info = AnalyzeScene(fileName);
-	if (info.numObjects == 0)
-	{
-		return;
-	}
+    FileDataWrapper data = ResourceManager::DataFiles[name];
+    if (data.getFileType() != "prototype")
+    {
+        std::cout << name << " is not a prototype" << std::endl;
+        return {};
+    }
 
-	FileDataWrapper data = ResourceManager::DataFiles[fileName];
-	std::ifstream stream;
+    if (numExisting.contains(name))
+    {
+        numExisting[name]++;
+    } else
+    {
+        numExisting.emplace(name, 0);
+    }
+
+    std::ifstream stream;
 	stream.open(data.getFilePath());
 
 	Serializer ser = Serializer();
 
 	if (!stream.is_open())
 	{
-		return;
+		return {};
 	}
+
+	LilObj<GameObject> root;
 
 	std::string word;
 	while (stream.good())
@@ -45,11 +56,22 @@ void SceneLoader::LoadData(const std::string& fileName)
 			stream >> name;
 			stream >> parent;
 
-			//Intake texture ID here
-			LilObj<GameObject> G = WORLD->addObject(x, y, name);
+			if (numExisting[name] > 0)
+			{
+				name += (char)numExisting[name];
+			}
+
+			LilObj<GameObject> G = WORLD->addObject(x + pos.x, y + pos.y, name);
 			if (parent != "NONE")
 			{
 				WORLD->SetObjectParent(parent, G);
+			} else if (root.Exists())
+			{
+				std::cout << "Only one root object per prototype!" << '\n';
+				break;
+			} else
+			{
+				root = G;
 			}
 
 			std::string component;
@@ -167,38 +189,6 @@ void SceneLoader::LoadData(const std::string& fileName)
 	}
 
 	stream.close();
+	return root;
 }
 
-SceneInfo SceneLoader::AnalyzeScene(const std::string &fileName)
-{
-	SceneInfo info = SceneInfo();
-
-	if (ResourceManager::DataFiles.find(fileName) == ResourceManager::DataFiles.end())
-	{
-		std::cout << "File " << fileName << " does not exist!" << '\n';
-		return {};
-	}
-	FileDataWrapper data = ResourceManager::DataFiles[fileName];
-	std::ifstream stream;
-	stream.open(data.getFilePath());
-
-	Serializer ser = Serializer();
-
-	if (!stream.is_open())
-	{
-		return {};
-	}
-
-	std::string word;
-	while (stream.good())
-	{
-		stream >> word;
-		if (word == "Object")
-		{
-			info.numObjects++;
-		}
-	}
-
-	stream.close();
-	return info;
-}

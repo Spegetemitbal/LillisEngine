@@ -15,7 +15,7 @@ public:
     ActiveTracker() = delete;
     ~ActiveTracker() = default;
 
-    ActiveTracker(vector<T> v) {data = v;}
+    ActiveTracker(std::vector<T> v) {data = v;}
 
     T operator[](int idx)
     {
@@ -38,7 +38,7 @@ public:
     int GetNumActive() const {return counter;}
 
 private:
-    vector<T> data;
+    std::vector<T> data;
     int counter = 0;
 };
 class MemoryPool

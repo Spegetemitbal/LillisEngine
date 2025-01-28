@@ -197,6 +197,21 @@ LilObj<GameObject> SceneGraph::GetParent(LilObj<GameObject> child)
     return {};
 }
 
+std::vector<LilObj<GameObject>> SceneGraph::GetImmediateChildren(LilObj<GameObject> child)
+{
+    if (parentMap.count(child.GetID()) > 0)
+    {
+        std::vector<LilObj<GameObject>> v = std::vector<LilObj<GameObject>>(parentMap.count(child.GetID()));
+        auto range = parentMap.equal_range(child.GetID());
+        for (auto it = range.first; it != range.second; ++it) {
+            v.emplace_back(mObjPool, it->second);
+        }
+        return v;
+    }
+    return {};
+}
+
+
 //Parents are always to the left of children!
 std::unordered_set<unsigned int> SceneGraph::DoForwardKinematics()
 {
