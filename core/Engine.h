@@ -37,7 +37,11 @@ public:
 
     std::string CurrentLevel = std::string();
 
+    //TODO Split this
     void Init(int screenWidth, int screenHeight, std::string gameName, std::vector<LILLIS::KeyCode>);
+
+    //Do after loading import data.
+    bool InitAudio();
 
     void InjectAssets(const char* filePath, AssetType resourceType);
     void InjectSingleAsset(const char* filePath, AssetType resourceType);

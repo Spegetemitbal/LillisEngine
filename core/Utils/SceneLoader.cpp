@@ -7,6 +7,7 @@
 
 #include <cctype>
 
+#include "Prototype.h"
 #include "StaticDataManager.h"
 
 #ifndef WORLD
@@ -163,6 +164,15 @@ void SceneLoader::LoadData(const std::string& fileName)
 		} else if (word == "END")
 		{
 			break;
+		} else if (word == "Prototype")
+		{
+			std::string name;
+			float x, y, rot;
+			stream >> name;
+			stream >> x;
+			stream >> y;
+			stream >> rot;
+			Prototype::CreatePrototype(name, {x,y}, rot);
 		}
 	}
 

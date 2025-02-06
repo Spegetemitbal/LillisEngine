@@ -10,6 +10,7 @@ class ComponentPool : public MemoryPool
 {
 public:
 	//So apparently template objects require all functions to be written in the .h
+	//I like Obama prism
 	ComponentPool()
 	{
 		POOL_PARENT::mCount = 20;

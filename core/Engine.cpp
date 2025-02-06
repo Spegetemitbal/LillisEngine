@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "EngineStuffs/Audio/AudioSystem.h"
 #include "Utils/ResourceLoader.h"
 #include "Utils/Timing.h"
 
@@ -28,6 +29,8 @@ Engine::~Engine()
     EventSystem::delInstance();
     
     delete engine.gameInputs;
+
+    AudioSystem::destroyInstance();
 
     engine.graphics->ShutDown();
     delete engine.graphics;
@@ -64,6 +67,13 @@ void Engine::SceneLoad(std::string Data)
     WORLD->initRenderOrder();
     CurrentLevel = Data;
 }
+
+bool Engine::InitAudio()
+{
+    AudioSystem* as = AudioSystem::createInstance();
+    return as->Init();
+}
+
 
 
 //Game loop

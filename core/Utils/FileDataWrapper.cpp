@@ -23,6 +23,9 @@ FileDataWrapper::FileDataWrapper(const char *file)
     } else if (tempFileType == ".proto")
     {
         fileType = "prototype";
+    } else if (tempFileType == ".wav" || tempFileType == ".mp3")
+    {
+        fileType = "sound";
     } else
     {
         std::cout << "Unrecognized file type: " << tempFileType << std::endl;
