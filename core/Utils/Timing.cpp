@@ -34,12 +34,14 @@ void Timing::SetTime()
 
 void Timing::Tick() {
 
+
+    SetTime();
     double preDelta = realTime - frameStart;
-    if (timeScale >= 0)
+    if (timeScale <= 0)
     {
         timeScale = 1;
     }
-    frameStart = glfwGetTime();
+    frameStart = realTime;
     if (!Paused)
     {
         frame++;
@@ -48,12 +50,15 @@ void Timing::Tick() {
 
         totalTime += deltaTime;
         unscaledTime += unscaledDeltaTime;
+        frameLag += deltaTime;
 
         timeSinceLevelStart += unscaledDeltaTime;
     }
 }
 
+
 void Timing::SetFrameRate(int frameRate)
 {
     realFrameRate = 1.0 / frameRate;
+    fixedUpdateTime = realFrameRate;
 }

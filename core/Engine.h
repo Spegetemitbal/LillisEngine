@@ -58,5 +58,7 @@ private:
     //StackAllocator* FrameAllocator = DBG_NEW StackAllocator();
     void SceneLoad(std::string Data);
     void frameStep();
+    void renderStep();
+    void updateScripts();
 };
 

@@ -37,6 +37,9 @@ private:
     static double unscaledDeltaTime;
     static double timeSinceLevelStart;
 
+    static inline double frameLag = 0.0;
+    static inline double fixedUpdateTime = 1.0 / 60.0;
+
     static double realTime;
     static double frameStart;
 };

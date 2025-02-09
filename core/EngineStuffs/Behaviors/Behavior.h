@@ -23,7 +23,7 @@ public:
 
 	std::string GetName() { return BehaviorName; }
 
-	virtual void Update(float deltaTime) = 0;
+	virtual void Update(float deltaTime) {};
 	virtual void Serialize(Serializer& ser) {};
 	virtual void Deserialize(Serializer& ser) {};
 

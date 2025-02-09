@@ -80,17 +80,22 @@ bool Engine::InitAudio()
 void Engine::Run()
 {
     engine.isRunning = true;
+    //Timing::SetTime();
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&frameStep, engine, 0, true);
 #else
     while (!engine.quit)
     {
-        Timing::SetTime();
-        if (Timing::realTime - Timing::frameStart >= Timing::realFrameRate)
+        Timing::Tick();
+
+        while (Timing::frameLag >= Timing::fixedUpdateTime)
         {
-            Timing::Tick();
             frameStep();
+            Timing::frameLag -= Timing::fixedUpdateTime;
         }
+
+        renderStep();
+
         engine.quit = engine.graphics->isWindowOpen();
     }
 #endif
@@ -115,21 +120,14 @@ void Engine::frameStep()
     {
         if (anims[i]->GetActive())
         {
-            anims[i]->Update(Timing::deltaTime);
+            anims[i]->Update(Timing::fixedUpdateTime);
         }
     }
 
     //If causing issues, use a custom set with a frameAllocator.
     std::unordered_set<unsigned int> toUpdate = WORLD->RunTransformHierarchy();
 
-    ActiveTracker<Behavior*> behvs = WORLD->getBehaviorsRaw();
-    for (int i = 0; i < behvs.size(); i++)
-    {
-        if (behvs[i]->GetActive())
-        {
-            behvs[i]->Update((float)Timing::deltaTime);
-        }
-    }
+    updateScripts();
 
     ActiveTracker<RectangleCollider*> col = WORLD->getCollidersRaw();
 
@@ -146,6 +144,21 @@ void Engine::frameStep()
     }
 
     WORLD->doRenderOrder(toUpdate);
+
+    //Oopsies
+    //WORLD->compactObjects(.GetNumActive());
+    WORLD->compactColliders(col.GetNumActive());
+    WORLD->compactAnimators(anims.GetNumActive());
+
+
+    if (engine.gameInputs->getIsKeyDown(LILLIS::ESC))
+    {
+        engine.graphics->closeWindow();
+    }
+}
+
+void Engine::renderStep()
+{
     engine.graphics->PreDraw();
 
     ActiveTracker<Sprite*> sprites = WORLD->getSpritesRaw();
@@ -163,17 +176,23 @@ void Engine::frameStep()
     engine.graphics->PostDraw();
 
     //End of Frame Garbage collection
-    WORLD->compactObjects(sprites.GetNumActive());
-    WORLD->compactObjects(col.GetNumActive());
-    WORLD->compactColliders(behvs.GetNumActive());
-    WORLD->compactAnimators(anims.GetNumActive());
-
-
-    if (engine.gameInputs->getIsKeyDown(LILLIS::ESC))
-    {
-        engine.graphics->closeWindow();
-    }
+    WORLD->compactSprites(sprites.GetNumActive());
 }
+
+void Engine::updateScripts()
+{
+    ActiveTracker<Behavior*> behvs = WORLD->getBehaviorsRaw();
+    for (int i = 0; i < behvs.size(); i++)
+    {
+        if (behvs[i]->GetActive())
+        {
+            behvs[i]->Update((float)Timing::fixedUpdateTime);
+        }
+    }
+    WORLD->compactBehaviors(behvs.GetNumActive());
+}
+
+
 
 std::string GetFileName(const char* path)
 {
