@@ -12,15 +12,13 @@ public:
 
 	GameObject()
 	{
-		transform = Transform();
 		entityID = nextID;
 		nextID++;
 	};
 
 	//Probs make these private my guy.
-	GameObject(float x, float y, const std::string &name, const std::string& parent)
+	GameObject(const std::string &name)
 	{
-		transform = Transform(x, y);
 		objName = name;
 		entityID = nextID;
 		nextID++;
@@ -51,7 +49,7 @@ public:
 	size_t SerializeTransform(char* buffer, size_t bufSize);
 	size_t DeSerializeTransform(char* buffer, size_t bufSize);
 
-	Transform transform{};
+	LilObj<Transform> transform;
 
 	//Behavior* getBehavior(LILLIS::string name);
 

@@ -99,7 +99,7 @@ void RenderOrder::MoveSprite(LilObj<Sprite> spr)
 //Assumes an ordered setup.
 void RenderOrder::OrderByAxis(const std::unordered_set<unsigned int>& toUpdate)
 {
-    if (axis == glm::vec3(0) || !sorted)
+    if (axis == glm::vec2(0) || !sorted)
     {
         return;
     }
@@ -136,8 +136,8 @@ void RenderOrder::OrderAll()
 //If spr1 is further along the axis than spr2 (rendered later), dist will be negative. Return 1
 int RenderOrder::compareAxis(Sprite* const &spr1, Sprite* const &spr2)
 {
-    glm::vec3 pos1 = spr1->getObject()->transform.GlobalPosition();
-    glm::vec3 pos2 = spr2->getObject()->transform.GlobalPosition();
+    glm::vec2 pos1 = spr1->getObject()->transform->GlobalPosition();
+    glm::vec2 pos2 = spr2->getObject()->transform->GlobalPosition();
     float dist1 = glm::dot(axis, pos1);
     float dist2 = glm::dot(axis, pos2);
     if (dist1 > dist2)

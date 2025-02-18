@@ -7,7 +7,9 @@
 GameObjectManager::GameObjectManager()
 {
 	objects = DBG_NEW GameObjPool(50);
-	sceneGraph = DBG_NEW SceneGraph(objects);
+	transformPool = DBG_NEW ComponentPool<Transform>(50);
+
+	sceneGraph = DBG_NEW SceneGraph(transformPool);
 	colliderPool = DBG_NEW ComponentPool<RectangleCollider>(50);
 	spritePool = DBG_NEW ComponentPool<Sprite>(50);
 	animatorPool = DBG_NEW ComponentPool<Animator>(50);
@@ -19,6 +21,7 @@ GameObjectManager::~GameObjectManager()
 { 
 	//clearAll();
 	delete objects;
+	delete transformPool;
 	delete sceneGraph;
 	delete spritePool;
 	delete animatorPool;
@@ -29,19 +32,26 @@ GameObjectManager::~GameObjectManager()
 
 LilObj<GameObject> GameObjectManager::addObject(const std::string& name)
 {
-	GameObject* g = objects->AddObject(0, 0, name);
+	GameObject* g = objects->AddObject(name);
 	LilObj<GameObject> ob = {objects, g->GetID()};
 	g->thisObject = ob;
-	g->transform.SetLocalPosition({ 0, 0, 0 });
+	Transform* t = transformPool->AddComponent();
+	t->SetLocalPosition({ 0, 0 });
+	t->setControlledObject(ob);
+	g->transform = {transformPool,t->GetID()};
 	numObjects++;
 	return ob;
 }
 
 LilObj<GameObject> GameObjectManager::addObject(float x, float y, const std::string& name)
 {
-	GameObject* g = objects->AddObject(x, y, name);
+	GameObject* g = objects->AddObject(name);
 	LilObj<GameObject> ob = {objects, g->GetID()};
 	g->thisObject = ob;
+	Transform* t = transformPool->AddComponent();
+	t->SetLocalPosition({ x, y });
+	t->setControlledObject(ob);
+	g->transform = {transformPool,t->GetID()};
 	numObjects++;
 	return ob;
 }
@@ -89,6 +99,7 @@ void GameObjectManager::clearAll()
 	{
 		sceneGraph->ClearHierarchy();
 		objects->ClearPool();
+		transformPool->ClearPool();
 		colliderPool->ClearPool();
 		spritePool->ClearPool();
 		animatorPool->ClearPool();
@@ -111,7 +122,7 @@ bool GameObjectManager::SetObjectParent(const std::string& parent, LilObj<GameOb
 		LilObj<GameObject> g = getObjectByName(parent);
 		if (g.Exists())
 		{
-			sceneGraph->SetParent(g, child);
+			sceneGraph->SetParent(g->transform, child->transform);
 			return true;
 		} else
 		{
@@ -131,13 +142,13 @@ void GameObjectManager::RemoveObjectParent(LilObj<GameObject> child, bool inacti
 	{
 		if (inactive)
 		{
-			sceneGraph->RemoveParent(child, ObjectRemovalFlag::OBJECTREMOVAL_DESTROY);
+			sceneGraph->RemoveParent(child->transform, ObjectRemovalFlag::OBJECTREMOVAL_DESTROY);
 		}
-		sceneGraph->RemoveParent(child, ObjectRemovalFlag::OBJECTREMOVAL_NONE);
+		sceneGraph->RemoveParent(child->transform, ObjectRemovalFlag::OBJECTREMOVAL_NONE);
 	}
 }
 
-std::unordered_set<unsigned int> GameObjectManager::RunTransformHierarchy()
+void GameObjectManager::RunTransformHierarchy()
 {
 	return sceneGraph->DoForwardKinematics();
 }

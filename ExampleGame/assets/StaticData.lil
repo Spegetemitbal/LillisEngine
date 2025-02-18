@@ -26,11 +26,11 @@ State Moving Player1Moving 0 1
 ToState Idle 2
 ANIMATION Triangle 3 LOOP false false
 KeyFrame 0.5 1
-Transform -20 0 0 0 1 1
+Transform -20 0 0 1 1
 KeyFrame 0.5 1
-Transform 20 0 0 0 1 1
+Transform 20 0 0 1 1
 KeyFrame 0.5 1
-Transform 0 40 0 0 1 1
+Transform 0 40 0 1 1
 ANIMATION FigureEight 5 LOOP true false
 KeyFrame 0.5 0
 SplinePoint 50 20

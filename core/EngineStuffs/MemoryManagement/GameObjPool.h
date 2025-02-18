@@ -39,7 +39,7 @@ public:
 		}
 	}
 
-	GameObject* AddObject(float x, float y, const std::string& name)
+	GameObject* AddObject(const std::string& name)
 	{
 		if (activeLine == mCount)
 		{
@@ -48,7 +48,6 @@ public:
 		activeLine++;
 		poolDir[activeLine - 1]->objName = name;
 		poolDir[activeLine - 1]->SetActive(true);
-		poolDir[activeLine - 1]->transform = Transform(x,y);
 		objNames.insert({name, {this, poolDir[activeLine - 1]->GetID()}});
 		return poolDir[activeLine - 1];
 	}
@@ -137,8 +136,6 @@ public:
 	}
 
 protected:
-
-	friend class SceneGraph;
 	std::vector<GameObject*> poolDir;
 	std::unordered_map<std::string, LilObj<GameObject>> objNames;
 

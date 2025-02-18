@@ -17,11 +17,11 @@ bool RectangleCollider::CheckCollision(RectangleCollider other)
 	float thisHeight = colliderHeight / 2;
 
 
-	Transform thisTransform = thisObject->transform;
-	Transform thatTransform = other.thisObject->transform;
+	LilObj<Transform> thisTransform = thisObject->transform;
+	LilObj<Transform> thatTransform = other.thisObject->transform;
 
-	if (abs(thisTransform.GlobalPosition().x - thatTransform.GlobalPosition().x)
-		< thisWidth + otherWidth && abs(thisTransform.GlobalPosition().y - thatTransform.GlobalPosition().y) < thisHeight + otherHeight)
+	if (abs(thisTransform->GlobalPosition().x - thatTransform->GlobalPosition().x)
+		< thisWidth + otherWidth && abs(thisTransform->GlobalPosition().y - thatTransform->GlobalPosition().y) < thisHeight + otherHeight)
 	{
 		EventSystem* e = EventSystem::getInstance();
 		e->fireEvent(CollisionEvent(tag, other.tag));

@@ -107,9 +107,9 @@ public:
 		unsigned int GetActiveLine() { return activeLine; };
 
 		//Two finger compaction
-		void CompactPool(int active) override
+		void CompactPool(int numInactive) override
 		{
-			if (active / activeLine > 0.5)
+			if (numInactive / activeLine > 0.5)
 			{
 				size_t freeSpace = 0;
 				size_t scan = 0;
@@ -156,6 +156,7 @@ public:
 
 		friend class RenderOrder;
 		friend class SpatialPartitioner;
+		friend class SceneGraph;
 
 		unsigned int FindObjectIndex(Comp* g)
 		{

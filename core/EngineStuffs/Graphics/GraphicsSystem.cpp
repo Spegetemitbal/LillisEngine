@@ -68,7 +68,7 @@ void GraphicsSystem::ShutDown()
 
 void GraphicsSystem::RenderSprite(Sprite& spr)
 {
-	if (spr.image == "")
+	if (spr.image.empty())
 	{
 		return;
 	}

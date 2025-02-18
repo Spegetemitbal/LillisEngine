@@ -5,20 +5,20 @@
 #include "SceneGraph.h"
 #include <queue>
 
-SceneGraph::SceneGraph(GameObjPool* gameObjPool)
+SceneGraph::SceneGraph(ComponentPool<Transform>* gameObjPool)
 {
     mObjPool = gameObjPool;
 }
 
 
-void SceneGraph::SetParent(LilObj<GameObject> parent, LilObj<GameObject> child)
+void SceneGraph::SetParent(LilObj<Transform> parent, LilObj<Transform> child)
 {
     unsigned int parentID = parent.GetID();
     unsigned int childID = child.GetID();
 
     unsigned int numToMove = 0;
     unsigned int numToAdd = 0;
-    unsigned int startIndex = mObjPool->FindObjectIndex(mObjPool->GetObjByID<GameObject>(childID));
+    unsigned int startIndex = mObjPool->FindObjectIndex(mObjPool->GetObjByID<Transform>(childID));
     unsigned int endIndex = startIndex;
     unsigned int toIndex;
 
@@ -66,11 +66,11 @@ void SceneGraph::SetParent(LilObj<GameObject> parent, LilObj<GameObject> child)
     //If parent is already in the roster
     if (parentMap.contains(parentID) || childMap.contains(parentID))
     {
-        toIndex = mObjPool->FindObjectIndex(mObjPool->GetObjByID<GameObject>(parentID)) + 1;
+        toIndex = mObjPool->FindObjectIndex(mObjPool->GetObjByID<Transform>(parentID)) + 1;
     } else
     {
         toIndex = numInheritedObjects + 1;
-        mObjPool->SwapObjects(mObjPool->poolDir[numInheritedObjects], mObjPool->GetObjByID<GameObject>(parentID));
+        mObjPool->SwapObjects(mObjPool->poolDir[numInheritedObjects], mObjPool->GetObjByID<Transform>(parentID));
         numToAdd++;
     }
 
@@ -117,7 +117,7 @@ void SceneGraph::SetParent(LilObj<GameObject> parent, LilObj<GameObject> child)
     numInheritedObjects += numToAdd;
 }
 
-void SceneGraph::RemoveParent(LilObj<GameObject> child, ObjectRemovalFlag removalFlag)
+void SceneGraph::RemoveParent(LilObj<Transform> child, ObjectRemovalFlag removalFlag)
 {
     if (!childMap.contains(child.GetID()))
     {
@@ -153,7 +153,7 @@ void SceneGraph::RemoveParent(LilObj<GameObject> child, ObjectRemovalFlag remova
         childMap.erase(nextScan.front());
         if (removalFlag == OBJECTREMOVAL_DESTROY)
         {
-            mObjPool->GetObjByID<GameObject>(nextScan.front())->SetActive(false);
+            mObjPool->GetObjByID<Transform>(nextScan.front())->SetActive(false);
         }
         nextScan.pop();
     }
@@ -165,7 +165,7 @@ void SceneGraph::RemoveParent(LilObj<GameObject> child, ObjectRemovalFlag remova
     }
 
     //Move everything left
-    unsigned int baseIndex = mObjPool->FindObjectIndex(mObjPool->GetObjByID<GameObject>(child.GetID()));
+    unsigned int baseIndex = mObjPool->FindObjectIndex(mObjPool->GetObjByID<Transform>(child.GetID()));
     if (removeParent)
     {
         baseIndex--;
@@ -188,7 +188,7 @@ void SceneGraph::RemoveParent(LilObj<GameObject> child, ObjectRemovalFlag remova
 }
 
 
-LilObj<GameObject> SceneGraph::GetParent(LilObj<GameObject> child)
+LilObj<Transform> SceneGraph::GetParent(LilObj<Transform> child)
 {
     if (childMap.find(child.GetID()) != childMap.end())
     {
@@ -197,11 +197,11 @@ LilObj<GameObject> SceneGraph::GetParent(LilObj<GameObject> child)
     return {};
 }
 
-std::vector<LilObj<GameObject>> SceneGraph::GetImmediateChildren(LilObj<GameObject> child)
+std::vector<LilObj<Transform>> SceneGraph::GetImmediateChildren(LilObj<Transform> child)
 {
     if (parentMap.count(child.GetID()) > 0)
     {
-        std::vector<LilObj<GameObject>> v = std::vector<LilObj<GameObject>>(parentMap.count(child.GetID()));
+        std::vector<LilObj<Transform>> v = std::vector<LilObj<Transform>>(parentMap.count(child.GetID()));
         auto range = parentMap.equal_range(child.GetID());
         for (auto it = range.first; it != range.second; ++it) {
             v.emplace_back(mObjPool, it->second);
@@ -213,51 +213,59 @@ std::vector<LilObj<GameObject>> SceneGraph::GetImmediateChildren(LilObj<GameObje
 
 
 //Parents are always to the left of children!
-std::unordered_set<unsigned int> SceneGraph::DoForwardKinematics()
+void SceneGraph::DoForwardKinematics()
 {
-    std::unordered_set<unsigned int> result;
+    //Do active check here
+    int numInactive = 0;
 
     for (int i = 0; i < numInheritedObjects; i++)
     {
-        GameObject* obj = mObjPool->poolDir[i];
-        if (obj->transform.toUpdate)
+        Transform* obj = mObjPool->poolDir[i];
+        if (obj->GetActive())
         {
-            if (childMap.contains(obj->GetID()))
+            if (obj->toUpdate)
             {
-                GameObject* parentObj = mObjPool->GetObjByID<GameObject>(childMap[obj->GetID()]);
-                obj->transform.globalPosition = parentObj->transform.globalPosition + obj->transform.localPosition;
-                obj->transform.globalRotation = parentObj->transform.globalRotation + obj->transform.localRotation;
-                obj->transform.globalScale = parentObj->transform.globalScale * obj->transform.localScale;
-            } else
-            {
-                obj->transform.globalPosition = obj->transform.localPosition;
-                obj->transform.globalRotation = obj->transform.localRotation;
-                obj->transform.globalScale = obj->transform.localScale;
+                if (childMap.contains(obj->GetID()))
+                {
+                    auto* parentObj = mObjPool->GetObjByID<Transform>(childMap[obj->GetID()]);
+                    obj->globalPosition = parentObj->globalPosition + obj->localPosition;
+                    obj->globalRotation = parentObj->globalRotation + obj->localRotation;
+                    obj->globalScale = parentObj->globalScale * obj->localScale;
+                } else
+                {
+                    obj->globalPosition = obj->localPosition;
+                    obj->globalRotation = obj->localRotation;
+                    obj->globalScale = obj->localScale;
+                }
+
+                obj->toUpdate = false;
             }
-            if (obj->getSprite().Exists())
-            {
-                result.insert(obj->getSprite().GetID());
-            }
-            obj->transform.toUpdate = false;
+        } else
+        {
+            numInactive++;
         }
     }
 
     for (unsigned int i = numInheritedObjects; i < mObjPool->activeLine; i++)
     {
-        GameObject* obj = mObjPool->poolDir[i];
-        if (obj->transform.toUpdate)
+        Transform* obj = mObjPool->poolDir[i];
+        if (obj->GetActive())
         {
-            obj->transform.globalPosition = obj->transform.localPosition;
-            obj->transform.globalRotation = obj->transform.localRotation;
-            obj->transform.globalScale = obj->transform.localScale;
-            if (obj->getSprite().Exists())
+            if (obj->toUpdate)
             {
-                result.insert(obj->getSprite().GetID());
+                obj->globalPosition = obj->localPosition;
+                obj->globalRotation = obj->localRotation;
+                obj->globalScale = obj->localScale;
+
+                obj->toUpdate = false;
             }
-            obj->transform.toUpdate = false;
+        } else
+        {
+            numInactive++;
         }
     }
-    return result;
+
+    mObjPool->CompactPool(numInactive);
 }
 
 void SceneGraph::ClearHierarchy()

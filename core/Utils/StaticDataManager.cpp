@@ -125,12 +125,11 @@ void StaticDataManager::LoadAnimation(std::ifstream& file)
                     float xPos, yPos, zPos, rot, xScale, yScale;
                     file >> xPos;
                     file >> yPos;
-                    file >> zPos;
                     file >> rot;
                     file >> xScale;
                     file >> yScale;
                     keyFrame.hasTransformData = true;
-                    keyFrame.ftd.objPos = {xPos, yPos, zPos};
+                    keyFrame.ftd.objPos = {xPos, yPos};
                     keyFrame.ftd.objRot = rot;
                     keyFrame.ftd.objScale = {xScale, yScale};
                 }

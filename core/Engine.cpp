@@ -10,6 +10,8 @@ Engine::Engine()
     engine = EngineState();
     engine.quit = false;
 
+    engine.physics = new PhysicsSystem();
+
     engine.system = System::Create();
     engine.system->Init();
 
@@ -29,6 +31,8 @@ Engine::~Engine()
     EventSystem::delInstance();
     
     delete engine.gameInputs;
+
+    delete engine.physics;
 
     AudioSystem::destroyInstance();
 
@@ -124,12 +128,13 @@ void Engine::frameStep()
         }
     }
 
-    //If causing issues, use a custom set with a frameAllocator.
-    std::unordered_set<unsigned int> toUpdate = WORLD->RunTransformHierarchy();
+    WORLD->RunTransformHierarchy();
 
     updateScripts();
 
     ActiveTracker<RectangleCollider*> col = WORLD->getCollidersRaw();
+
+
 
     unsigned int lastCol = WORLD->getColActive();
     for (int i = 0; i < lastCol; i++)
@@ -143,7 +148,7 @@ void Engine::frameStep()
         }
     }
 
-    WORLD->doRenderOrder(toUpdate);
+    //WORLD->doRenderOrder(toUpdate);
 
     //Oopsies
     //WORLD->compactObjects(.GetNumActive());

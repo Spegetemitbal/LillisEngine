@@ -18,23 +18,23 @@ void PlayerController::Update(float deltaTime)
 	int speed = 5;
 
 	//Make this more cache friendly.
-	Transform& t = thisObject->transform;
+	LilObj<Transform> t = thisObject->transform;
 
 	if (w)
 	{
-		t.Translate({0, -speed, 0});
+		t->Translate({0, -speed});
 	}
 	else if (s)
 	{
-		t.Translate({0, speed, 0});
+		t->Translate({0, speed});
 	}
 	if (a)
 	{
-		t.Translate({-speed, 0, 0});
+		t->Translate({-speed, 0});
 	}
 	else if (d)
 	{
-		t.Translate({speed, 0, 0});
+		t->Translate({speed, 0});
 	}
 	//std::cout << "PostMove: " << t.x << " " << t.y << '\n';
 }

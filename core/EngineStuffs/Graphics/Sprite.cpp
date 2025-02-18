@@ -6,6 +6,7 @@
 
 #include "EngineStuffs/GameObject.h"
 #include "EngineStuffs/GameObjectManager.h"
+#include "EngineStuffs/MemoryManagement/LilObj.h"
 
 Sprite::Sprite(const std::string& spr)
 {
@@ -28,18 +29,29 @@ glm::vec2 Sprite::getRenderCenter()
 
 glm::vec2 Sprite::getRenderLocation()
 {
-    glm::vec3 tr = thisObject->transform.GlobalPosition();
-    return {tr.x + offset.x, tr.y + offset.y};
+    LazySetTransform();
+    return transform->GlobalPosition() + offset;
 }
 
 float Sprite::getRenderRotation()
 {
-    return thisObject->transform.GlobalRotation();
+    LazySetTransform();
+    return transform->GlobalRotation();
 }
 
 glm::vec2 Sprite::getRenderScale()
 {
-    return thisObject->transform.GlobalScale();
+    LazySetTransform();
+    return transform->GlobalScale();
 }
+
+void Sprite::LazySetTransform()
+{
+    if (!transform.Exists())
+    {
+        transform = thisObject->transform;
+    }
+}
+
 
 

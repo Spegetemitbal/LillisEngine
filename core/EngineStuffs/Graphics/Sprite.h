@@ -8,6 +8,7 @@
 #include <glm/vec2.hpp>
 
 #include "../Component.h"
+#include "../Transform.h"
 
 class Sprite : public Component
 {
@@ -29,6 +30,9 @@ public:
     unsigned int getLayer() const {return layer;}
     void SetLayer(unsigned int lyr);
 private:
+    void LazySetTransform();
+
+    LilObj<Transform> transform;
     friend class RenderOrder;
     unsigned int layer = 0;
 };

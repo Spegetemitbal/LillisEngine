@@ -21,9 +21,9 @@ enum RepeatType
 
 struct FrameTransformData
 {
-  glm::vec3 objPos = glm::vec3(0.0f);
+  glm::vec2 objPos = glm::vec2(0.0f);
   glm::vec2 objScale = glm::vec2(0.0f);
-  unsigned int objRot = 0;
+  float objRot = 0;
 };
 
 struct FrameSpriteData

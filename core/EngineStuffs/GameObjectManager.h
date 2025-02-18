@@ -32,7 +32,7 @@ public:
 	LilObj<GameObject> addObject(float x, float y, const std::string& name);
 	bool SetObjectParent(const std::string& parent, LilObj<GameObject> child);
 	void RemoveObjectParent(LilObj<GameObject> child, bool inactive = false);
-	std::unordered_set<unsigned int> RunTransformHierarchy();
+	void RunTransformHierarchy();
 	LilObj<GameObject> getObjectByName(const std::string& name);
 	ActiveTracker<GameObject*> getObjectsRaw() const;
 	unsigned int getObjActive() const;
@@ -66,7 +66,10 @@ public:
 
 private:
 
+	//For now these are tightly bound.
 	GameObjPool* objects;
+	ComponentPool<Transform>* transformPool;
+
 	SceneGraph* sceneGraph;
 	ComponentPool<Sprite>* spritePool;
 	ComponentPool<Animator>* animatorPool;

@@ -18,6 +18,7 @@ void GameObject::SetActive(bool active)
 	if (!isActive)
 	{
 		WORLD->RemoveObjectParent(thisObject, true);
+		transform->SetActive(false);
 		//transform = Transform();
 		//sprite = nullptr;
 		if (collider.Exists())
@@ -75,8 +76,8 @@ LilObj<Animator> GameObject::CreateSingleAnimator(Animation *anim)
 	{
 		animator = WORLD->addAnimator();
 		animator->setControlledObject(thisObject);
-		animator->SetSingleAnimation(anim);
 		animator->ConnectComponents();
+		animator->SetSingleAnimation(anim);
 	}
 	return animator;
 }
@@ -87,8 +88,8 @@ LilObj<Animator> GameObject::CreateAnimator(StateObject *stateObj)
 	{
 		animator = WORLD->addAnimator();
 		animator->setControlledObject(thisObject);
-		animator->SetMultiAnimation(stateObj);
 		animator->ConnectComponents();
+		animator->SetMultiAnimation(stateObj);
 	}
 	return animator;
 }

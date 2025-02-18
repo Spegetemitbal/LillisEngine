@@ -17,6 +17,7 @@
 struct EngineState
 {
     GraphicsSystem* graphics;
+    PhysicsSystem* physics;
     InputSystem* gameInputs;
     LILLIS::System* system;
     bool quit;

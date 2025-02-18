@@ -7,7 +7,7 @@
 
 #include <unordered_set>
 #include <glm/geometric.hpp>
-#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 
 #include "../MemoryManagement/ComponentPool.h"
 
@@ -22,9 +22,9 @@ public:
     void OrderByAxis(const std::unordered_set<unsigned int>& toUpdate);
     void OrderAll();
 
-    void SetRenderAxis(glm::vec3 ax)
+    void SetRenderAxis(glm::vec2 ax)
     {
-        if (ax == glm::vec3(0))
+        if (ax == glm::vec2(0))
         {
             axis = ax;
             return;
@@ -42,7 +42,7 @@ private:
     int compareAxis(Sprite* const &spr1, Sprite* const &spr2);
     ComponentPool<Sprite>* spritePool;
     std::vector<unsigned int> layerIndices;
-    glm::vec3 axis;
+    glm::vec2 axis;
 
     //Determines if the level has been loaded or not. To stop OrderByAxis from causing errors.
     bool sorted = false;

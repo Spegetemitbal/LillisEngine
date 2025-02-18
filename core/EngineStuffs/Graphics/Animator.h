@@ -7,6 +7,7 @@
 
 #include "../Component.h"
 #include "../StateObject.h"
+#include "EngineStuffs/Transform.h"
 
 class RectangleCollider;
 class Sprite;
@@ -55,8 +56,9 @@ private:
 
     LilObj<RectangleCollider> rectCollider;
     LilObj<Sprite> sprt;
+    LilObj<Transform> transform;
 
-    glm::vec3 startPos;
+    glm::vec2 startPos;
     float startRot;
 };
 
