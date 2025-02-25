@@ -18,6 +18,9 @@ void RigidBody::SetMass(float mass)
     {
         this->mass = 1;
     }
+    CalcInvMass();
+    inertia = CalculateRotationalInertia();
+    invInertia = 1.0f/inertia;
 }
 
 void RigidBody::SetDensity(float density)
@@ -90,11 +93,92 @@ void RigidBody::UpdateVertices()
     transformedVertices[3] = transformVertex(vertices[3], transform->GlobalPosition(), transform->GlobalRotation());
 }
 
-void RigidBody::Integrate(float deltaTime)
+void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
 {
+    accumulatedForce += gravity * deltaTime * gravityScale;
+
+    glm::vec2 linearAcceleration = accumulatedForce / mass;
+
+    linearVelocity += linearAcceleration * deltaTime;
+
     transform->Translate(linearVelocity * deltaTime);
     transform->Rotate(angularVelocity * deltaTime);
+
+    accumulatedForce = {0,0};
+    if (bodyShape == RigidBodyShape::RB_BOX)
+    {
+        if (transform->getToUpdate())
+        {
+            UpdateVertices();
+            GetAABB();
+        }
+    }
 }
+
+void RigidBody::CalcInvMass()
+{
+    if (bodyType != RigidBodyType::RB_DYNAMIC)
+    {
+        invMass = 1.0f / mass;
+    } else
+    {
+        invMass = 0.0f;
+    }
+}
+
+AABB RigidBody::GetAABB()
+{
+    if (transform->getToUpdate())
+    {
+        //TODO: ignore this loop if you change shape.
+        return aabb;
+    }
+
+    float minX = std::numeric_limits<float>::max();
+    float minY = std::numeric_limits<float>::max();
+    float maxX = std::numeric_limits<float>::min();
+    float maxY = std::numeric_limits<float>::min();
+
+    if (bodyShape == RigidBodyShape::RB_BOX)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            //For polygons, this is the same thing dude.
+            glm::vec2 v = transformedVertices[i];
+            if (v.x < minX) {minX = v.x;}
+            if (v.x > maxX) {maxX = v.x;}
+            if (v.y < minX) {minX = v.y;}
+            if (v.y > maxX) {maxX = v.y;}
+        }
+    } else if (bodyShape == RigidBodyShape::RB_CIRCLE)
+    {
+        minX = transform->GlobalPosition().x - radius;
+        minY = transform->GlobalPosition().y - radius;
+        maxX = transform->GlobalPosition().x + radius;
+        maxY = transform->GlobalPosition().y + radius;
+    } else
+    {
+        throw std::runtime_error("Invalid body shape");
+    }
+
+    return {minX, minY, maxX, maxY};
+}
+
+float RigidBody::CalculateRotationalInertia()
+{
+    if (bodyShape == RigidBodyShape::RB_BOX)
+    {
+        return (1.0f / 12.0f) * mass * (size.x * size.x + size.y * size.y);
+    } else if (bodyShape == RigidBodyShape::RB_CIRCLE)
+    {
+
+    } else
+    {
+        std::cout << "Invalid shape" << std::endl;
+        return 0;
+    }
+}
+
 
 
 

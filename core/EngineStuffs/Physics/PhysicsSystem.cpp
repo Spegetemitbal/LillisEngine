@@ -4,21 +4,41 @@
 
 #include "PhysicsSystem.h"
 
+#include <glm/detail/func_geometric.inl>
+
 #include "CollisionChecker.h"
 
-void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects)
+void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int iterations)
 {
-    //Movement Step
-    for (int i = 0; i < physObjects.size(); i++)
-    {
-        physObjects[i]->Integrate(deltaTime);
-        physObjects[i]->UpdateVertices();
-    }
+    iterations = std::clamp(iterations, MinIterations, MaxIterations);
+    contactList.clear();
+    deltaTime /= (float)iterations;
 
-    // Collision step
+    for (unsigned int it = 0; it < iterations; it++)
+    {
+        contactList.clear();
+
+        //Movement Step
+        for (int i = 0; i < physObjects.size(); i++)
+        {
+            physObjects[i]->Integrate(deltaTime, gravity);
+            physObjects[i]->UpdateVertices();
+        }
+
+        // Collision step
+
+        BroadPhase(physObjects);
+        NarrowPhase(physObjects);
+
+    }
+}
+
+void PhysicsSystem::BroadPhase(ActiveTracker<RigidBody*> &physObjects)
+{
     for (int i = 0; i < physObjects.size() - 1; i++)
     {
         RigidBody* bodyA = physObjects[i];
+        AABB bodyA_aabb = bodyA->GetAABB();
         if (!bodyA->GetActive())
         {
             continue;
@@ -27,61 +47,244 @@ void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &phys
         for (int j = i + 1; j < physObjects.size(); j++)
         {
             RigidBody* bodyB = physObjects[j];
+            AABB bodyB_aabb = bodyB->GetAABB();
             if (!bodyB->GetActive())
             {
                 continue;
             }
 
-            glm::vec2 normal;
-            float depth;
-
-            if (CollideCheck(*bodyA, *bodyB, normal, depth))
+            if (!CollisionChecker::IntersectAABBs(bodyA_aabb, bodyB_aabb))
             {
-                //Placeholder
-                bodyA->transform->Translate(normal * (depth / 2.0f));
-                bodyB->transform->Translate(-normal * (depth / 2.0f));
+                continue;
             }
+
+            contactList.emplace_back(i,j);
         }
     }
 }
 
-bool PhysicsSystem::CollideCheck(RigidBody bodyA, RigidBody bodyB, glm::vec2 &normal, float &depth)
+void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects)
 {
-    normal = glm::vec2(0);
-    depth = 0;
-
-    RigidBodyShape typeA = bodyA.bodyShape;
-    RigidBodyShape typeB = bodyB.bodyShape;
-
-    if (typeA == RigidBodyShape::RB_BOX)
+    for (int i = 0; i < contactList.size(); i++)
     {
-        if (typeA == typeB)
+        std::pair<int, int> possibleContact = contactList[i];
+        RigidBody* bodyA = physObjects[possibleContact.first];
+        RigidBody* bodyB = physObjects[possibleContact.second];
+
+        //In the event of an object touching the other, default to popping upwards?
+        if (bodyA->transform->GlobalPosition() == bodyB->transform->GlobalPosition())
         {
-            return CollisionChecker::IntersectPolygons
-            (bodyA.GetTransformedVertices(), bodyB.GetTransformedVertices(), normal, depth);
-        } else if (typeB == RigidBodyShape::RB_CIRCLE)
-        {
-            bool result = CollisionChecker::IntersectCirclePolygon
-            (bodyB.transform->GlobalPosition(), bodyB.GetRadius(), bodyA.GetTransformedVertices(), normal, depth);
-            normal = -normal;
-            return result;
+            bodyA->transform->Translate({0, 0.1f});
         }
-    } else if (typeA == RigidBodyShape::RB_CIRCLE)
-    {
-        if (typeA == typeB)
-        {
-            CollisionChecker::IntersectCircles
-            (bodyA.transform->GlobalPosition(), bodyB.transform->GlobalPosition(),bodyA.GetRadius(), bodyB.GetRadius(), depth, normal);
-        } else if (typeB == RigidBodyShape::RB_BOX)
-        {
-            bool result = CollisionChecker::IntersectCirclePolygon
-            (bodyA.transform->GlobalPosition(), bodyA.GetRadius(), bodyB.GetTransformedVertices(), normal, depth);
 
-            normal = -normal;
-            return result;
+        glm::vec2 normal;
+        float depth;
+
+        if (CollisionChecker::CollideCheck(*bodyA, *bodyB, normal, depth))
+        {
+            SeparateBodies(bodyA, bodyB, normal * depth);
+
+            int contactCount;
+            glm::vec2 contact1, contact2;
+            CollisionChecker::FindContactPoints(bodyA, bodyB, contact1, contact2, contactCount);
+            ColManifold cm = ColManifold(bodyA, bodyB, normal, depth, contactCount, contact1, contact2);
+            ResolveCollisionComplex(cm);
         }
     }
-
-    return false;
 }
+
+
+void PhysicsSystem::SeparateBodies(RigidBody *bodyA, RigidBody *bodyB, const glm::vec2 &mtv)
+{
+    //TODO: If the normal is 0, generate a normal based on last position and continue.
+    if (bodyA->bodyType != RigidBodyType::RB_DYNAMIC)
+    {
+        bodyB->transform->Translate(mtv);
+    } else if (bodyB->bodyType != RigidBodyType::RB_DYNAMIC)
+    {
+        bodyA->transform->Translate(mtv);
+    } else
+    {
+        bodyA->transform->Translate(-mtv / 2.0f);
+        bodyB->transform->Translate(mtv / 2.0f);
+    }
+}
+
+
+void PhysicsSystem::ResolveCollisionBasic(ColManifold& contact)
+{
+    //Double statics touching would be a guarantee of UH-OH.
+    if (contact.BodyA->bodyType == RigidBodyType::RB_DYNAMIC || contact.BodyB->bodyType == RigidBodyType::RB_DYNAMIC)
+    {
+        return;
+    }
+
+    glm::vec2 relativeVelocity = contact.BodyB->linearVelocity - contact.BodyA->linearVelocity;
+
+    if (glm::dot(relativeVelocity, contact.Normal) > 0)
+    {
+        return;
+    }
+
+    //Using min for now, add options to change this.
+    float rest = std::min(contact.BodyA->restitution, contact.BodyB->restitution);
+
+    float j = -(1.0f + rest) * glm::dot(relativeVelocity, contact.Normal);
+
+    j /= contact.BodyA->invMass + contact.BodyB->invMass;
+
+    glm::vec2 impulse = j * contact.Normal;
+
+    contact.BodyA->linearVelocity -= impulse * contact.BodyA->invMass;
+    contact.BodyB->linearVelocity += impulse * contact.BodyB->invMass;
+}
+
+void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
+{
+    RigidBody* bodyA = contact.BodyA;
+    RigidBody* bodyB = contact.BodyB;
+    glm::vec2 normal = contact.Normal;
+    glm::vec2 contact1 = contact.Contact1;
+    glm::vec2 contact2 = contact.Contact2;
+    int contactCount = contact.ContactCount;
+
+    //Using min for now, add options to change this.
+    float rest = std::min(contact.BodyA->restitution, contact.BodyB->restitution);
+
+    //TODO: Add options for min or max.
+    float sf = (bodyA->StaticFriction + bodyB->StaticFriction) * 0.5f;
+    float df = (bodyA->DynamicFriction + bodyB->DynamicFriction) * 0.5f;
+
+    resContacts[0] = contact1;
+    resContacts[1] = contact2;
+
+    //Handle normal collision impulse
+    for (int i = 0; i < contactCount; i++)
+    {
+        impulseList[i] = {};
+        raList[i] = {};
+        rbList[i] = {};
+        frictionImpulseList[i] = {};
+        jList[i] = 0.0f;
+
+        glm::vec2 ra = resContacts[i] - bodyA->transform->GlobalPosition();
+        glm::vec2 rb = resContacts[i] - bodyB->transform->GlobalPosition();
+
+        raList[i] = ra;
+        rbList[i] = rb;
+
+        glm::vec2 raPerp = {-ra.y, ra.x};
+        glm::vec2 rbPerp = {-rb.y, rb.x};
+
+        glm::vec2 angularLinearVelocityA = raPerp * bodyA->angularVelocity;
+        glm::vec2 angularLinearVelocityB = rbPerp * bodyB->angularVelocity;
+
+        glm::vec2 relativeVelocity =
+            (bodyB->linearVelocity + angularLinearVelocityB) -
+            (bodyA->linearVelocity + angularLinearVelocityA);
+
+        float contactVelocityMag = glm::dot(relativeVelocity, normal);
+
+        if (contactVelocityMag > 0.0f)
+        {
+            continue;
+        }
+
+        float raPerpDotN = glm::dot(raPerp, normal);
+        float rbPerpDotN = glm::dot(rbPerp, normal);
+
+        float denom = bodyA->invMass + bodyB->invMass +
+            (raPerpDotN * raPerpDotN) * bodyA->invInertia +
+            (rbPerpDotN * rbPerpDotN) * bodyB->invInertia;
+
+        float j = -(1.0f + rest) * contactVelocityMag;
+        j /= denom;
+        j /= (float)contactCount;
+
+        jList[i] = j;
+
+        glm::vec2 impulse = j * normal;
+        impulseList[i] = impulse;
+    }
+
+    //Use impulse
+    for (int i = 0; i < contactCount; i++)
+    {
+        glm::vec2 impulse = impulseList[i];
+        glm::vec2 ra = raList[i];
+        glm::vec2 rb = rbList[i];
+
+        bodyA->linearVelocity += -impulse * bodyA->invMass;
+        bodyA->angularVelocity += -(ra.x * impulse.y - impulse.x * ra.y) * bodyA->invInertia;
+        bodyB->linearVelocity += impulse * bodyB->invMass;
+        bodyB->angularVelocity += (rb.x * impulse.y - impulse.x * rb.y) * bodyB->invInertia;
+    }
+
+    //Calculate friction impulse
+    for (int i = 0; i < contactCount; i++)
+    {
+
+        glm::vec2 ra = resContacts[i] - bodyA->transform->GlobalPosition();
+        glm::vec2 rb = resContacts[i] - bodyB->transform->GlobalPosition();
+
+        raList[i] = ra;
+        rbList[i] = rb;
+
+        glm::vec2 raPerp = {-ra.y, ra.x};
+        glm::vec2 rbPerp = {-rb.y, rb.x};
+
+        glm::vec2 angularLinearVelocityA = raPerp * bodyA->angularVelocity;
+        glm::vec2 angularLinearVelocityB = rbPerp * bodyB->angularVelocity;
+
+        glm::vec2 relativeVelocity =
+            (bodyB->linearVelocity + angularLinearVelocityB) -
+            (bodyA->linearVelocity + angularLinearVelocityA);
+
+        glm::vec2 tangent = relativeVelocity - (glm::dot(relativeVelocity, normal) * normal);
+
+        if (CollisionChecker::GetNearlyEqual(tangent, {}))
+        {
+            continue;
+        }
+        tangent = glm::normalize(tangent);
+
+        float raPerpDotT = glm::dot(raPerp, tangent);
+        float rbPerpDotT = glm::dot(rbPerp, tangent);
+        float denom = bodyA->invMass + bodyB->invMass +
+            (raPerpDotT * raPerpDotT) * bodyA->invInertia +
+                (rbPerpDotT * rbPerpDotT) * bodyB->invInertia;
+
+        float jt = -glm::dot(relativeVelocity, tangent);
+        jt /= denom;
+        jt /= (float)contactCount;
+
+        glm::vec2 impulseFric;
+        float j = jList[i];
+
+        if (std::abs(jt) <= j * sf)
+        {
+            impulseFric = jt * tangent;
+        } else
+        {
+            impulseFric = -j * tangent * df;
+        }
+
+        frictionImpulseList[i] = impulseFric;
+    }
+
+    //Activate friction impulse
+    for (int i = 0; i < contactCount; i++)
+    {
+        glm::vec2 frictionImpulse = frictionImpulseList[i];
+        glm::vec2 ra = raList[i];
+        glm::vec2 rb = rbList[i];
+
+        //TODO: Make a cross product function-
+        bodyA->linearVelocity += -frictionImpulse * bodyA->invMass;
+        bodyA->angularVelocity += -(ra.x * frictionImpulse.y - frictionImpulse.x * ra.y) * bodyA->invInertia;
+        bodyB->linearVelocity += frictionImpulse * bodyB->invMass;
+        bodyB->angularVelocity += (rb.x * frictionImpulse.y - frictionImpulse.x * rb.y) * bodyB->invInertia;
+    }
+}
+
 

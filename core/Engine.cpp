@@ -128,13 +128,9 @@ void Engine::frameStep()
         }
     }
 
-    WORLD->RunTransformHierarchy();
-
     updateScripts();
 
     ActiveTracker<RectangleCollider*> col = WORLD->getCollidersRaw();
-
-
 
     unsigned int lastCol = WORLD->getColActive();
     for (int i = 0; i < lastCol; i++)
@@ -147,6 +143,11 @@ void Engine::frameStep()
             }
         }
     }
+
+    //TODO: Physics step MUST come before transform hierarchy run.
+
+    //First run all possible changes, then run hierarchy.
+    WORLD->RunTransformHierarchy();
 
     //WORLD->doRenderOrder(toUpdate);
 

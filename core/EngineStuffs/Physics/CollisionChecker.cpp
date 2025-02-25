@@ -10,7 +10,7 @@
 #include "EngineStuffs/GameObject.h"
 #include "EngineStuffs/Transform.h"
 
-bool CollisionChecker::IntersectCirclePolygon(glm::vec2 circleCenter, float circleRad, glm::vec2 *vertices, glm::vec2 &normal, float &depth)
+bool CollisionChecker::IntersectCirclePolygon(glm::vec2 circleCenter, float circleRad, glm::vec2 polyCenter, glm::vec2 *vertices, glm::vec2 &normal, float &depth)
 {
     normal = glm::vec2(0);
     depth = std::numeric_limits<float>::max();
@@ -27,6 +27,7 @@ bool CollisionChecker::IntersectCirclePolygon(glm::vec2 circleCenter, float circ
         glm::vec2 edge = vb - va;
         //Make sure this is clockwise in winding order
         axis = {-edge.y, edge.x};
+        axis = glm::normalize(axis);
 
         ProjectVertices(vertices, len, axis, minA, maxA);
         ProjectCircle(circleCenter, circleRad, axis, minB, maxB);
@@ -49,6 +50,7 @@ bool CollisionChecker::IntersectCirclePolygon(glm::vec2 circleCenter, float circ
     int clpIndex = FindClosestPointOnPolygon(circleCenter, vertices, len);
     glm::vec2 closestPoint = vertices[clpIndex];
     axis = closestPoint - circleCenter;
+    axis = glm::normalize(axis);
 
     ProjectVertices(vertices, len, axis, minA, maxA);
     ProjectCircle(circleCenter, circleRad, axis, minB, maxB);
@@ -66,12 +68,8 @@ bool CollisionChecker::IntersectCirclePolygon(glm::vec2 circleCenter, float circ
         normal = axis;
     }
 
-    depth /= glm::length(normal);
-    normal = glm::normalize(normal);
-
     //Making sure it's facing the right way
-    glm::vec2 polygonCenter = FindArithmeticMean(vertices, len);
-    glm::vec2 dir = polygonCenter - circleCenter;
+    glm::vec2 dir = polyCenter - circleCenter;
 
     if (glm::dot(dir, normal) < 0.0f)
     {
@@ -80,7 +78,6 @@ bool CollisionChecker::IntersectCirclePolygon(glm::vec2 circleCenter, float circ
 
     return true;
 }
-
 
 bool CollisionChecker::IntersectCircles(glm::vec2 centerA, glm::vec2 centerB, float radA, float radB, float& depth, glm::vec2& normal)
 {
@@ -109,8 +106,7 @@ void CollisionChecker::ResolveCollision(const RigidBody& rb1, const RigidBody& r
     t2->Translate(dir);
 }
 
-
-bool CollisionChecker::IntersectPolygons(glm::vec2 *verticesA, glm::vec2 *verticesB, glm::vec2 &normal, float &depth)
+bool CollisionChecker::IntersectPolygons(glm::vec2 *verticesA, glm::vec2 centerA, glm::vec2 *verticesB, glm::vec2 centerB, glm::vec2 &normal, float &depth)
 {
     normal = glm::vec2(0);
     depth = std::numeric_limits<float>::max();
@@ -125,6 +121,7 @@ bool CollisionChecker::IntersectPolygons(glm::vec2 *verticesA, glm::vec2 *vertic
         glm::vec2 edge = vb - va;
         //Make sure this is clockwise in winding order
         glm::vec2 axis = {-edge.y, edge.x};
+        axis = glm::normalize(axis);
 
         float minA, minB, maxA, maxB;
 
@@ -153,6 +150,7 @@ bool CollisionChecker::IntersectPolygons(glm::vec2 *verticesA, glm::vec2 *vertic
         glm::vec2 edge = vb - va;
         //Make sure this is clockwise in winding order
         glm::vec2 axis = {-edge.y, edge.x};
+        axis = glm::normalize(axis);
 
         float minA, minB, maxA, maxB;
 
@@ -174,12 +172,6 @@ bool CollisionChecker::IntersectPolygons(glm::vec2 *verticesA, glm::vec2 *vertic
         }
     }
 
-    depth /= glm::length(normal);
-    normal = glm::normalize(normal);
-
-    //Making sure it's facing the right way
-    glm::vec2 centerA = FindArithmeticMean(verticesA, aLen);
-    glm::vec2 centerB = FindArithmeticMean(verticesB, bLen);
     glm::vec2 dir = centerB - centerA;
 
     if (glm::dot(dir, normal) < 0.0f)
@@ -188,20 +180,6 @@ bool CollisionChecker::IntersectPolygons(glm::vec2 *verticesA, glm::vec2 *vertic
     }
 
     return true;
-}
-
-glm::vec2 CollisionChecker::FindArithmeticMean(glm::vec2 *vertices, int len)
-{
-    float sumX = 0, sumY = 0;
-
-    for (int i = 0; i < len; i++)
-    {
-        glm::vec2 v = vertices[i];
-        sumX += v.x;
-        sumY += v.y;
-    }
-
-    return {sumX / (float)len, sumY / (float)len};
 }
 
 void CollisionChecker::ProjectCircle(glm::vec2 center, float radius, glm::vec2 axis, float &min, float &max)
@@ -251,11 +229,237 @@ int CollisionChecker::FindClosestPointOnPolygon(glm::vec2 circleCenter, glm::vec
         if (dist < minDist)
         {
             minDist = dist;
+            result = i;
         }
     }
 
     return result;
 }
+
+void CollisionChecker::FindContactPoints(RigidBody *bodyA, RigidBody *bodyB, glm::vec2 &contact1, glm::vec2 &contact2, int &contactCount)
+{
+    contact1 = {};
+    contact2 = {};
+    contactCount = 0;
+
+    RigidBodyShape typeA = bodyA->bodyShape;
+    RigidBodyShape typeB = bodyB->bodyShape;
+
+    if (typeA == RigidBodyShape::RB_BOX)
+    {
+        if (typeA == typeB)
+        {
+            FindContactPoint(bodyA->GetTransformedVertices(), bodyB->GetTransformedVertices(), contact1, contact2, contactCount);
+        } else if (typeB == RigidBodyShape::RB_CIRCLE)
+        {
+            FindContactPoint(bodyB->transform->GlobalPosition(), bodyB->GetRadius(),
+                bodyA->transform->GlobalPosition(), bodyA->GetTransformedVertices(), contact1);
+            contactCount = 1;
+        }
+    } else if (typeA == RigidBodyShape::RB_CIRCLE)
+    {
+        if (typeA == typeB)
+        {
+            glm::vec2 cont = {};
+            FindContactPoint(bodyA->transform->GlobalPosition(), bodyB->transform->GlobalPosition(),bodyA->Radius(), cont);
+            contactCount = 1;
+        } else if (typeB == RigidBodyShape::RB_BOX)
+        {
+            FindContactPoint(bodyA->transform->GlobalPosition(), bodyA->GetRadius(),
+                bodyB->transform->GlobalPosition(), bodyB->GetTransformedVertices(), contact1);
+            contactCount = 1;
+        }
+    }
+}
+
+void CollisionChecker::PointSegmentDistance(glm::vec2 p, glm::vec2 a, glm::vec2 b, float &distanceSquared, glm::vec2 &contact)
+{
+    glm::vec2 ab = b - a;
+    glm::vec2 ap = p - a;
+
+    float proj = glm::dot(ap, ab);
+    float abLenSq = ab.x * ab.x + ab.y * ab.y;
+    float d = proj / abLenSq;
+
+    if (d <= 0.0f)
+    {
+        contact = a;
+    } else if (d >= 1.0f)
+    {
+        contact = b;
+    } else
+    {
+        contact = a + ab * d;
+    }
+
+    float dx = p.x - contact.x;
+    float dy = p.y - contact.y;
+    distanceSquared = dx * dx + dy * dy;
+}
+
+
+//Circle circle
+void CollisionChecker::FindContactPoint(glm::vec2 centerA, glm::vec2 centerB, float radA, glm::vec2 &contact)
+{
+    glm::vec2 ab = glm::normalize(centerB - centerA);
+    contact = centerA + ab * radA;
+}
+
+//Circle polygon
+void CollisionChecker::FindContactPoint(glm::vec2 centerA, float radA, glm::vec2 polyCenter, glm::vec2 *vertices, glm::vec2 &contact)
+{
+    int len = sizeof(vertices) / sizeof(glm::vec2);
+
+    float minDistSq = std::numeric_limits<float>::max();
+
+    for (int i = 0; i < len; i++)
+    {
+        glm::vec2 vA = vertices[i];
+        glm::vec2 vB = vertices[(i + 1) % len];
+
+        float distanceSquared;
+        glm::vec2 testContact;
+        PointSegmentDistance(centerA, vA, vB, distanceSquared, testContact);
+
+        if (distanceSquared < minDistSq)
+        {
+            minDistSq = distanceSquared;
+            contact = testContact;
+        }
+    }
+}
+
+//Polygon polygon
+void CollisionChecker::FindContactPoint(glm::vec2 *verticesA, glm::vec2 *verticesB, glm::vec2 &contact1, glm::vec2 &contact2, int &contactCount)
+{
+    int aLen = sizeof(verticesA) / sizeof(glm::vec2);
+    int bLen = sizeof(verticesB) / sizeof(glm::vec2);
+
+    float minDistSq = std::numeric_limits<float>::max();
+
+    //Check for one
+    for (int i = 0; i < aLen; i++)
+    {
+        glm::vec2 p = verticesA[i];
+
+        for (int j = 0; j < bLen; j++)
+        {
+            glm::vec2 va = verticesB[j];
+            glm::vec2 vb = verticesB[(j + 1) % bLen];
+
+            float distanceSquared;
+            glm::vec2 testContact;
+            PointSegmentDistance(p, va, vb, distanceSquared, testContact);
+
+            if (std::abs(minDistSq - distanceSquared) < NearlyEqual)
+            {
+                if (!GetNearlyEqual(testContact, contact1))
+                {
+                    contact2 = testContact;
+                    contactCount = 2;
+                }
+            } else if (distanceSquared < minDistSq)
+            {
+                minDistSq = distanceSquared;
+                contactCount = 1;
+                contact1 = testContact;
+            }
+        }
+    }
+
+    //Check for other.
+    for (int i = 0; i < bLen; i++)
+    {
+        glm::vec2 p = verticesB[i];
+
+        for (int j = 0; j < aLen; j++)
+        {
+            glm::vec2 va = verticesA[j];
+            glm::vec2 vb = verticesA[(j + 1) % bLen];
+
+            float distanceSquared;
+            glm::vec2 testContact;
+            PointSegmentDistance(p, va, vb, distanceSquared, testContact);
+
+            if (std::abs(minDistSq - distanceSquared) < NearlyEqual)
+            {
+                if (!GetNearlyEqual(testContact, contact1))
+                {
+                    contact2 = testContact;
+                    contactCount = 2;
+                }
+            } else if (distanceSquared < minDistSq)
+            {
+                minDistSq = distanceSquared;
+                contactCount = 1;
+                contact1 = testContact;
+            }
+        }
+    }
+}
+
+
+
+bool CollisionChecker::CollideCheck(RigidBody bodyA, RigidBody bodyB, glm::vec2 &normal, float &depth)
+{
+    normal = glm::vec2(0);
+    depth = 0;
+
+    RigidBodyShape typeA = bodyA.bodyShape;
+    RigidBodyShape typeB = bodyB.bodyShape;
+
+    if (typeA == RigidBodyShape::RB_BOX)
+    {
+        if (typeA == typeB)
+        {
+            return CollisionChecker::IntersectPolygons
+            (bodyA.GetTransformedVertices(), bodyA.transform->GlobalPosition(),
+                bodyB.GetTransformedVertices(), bodyB.transform->GlobalPosition(), normal, depth);
+        } else if (typeB == RigidBodyShape::RB_CIRCLE)
+        {
+            bool result = CollisionChecker::IntersectCirclePolygon
+            (bodyB.transform->GlobalPosition(), bodyB.GetRadius(),
+                bodyA.transform->GlobalPosition(), bodyA.GetTransformedVertices(), normal, depth);
+            normal = -normal;
+            return result;
+        }
+    } else if (typeA == RigidBodyShape::RB_CIRCLE)
+    {
+        if (typeA == typeB)
+        {
+            CollisionChecker::IntersectCircles
+            (bodyA.transform->GlobalPosition(), bodyB.transform->GlobalPosition(),bodyA.GetRadius(), bodyB.GetRadius(), depth, normal);
+        } else if (typeB == RigidBodyShape::RB_BOX)
+        {
+            bool result = CollisionChecker::IntersectCirclePolygon
+            (bodyA.transform->GlobalPosition(), bodyA.GetRadius(),
+                bodyB.transform->GlobalPosition(), bodyB.GetTransformedVertices(), normal, depth);
+
+            normal = -normal;
+            return result;
+        }
+    }
+
+    return false;
+}
+
+bool CollisionChecker::IntersectAABBs(AABB a, AABB b)
+{
+    if (a.max.x <= b.min.x || b.max.x <= a.min.x
+        || a.max.y <= b.min.y || b.max.y <= a.min.y)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool CollisionChecker::GetNearlyEqual(glm::vec2 a, glm::vec2 b)
+{
+    return (std::abs(a.x - b.x) < NearlyEqual) && (std::abs(a.y - b.y) < NearlyEqual);
+}
+
+
 
 
 

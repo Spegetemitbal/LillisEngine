@@ -11,7 +11,15 @@ public:
 	}
 
 	glm::vec2 LocalPosition() const {return localPosition;}
-	void Translate(glm::vec2 translation) {localPosition += translation; toUpdate = true;}
+	void Translate(glm::vec2 translation)
+	{
+		if (translation == glm::vec2(0))
+		{
+			return;
+		}
+		localPosition += translation;
+		toUpdate = true;
+	}
 	void SetLocalPosition(glm::vec2 pos) {localPosition = pos; toUpdate = true;}
 
 	float LocalRotation() const {return localRotation;}
@@ -25,8 +33,12 @@ public:
 	float GlobalRotation() const {return globalRotation;};
 	glm::vec2 GlobalScale() const {return globalScale;};
 
+	bool getIsChild() const {return isChild;};
+	bool getToUpdate() const {return toUpdate;};
+
 private:
 
+	bool isChild = false;
 	bool toUpdate = true;
 
 	glm::vec2 localPosition;

@@ -6,22 +6,45 @@
 #define COLLISIONCHECKER_H
 #include <glm/vec2.hpp>
 
+#include "AABB.h"
+
 class RigidBody;
 
 class CollisionChecker {
 public:
+
+    //If 2 points are closer than this, they are the same point.
+    static inline const float NearlyEqual = 0.0005f;
+
+    static void FindContactPoints(RigidBody* bodyA, RigidBody* bodyB, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
+
+    static bool IntersectAABBs(AABB a, AABB b);
+    static bool GetNearlyEqual(glm::vec2 a, glm::vec2 b);
+
     //Circle stuff
     static bool IntersectCircles(glm::vec2 centerA, glm::vec2 centerB, float radA, float radB, float& depth, glm::vec2& normal);
-    static bool IntersectCirclePolygon(glm::vec2 circleCenter, float circleRad, glm::vec2 *vertices, glm::vec2 &normal, float& depth);
+    static bool IntersectCirclePolygon(glm::vec2 circleCenter, float circleRad, glm::vec2 polyCenter, glm::vec2 *vertices, glm::vec2 &normal, float& depth);
     //Polygon stuff
-    static bool IntersectPolygons(glm::vec2 *verticesA, glm::vec2 *verticesB, glm::vec2 &normal, float &depth);
+    static bool IntersectPolygons(glm::vec2 *verticesA, glm::vec2 centerA, glm::vec2 *verticesB, glm::vec2 centerB, glm::vec2 &normal, float &depth);
+
+    static bool CollideCheck(RigidBody bodyA, RigidBody bodyB, glm::vec2 &normal, float &depth);
     //Resolve
     static void ResolveCollision(const RigidBody& rb1, const RigidBody& rb2, float depth, glm::vec2 normal);
 private:
-    static glm::vec2 FindArithmeticMean(glm::vec2 *vertices, int len);
+
+    //Find the closest point to point P.
+    static void PointSegmentDistance(glm::vec2 p, glm::vec2 a, glm::vec2 b, float& distanceSquared, glm::vec2& contact);
+
     static void ProjectCircle(glm::vec2 center, float radius, glm::vec2 axis, float &min, float &max);
     static int FindClosestPointOnPolygon(glm::vec2 circleCenter, glm::vec2 *vertices, int len);
     static void ProjectVertices(glm::vec2 *vertices, int len, glm::vec2 axis, float &min, float &max);
+
+    //Circle-Circle
+    static void FindContactPoint(glm::vec2 centerA, glm::vec2 centerB, float radA, glm::vec2& contact);
+    //Circle-Polygon
+    static void FindContactPoint(glm::vec2 centerA, float radA, glm::vec2 polyCenter, glm::vec2 *vertices, glm::vec2& contact);
+    //Polygon-Polygon
+    static void FindContactPoint(glm::vec2 *verticesA, glm::vec2 *verticesB, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
 };
 
 
