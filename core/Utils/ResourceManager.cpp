@@ -148,7 +148,7 @@ Texture2D ResourceManager::loadTextureFromFile(const char* name,const char* file
     }
     // load image
     int width, height, nrChannels;
-    //stbi_set_flip_vertically_on_load(1);
+    stbi_set_flip_vertically_on_load(1);
     unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
     // now generate texture
     texture.Generate(width, height, data);

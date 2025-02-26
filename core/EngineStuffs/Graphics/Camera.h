@@ -33,7 +33,11 @@ namespace LILLIS
 			return glm::mat4();
 		}
 		inline glm::mat4 projectionMatrix()const {
-			return glm::ortho(position.x, WIDTH + position.x, HEIGHT + position.y, position.y, -1.0f, 1.0f);
+			float halfWidth = WIDTH * 0.5f;
+			float halfHeight = HEIGHT * 0.5f;
+			glm::mat4 view = glm::ortho(position.x - halfWidth, halfWidth + position.x, halfHeight + position.y, position.y - halfHeight, -1.0f, 1.0f);
+			view[1][1] *= -1.0f;
+			return view;
 		}
 	};
 }

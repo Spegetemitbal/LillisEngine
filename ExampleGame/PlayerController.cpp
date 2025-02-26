@@ -22,11 +22,11 @@ void PlayerController::Update(float deltaTime)
 
 	if (w)
 	{
-		t->Translate({0, -speed});
+		t->Translate({0, speed});
 	}
 	else if (s)
 	{
-		t->Translate({0, speed});
+		t->Translate({0, -speed});
 	}
 	if (a)
 	{

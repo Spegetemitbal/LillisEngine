@@ -27,12 +27,15 @@ public:
 	void removeCallback(EventType type, EventCallback pCallback);
 	void removeListenerFromAllEvents(EventListener* pListener);
 	void removeCallbackFromAllEvents(EventCallback pCallback);
-
+	void queueEvent(Event theEvent);
+	void emptyQueue();
 	//Further implementation later
-
 
 private:
 	static EventSystem* eventSystem;
+
+	std::queue<Event*> eventQueue;
+
 	std::multimap< EventType, EventListener* > Listeners;
 	std::multimap< EventType, EventCallback > Callbacks;
 	bool IsInitted = false;
