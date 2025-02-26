@@ -69,6 +69,7 @@ void Engine::SceneLoad(std::string Data)
     }
     SceneLoader::LoadData(Data);
     WORLD->initRenderOrder();
+    WORLD->RunTransformHierarchy();
     CurrentLevel = Data;
 }
 
@@ -90,6 +91,12 @@ void Engine::Run()
 #else
     while (!engine.quit)
     {
+        if (engine.loadNextLevel)
+        {
+            SceneLoad(engine.nextLevel);
+            engine.loadNextLevel = false;
+        }
+
         Timing::Tick();
 
         while (Timing::frameLag >= Timing::fixedUpdateTime)
@@ -111,12 +118,6 @@ void Engine::Run()
 void Engine::frameStep()
 {
     engine.gameInputs->UpdateControllers();
-
-    if (engine.loadNextLevel)
-    {
-        SceneLoad(engine.nextLevel);
-        engine.loadNextLevel = false;
-    }
 
     ActiveTracker<Animator*> anims = WORLD->getAnimatorsRaw();
     unsigned int lastAnim = WORLD->getAnimActive();

@@ -196,3 +196,18 @@ void EventSystem::dispatchAllEvents(const Event& theEvent)
 		}
 	}
 }
+
+void EventSystem::queueEvent(const Event &theEvent)
+{
+	//eventQueue.push();
+}
+
+void EventSystem::emptyQueue()
+{
+	while (!eventQueue.empty())
+	{
+		dispatchAllEvents(*eventQueue.front());
+		eventQueue.pop();
+	}
+}
+

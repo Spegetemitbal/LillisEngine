@@ -29,10 +29,12 @@ public:
     glm::vec2 getRenderScale();
     unsigned int getLayer() const {return layer;}
     void SetLayer(unsigned int lyr);
+
+    LilObj<Transform> transform;
+
 private:
     void LazySetTransform();
 
-    LilObj<Transform> transform;
     friend class RenderOrder;
     unsigned int layer = 0;
 };

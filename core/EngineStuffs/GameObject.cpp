@@ -20,6 +20,10 @@ void GameObject::SetActive(bool active)
 		WORLD->RemoveObjectParent(thisObject, true);
 		if (transform.Exists())
 		{
+			transform->SetLocalPosition({});
+			transform->SetLocalRotation(0.0f);
+			transform->SetLocalScale({1,1});
+
 			transform->SetActive(false);
 		}
 		//transform = Transform();
@@ -30,6 +34,7 @@ void GameObject::SetActive(bool active)
 		}
 		if (sprite.Exists())
 		{
+			sprite->transform = {};
 			sprite->SetActive(false);
 		}
 		if (animator.Exists())

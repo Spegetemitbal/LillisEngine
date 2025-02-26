@@ -51,6 +51,7 @@ public:
 	size_t SerializeTransform(char* buffer, size_t bufSize);
 	size_t DeSerializeTransform(char* buffer, size_t bufSize);
 
+	//TODO: Add safety here, this should not be destroyable by users.
 	LilObj<Transform> transform;
 
 	//Behavior* getBehavior(LILLIS::string name);

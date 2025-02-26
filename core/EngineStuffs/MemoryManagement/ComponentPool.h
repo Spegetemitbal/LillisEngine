@@ -99,9 +99,10 @@ public:
 			{
 				//POOL_PARENT::objMap.clear();
 				activeCheckDir[i]->SetActive(false);
-				activeCheckDir[i]->setControlledObject(LilObj<GameObject>());
+				activeCheckDir[i]->setControlledObject({});
 			}
 			activeLine = 0;
+			//objMap.clear();
 		}
 
 		unsigned int GetActiveLine() { return activeLine; };

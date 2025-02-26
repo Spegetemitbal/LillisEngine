@@ -27,7 +27,7 @@ public:
 	void removeCallback(EventType type, EventCallback pCallback);
 	void removeListenerFromAllEvents(EventListener* pListener);
 	void removeCallbackFromAllEvents(EventCallback pCallback);
-	void queueEvent(Event theEvent);
+	void queueEvent(const Event& theEvent);
 	void emptyQueue();
 	//Further implementation later
 

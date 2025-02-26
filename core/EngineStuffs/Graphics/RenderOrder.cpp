@@ -122,6 +122,11 @@ void RenderOrder::OrderByAxis(const std::unordered_set<unsigned int>& toUpdate)
 //Assumes an entirely unordered setup.
 void RenderOrder::OrderAll()
 {
+    if (layerIndices.empty())
+    {
+        return;
+    }
+
     //Sort once for each sorting layer!
     for (int i = 0; i < layerIndices.size() - 1; i++)
     {
