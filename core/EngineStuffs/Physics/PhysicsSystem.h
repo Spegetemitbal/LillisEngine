@@ -15,10 +15,10 @@ public:
     static inline unsigned int MaxIterations = 5;
 
     glm::vec2 getGravity() const { return gravity; };
-    void PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int iterations);
+    void PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, unsigned int iterations);
 private:
 
-    void BroadPhase(ActiveTracker<RigidBody*> &physObjects);
+    void BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
     void NarrowPhase(ActiveTracker<RigidBody*> &physObjects);
 
     glm::vec2 resContacts[2] = {};

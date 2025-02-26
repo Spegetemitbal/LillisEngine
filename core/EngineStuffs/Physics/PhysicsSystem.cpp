@@ -8,8 +8,14 @@
 
 #include "CollisionChecker.h"
 
-void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int iterations)
+void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, unsigned int iterations)
 {
+    if (numActive == 0)
+    {
+        return;
+    }
+
+
     iterations = std::clamp(iterations, MinIterations, MaxIterations);
     contactList.clear();
     deltaTime /= (float)iterations;
@@ -19,24 +25,28 @@ void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &phys
         contactList.clear();
 
         //Movement Step
-        for (int i = 0; i < physObjects.size(); i++)
+        for (int i = 0; i < numActive; i++)
         {
-            physObjects[i]->Integrate(deltaTime, gravity);
-            physObjects[i]->UpdateVertices();
+            if (physObjects[i]->GetActive())
+            {
+                physObjects[i]->Integrate(deltaTime, gravity);
+                physObjects[i]->UpdateVertices();
+            }
         }
 
         // Collision step
 
-        BroadPhase(physObjects);
+        BroadPhase(physObjects, numActive);
         NarrowPhase(physObjects);
 
     }
 }
 
-void PhysicsSystem::BroadPhase(ActiveTracker<RigidBody*> &physObjects)
+void PhysicsSystem::BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive)
 {
-    for (int i = 0; i < physObjects.size() - 1; i++)
+    for (int i = 0; i < numActive - 1; i++)
     {
+
         RigidBody* bodyA = physObjects[i];
         AABB bodyA_aabb = bodyA->GetAABB();
         if (!bodyA->GetActive())
@@ -44,7 +54,7 @@ void PhysicsSystem::BroadPhase(ActiveTracker<RigidBody*> &physObjects)
             continue;
         }
 
-        for (int j = i + 1; j < physObjects.size(); j++)
+        for (int j = i + 1; j < numActive; j++)
         {
             RigidBody* bodyB = physObjects[j];
             AABB bodyB_aabb = bodyB->GetAABB();

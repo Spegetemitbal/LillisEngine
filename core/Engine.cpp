@@ -145,23 +145,31 @@ void Engine::frameStep()
         }
     }
 
-    //TODO: Physics step MUST come before transform hierarchy run.
+    //TODO: Add physics precision into engine settings.
+
+    ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
+    unsigned int numRB = WORLD->getRBActive();
+    //TODO: make a double please!
+    engine.physics->PhysicsStep((float)Timing::fixedUpdateTime, rb, numRB,2);
 
     //First run all possible changes, then run hierarchy.
     WORLD->RunTransformHierarchy();
 
     //WORLD->doRenderOrder(toUpdate);
 
-    //Oopsies
+    //TODO: Find a place to put this.
     //WORLD->compactObjects(.GetNumActive());
-    WORLD->compactColliders(col.GetNumActive());
-    WORLD->compactAnimators(anims.GetNumActive());
+    WORLD->compactColliders(col.GetNumInactive());
+    WORLD->compactAnimators(anims.GetNumInactive());
+    WORLD->compactRigidBodies(rb.GetNumInactive());
 
 
+#ifdef _DEBUG
     if (engine.gameInputs->getIsKeyDown(LILLIS::ESC))
     {
         engine.graphics->closeWindow();
     }
+#endif
 }
 
 void Engine::renderStep()
@@ -179,11 +187,10 @@ void Engine::renderStep()
         }
     }
 
-
     engine.graphics->PostDraw();
 
     //End of Frame Garbage collection
-    WORLD->compactSprites(sprites.GetNumActive());
+    WORLD->compactSprites(sprites.GetNumInactive());
 }
 
 void Engine::updateScripts()
@@ -196,7 +203,7 @@ void Engine::updateScripts()
             behvs[i]->Update((float)Timing::fixedUpdateTime);
         }
     }
-    WORLD->compactBehaviors(behvs.GetNumActive());
+    WORLD->compactBehaviors(behvs.GetNumInactive());
 }
 
 

@@ -110,6 +110,11 @@ public:
 		//Two finger compaction
 		void CompactPool(int numInactive) override
 		{
+			if (activeLine == 0)
+			{
+				return;
+			}
+
 			if (numInactive / activeLine > 0.5)
 			{
 				size_t freeSpace = 0;
@@ -151,7 +156,7 @@ public:
 			*obj2 = temp;
 		}
 
-	ActiveTracker<Comp*> getPool() {return {poolDir};}
+	ActiveTracker<Comp*> getPool() {return {poolDir, activeLine};}
 
 	protected:
 

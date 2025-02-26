@@ -25,8 +25,6 @@ glm::vec2 Sprite::getRenderCenter()
     return {pos.x + (renderSize.x / 2), pos.y + (renderSize.y / 2)};
 }
 
-
-
 glm::vec2 Sprite::getRenderLocation()
 {
     LazySetTransform();

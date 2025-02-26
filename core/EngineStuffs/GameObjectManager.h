@@ -47,7 +47,8 @@ public:
 		BoxData boxData, CircleData circleData);
 	ActiveTracker<RigidBody*> getRBsRaw() const { return rigidBodyPool->getPool(); };
 	unsigned int getRBActive() { return rigidBodyPool->GetActiveLine(); };
-	void compactRigidBodies(int active) {rigidBodyPool->CompactPool(active);}
+	void compactRigidBodies(int active)
+	{rigidBodyPool->CompactPool(active);}
 
 	LilObj<Sprite> addSprite(const std::string& name, unsigned int layer = 0);
 	void setSpriteLayer(Sprite* spr);

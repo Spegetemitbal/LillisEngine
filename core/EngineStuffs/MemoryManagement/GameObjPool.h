@@ -80,6 +80,11 @@ public:
 	//Two finger compaction
 	void CompactPool(int active) override
 	{
+		if (activeLine == 0)
+		{
+			return;
+		}
+
 		if (active / activeLine > 0.5)
 		{
 			size_t freeSpace = 0;
@@ -124,7 +129,7 @@ public:
 		*obj2 = temp;
 	}
 
-	ActiveTracker<GameObject*> getPool() {return {poolDir};}
+	ActiveTracker<GameObject*> getPool() {return {poolDir, activeLine};}
 
 	LilObj<GameObject> GetObjectByName(const std::string& name)
 	{

@@ -95,6 +95,11 @@ public:
 
     void CompactPool(int active) override
     {
+        if (mCount == 0)
+        {
+            return;
+        }
+
         if (inactive / mCount > 0.5)
         {
             EventSystem* ev = EventSystem::getInstance();
@@ -136,7 +141,7 @@ public:
         }
     }
 
-    ActiveTracker<Behavior*> getPool() {return {poolDir};}
+    ActiveTracker<Behavior*> getPool() {return {poolDir, (unsigned int)poolDir.size()};}
 
 protected:
 

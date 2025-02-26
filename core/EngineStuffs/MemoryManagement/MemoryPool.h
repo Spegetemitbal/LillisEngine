@@ -15,16 +15,16 @@ public:
     ActiveTracker() = delete;
     ~ActiveTracker() = default;
 
-    ActiveTracker(std::vector<T> v) {data = v;}
+    ActiveTracker(std::vector<T> v, unsigned int activeLine)
+    {
+        data = v;
+        _activeLine = activeLine;
+    }
 
     T operator[](int idx)
     {
         try
         {
-            if (!data[idx]->GetActive())
-            {
-                counter++;
-            }
             return data[idx];
         } catch (...)
         {
@@ -35,12 +35,32 @@ public:
 
     size_t size() {return data.size();}
 
-    int GetNumActive() const {return counter;}
+    int GetNumInactive() const
+    {
+        int result = 0;
+        for (int i = 0; i < _activeLine; i++)
+        {
+            try
+            {
+                if (!data[i]->GetActive())
+                {
+                    result++;
+                }
+            } catch (...)
+            {
+                std::cerr << "Invalid Tracker type" << std::endl;
+                throw;
+            }
+        }
+        return result;
+    }
 
 private:
     std::vector<T> data;
-    int counter = 0;
+    unsigned int _activeLine;
+
 };
+
 class MemoryPool
 {
 public:
