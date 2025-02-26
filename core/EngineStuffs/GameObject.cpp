@@ -18,7 +18,10 @@ void GameObject::SetActive(bool active)
 	if (!isActive)
 	{
 		WORLD->RemoveObjectParent(thisObject, true);
-		transform->SetActive(false);
+		if (transform.Exists())
+		{
+			transform->SetActive(false);
+		}
 		//transform = Transform();
 		//sprite = nullptr;
 		if (collider.Exists())
@@ -59,6 +62,23 @@ LilObj<RectangleCollider> GameObject::CreateCollider(float w, float h, int id)
 	}
 	return collider;
 }
+
+LilObj<RigidBody> GameObject::CreateRigidBody(RigidBodyShape shape, RigidBodyType rbType, float mass, float density, PhysicsMaterial material, BoxData boxData, CircleData circleData)
+{
+	if (transform->getIsChild())
+	{
+		std::cout << "Physics objects cannot be children! " << std::endl;
+		return {};
+	}
+
+	if (!rigidbody.Exists())
+	{
+		rigidbody = WORLD->addRigidbody(shape, rbType, mass, density, material, boxData, circleData);
+		rigidbody->setControlledObject(thisObject);
+	}
+	return rigidbody;
+}
+
 
 LilObj<Sprite> GameObject::CreateSprite(const std::string &image, unsigned int layer)
 {

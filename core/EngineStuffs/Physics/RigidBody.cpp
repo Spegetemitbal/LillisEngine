@@ -9,6 +9,12 @@
 #include "EngineStuffs/GameObject.h"
 #include "EngineStuffs/Transform.h"
 
+RigidBody::RigidBody(): aabb(1,1,1,1)
+{
+    //Scoodledoot
+}
+
+
 void RigidBody::SetMass(float mass)
 {
     if (mass > 0)
@@ -38,36 +44,58 @@ void RigidBody::SetRestitution(float restitution)
 {
     if (restitution > 1)
     {
-        this->restitution = 1;
+        this->material.restitution = 1;
     } else if (restitution < 0)
     {
-        this->restitution = 0;
+        this->material.restitution = 0;
     } else
     {
-        this->restitution = restitution;
+        this->material.restitution = restitution;
     }
 }
 
-void RigidBody::SetSize(glm::vec2 size)
+void RigidBody::SetSize(glm::vec2 newSize)
 {
-    this->size = size;
+    if (newSize.x <= 1)
+    {
+        newSize.x = 1.0f;
+    }
+
+    if (newSize.y <= 1)
+    {
+        newSize.y = 1.0f;
+    }
+
+    this->boxData.boxSize = newSize;
     InitVertices();
 }
+
+void RigidBody::SetDynamicFriction(float fric)
+{
+    material.dynamicFriction = std::clamp(fric, 0.0f, 1.0f);
+}
+
+void RigidBody::SetStaticFriction(float fric)
+{
+    material.staticFriction = std::clamp(fric, 0.0f, 1.0f);
+}
+
+
 
 
 void RigidBody::InitVertices()
 {
     if (this->bodyShape == RigidBodyShape::RB_BOX)
     {
-        float left = -size.x / 2.0f;
-        float right = left + size.x;
-        float bottom = -size.y / 2.0f;
-        float top = bottom + size.y;
+        float left = -boxData.boxSize.x / 2.0f;
+        float right = left + boxData.boxSize.x;
+        float bottom = -boxData.boxSize.y / 2.0f;
+        float top = bottom + boxData.boxSize.y;
 
-        vertices[0] = {left, top};
-        vertices[1] = {right, top};
-        vertices[2] = {right, bottom};
-        vertices[3] = {left, bottom};
+        boxData.vertices[0] = {left, top};
+        boxData.vertices[1] = {right, top};
+        boxData.vertices[2] = {right, bottom};
+        boxData.vertices[3] = {left, bottom};
     }
 }
 
@@ -87,22 +115,27 @@ glm::vec2 RigidBody::transformVertex(glm::vec2 v, glm::vec2 tr, float r)
 
 void RigidBody::UpdateVertices()
 {
-    transformedVertices[0] = transformVertex(vertices[0], transform->GlobalPosition(), transform->GlobalRotation());
-    transformedVertices[1] = transformVertex(vertices[1], transform->GlobalPosition(), transform->GlobalRotation());
-    transformedVertices[2] = transformVertex(vertices[2], transform->GlobalPosition(), transform->GlobalRotation());
-    transformedVertices[3] = transformVertex(vertices[3], transform->GlobalPosition(), transform->GlobalRotation());
+    boxData.transformedVertices[0] = transformVertex(boxData.vertices[0], transform->GlobalPosition(), transform->GlobalRotation());
+    boxData.transformedVertices[1] = transformVertex(boxData.vertices[1], transform->GlobalPosition(), transform->GlobalRotation());
+    boxData.transformedVertices[2] = transformVertex(boxData.vertices[2], transform->GlobalPosition(), transform->GlobalRotation());
+    boxData.transformedVertices[3] = transformVertex(boxData.vertices[3], transform->GlobalPosition(), transform->GlobalRotation());
 }
 
 void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
 {
+    //TODO: Add force generators.
+    //TODO: Add drag.
     accumulatedForce += gravity * deltaTime * gravityScale;
 
     glm::vec2 linearAcceleration = accumulatedForce / mass;
 
     linearVelocity += linearAcceleration * deltaTime;
 
-    transform->Translate(linearVelocity * deltaTime);
-    transform->Rotate(angularVelocity * deltaTime);
+    if (bodyType != RigidBodyType::RB_STATIC)
+    {
+        transform->Translate(linearVelocity * deltaTime);
+        transform->Rotate(angularVelocity * deltaTime);
+    }
 
     accumulatedForce = {0,0};
     if (bodyShape == RigidBodyShape::RB_BOX)
@@ -144,7 +177,7 @@ AABB RigidBody::GetAABB()
         for (int i = 0; i < 4; i++)
         {
             //For polygons, this is the same thing dude.
-            glm::vec2 v = transformedVertices[i];
+            glm::vec2 v = boxData.transformedVertices[i];
             if (v.x < minX) {minX = v.x;}
             if (v.x > maxX) {maxX = v.x;}
             if (v.y < minX) {minX = v.y;}
@@ -152,10 +185,10 @@ AABB RigidBody::GetAABB()
         }
     } else if (bodyShape == RigidBodyShape::RB_CIRCLE)
     {
-        minX = transform->GlobalPosition().x - radius;
-        minY = transform->GlobalPosition().y - radius;
-        maxX = transform->GlobalPosition().x + radius;
-        maxY = transform->GlobalPosition().y + radius;
+        minX = transform->GlobalPosition().x - circleData.radius;
+        minY = transform->GlobalPosition().y - circleData.radius;
+        maxX = transform->GlobalPosition().x + circleData.radius;
+        maxY = transform->GlobalPosition().y + circleData.radius;
     } else
     {
         throw std::runtime_error("Invalid body shape");
@@ -164,14 +197,14 @@ AABB RigidBody::GetAABB()
     return {minX, minY, maxX, maxY};
 }
 
-float RigidBody::CalculateRotationalInertia()
+float RigidBody::CalculateRotationalInertia() const
 {
     if (bodyShape == RigidBodyShape::RB_BOX)
     {
-        return (1.0f / 12.0f) * mass * (size.x * size.x + size.y * size.y);
+        return (1.0f / 12.0f) * mass * (boxData.boxSize.x * boxData.boxSize.x + boxData.boxSize.y * boxData.boxSize.y);
     } else if (bodyShape == RigidBodyShape::RB_CIRCLE)
     {
-
+        return 0.5f * mass * circleData.radius * circleData.radius;
     } else
     {
         std::cout << "Invalid shape" << std::endl;

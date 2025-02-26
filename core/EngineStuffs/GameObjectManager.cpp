@@ -10,6 +10,7 @@ GameObjectManager::GameObjectManager()
 	transformPool = DBG_NEW ComponentPool<Transform>(50);
 
 	sceneGraph = DBG_NEW SceneGraph(transformPool);
+	rigidBodyPool = DBG_NEW ComponentPool<RigidBody>(50);
 	colliderPool = DBG_NEW ComponentPool<RectangleCollider>(50);
 	spritePool = DBG_NEW ComponentPool<Sprite>(50);
 	animatorPool = DBG_NEW ComponentPool<Animator>(50);
@@ -26,6 +27,7 @@ GameObjectManager::~GameObjectManager()
 	delete spritePool;
 	delete animatorPool;
 	delete renderOrder;
+	delete rigidBodyPool;
 	delete colliderPool;
 	delete behaviors;
 }
@@ -70,6 +72,39 @@ LilObj<RectangleCollider> GameObjectManager::addCollider(float w, float h, int i
 	r->setTag(id);
 	return {colliderPool, r->GetID()};
 }
+
+LilObj<RigidBody> GameObjectManager::addRigidbody(RigidBodyShape shape, RigidBodyType rbType, float mass, float density, PhysicsMaterial material,
+		BoxData boxData, CircleData circleData)
+{
+	RigidBody* r = rigidBodyPool->AddComponent();
+	r->bodyShape = shape;
+	r->bodyType = rbType;
+	r->SetMass(mass);
+	r->SetDensity(density);
+
+	//Physics material stuff
+	r->SetRestitution(material.restitution);
+	r->SetDynamicFriction(material.dynamicFriction);
+	r->SetStaticFriction(material.staticFriction);
+
+	//Specifics
+	if (shape == RigidBodyShape::RB_BOX)
+	{
+		r->SetSize(boxData.boxSize);
+	}
+	else if (shape == RigidBodyShape::RB_CIRCLE)
+	{
+		r->SetRadius(circleData.radius);
+	} else
+	{
+		//Gotta do something here.
+		throw;
+	}
+	r->InitVertices();
+
+	return {rigidBodyPool, r->GetID()};
+}
+
 
 LilObj<Sprite> GameObjectManager::addSprite(const std::string& name, unsigned int layer)
 {
@@ -117,6 +152,12 @@ LilObj<Behavior> GameObjectManager::addBehavior(const std::string &name) const
 
 bool GameObjectManager::SetObjectParent(const std::string& parent, LilObj<GameObject> child)
 {
+	if (child->getRigidBody().Exists())
+	{
+		std::cout << "Physics objects cannot be children!" << std::endl;
+		return false;
+	}
+
 	if (child.Exists())
 	{
 		LilObj<GameObject> g = getObjectByName(parent);

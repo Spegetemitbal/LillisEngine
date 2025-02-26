@@ -127,7 +127,7 @@ void PhysicsSystem::ResolveCollisionBasic(ColManifold& contact)
     }
 
     //Using min for now, add options to change this.
-    float rest = std::min(contact.BodyA->restitution, contact.BodyB->restitution);
+    float rest = std::min(contact.BodyA->material.restitution, contact.BodyB->material.restitution);
 
     float j = -(1.0f + rest) * glm::dot(relativeVelocity, contact.Normal);
 
@@ -149,11 +149,11 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
     int contactCount = contact.ContactCount;
 
     //Using min for now, add options to change this.
-    float rest = std::min(contact.BodyA->restitution, contact.BodyB->restitution);
+    float rest = std::min(contact.BodyA->material.restitution, contact.BodyB->material.restitution);
 
     //TODO: Add options for min or max.
-    float sf = (bodyA->StaticFriction + bodyB->StaticFriction) * 0.5f;
-    float df = (bodyA->DynamicFriction + bodyB->DynamicFriction) * 0.5f;
+    float sf = (bodyA->material.staticFriction + bodyB->material.staticFriction) * 0.5f;
+    float df = (bodyA->material.dynamicFriction + bodyB->material.dynamicFriction) * 0.5f;
 
     resContacts[0] = contact1;
     resContacts[1] = contact2;

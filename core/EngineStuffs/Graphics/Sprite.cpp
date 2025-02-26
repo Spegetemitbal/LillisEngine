@@ -30,7 +30,7 @@ glm::vec2 Sprite::getRenderCenter()
 glm::vec2 Sprite::getRenderLocation()
 {
     LazySetTransform();
-    return transform->GlobalPosition() + offset;
+    return transform->GlobalPosition() + offset - (renderSize * 0.5f);
 }
 
 float Sprite::getRenderRotation()

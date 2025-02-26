@@ -115,6 +115,7 @@ void SceneGraph::SetParent(LilObj<Transform> parent, LilObj<Transform> child)
     parentMap.emplace(parentID, childID);
     childMap.emplace(childID, parentID);
     numInheritedObjects += numToAdd;
+    child->isChild = true;
 }
 
 void SceneGraph::RemoveParent(LilObj<Transform> child, ObjectRemovalFlag removalFlag)
@@ -184,6 +185,8 @@ void SceneGraph::RemoveParent(LilObj<Transform> child, ObjectRemovalFlag removal
         startIndex++;
         numInheritedObjects--;
     }
+
+    child->isChild = false;
 
 }
 

@@ -32,7 +32,7 @@ Sprite Angry 1 40 40
 Collider 40 40 3
 Behavior Rotator 80d 300f 300f )
 ;
-Object 0 0 Background NONE
+Object 320 240 Background NONE
 Sprite Background 0 0 0
 ;
 END

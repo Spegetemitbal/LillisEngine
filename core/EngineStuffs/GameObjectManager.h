@@ -43,6 +43,12 @@ public:
 	unsigned int getColActive() { return colliderPool->GetActiveLine(); };
 	void compactColliders(int active) {colliderPool->CompactPool(active);}
 
+	LilObj<RigidBody> addRigidbody(RigidBodyShape shape, RigidBodyType rbtype, float mass, float density, PhysicsMaterial material,
+		BoxData boxData, CircleData circleData);
+	ActiveTracker<RigidBody*> getRBsRaw() const { return rigidBodyPool->getPool(); };
+	unsigned int getRBActive() { return rigidBodyPool->GetActiveLine(); };
+	void compactRigidBodies(int active) {rigidBodyPool->CompactPool(active);}
+
 	LilObj<Sprite> addSprite(const std::string& name, unsigned int layer = 0);
 	void setSpriteLayer(Sprite* spr);
 	void doRenderOrder(const std::unordered_set<unsigned int>& toUpdate);
@@ -75,6 +81,7 @@ private:
 	ComponentPool<Animator>* animatorPool;
 	RenderOrder* renderOrder;
 	ComponentPool<RectangleCollider>* colliderPool;
+	ComponentPool<RigidBody>* rigidBodyPool;
 	BehaviorHandler* behaviors;
 };
 

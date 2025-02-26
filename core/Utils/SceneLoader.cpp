@@ -70,6 +70,50 @@ void SceneLoader::LoadData(const std::string& fileName)
 						stream >> tag;
 						G->CreateCollider(width, height, tag);
 					}
+					if (component == "RigidBody")
+					{
+						std::string shape, bodyType;
+						RigidBodyType rbType;
+						RigidBodyShape rbShape;
+						float mass, density;
+						PhysicsMaterial physMaterial;
+						BoxData boxData;
+						CircleData circleData;
+
+						stream >> shape;
+						stream >> bodyType;
+						stream >> mass;
+						stream >> density;
+						stream >> physMaterial.restitution;
+						stream >> physMaterial.staticFriction;
+						stream >> physMaterial.dynamicFriction;
+						if (shape == "Box")
+						{
+							stream >> boxData.boxSize.x;
+							stream >> boxData.boxSize.y;
+							rbShape = RigidBodyShape::RB_BOX;
+						} else if (shape == "Circle")
+						{
+							stream >> circleData.radius;
+							rbShape = RigidBodyShape::RB_CIRCLE;
+						} else
+						{
+							std::cout << "Other shapes not implemented yet" << std::endl;
+						}
+
+						if (bodyType == "Static")
+						{
+							rbType = RigidBodyType::RB_STATIC;
+						} else if (bodyType == "Kinematic")
+						{
+							rbType = RigidBodyType::RB_KINEMATIC;
+						} else
+						{
+							rbType = RigidBodyType::RB_DYNAMIC;
+						}
+
+						G->CreateRigidBody(rbShape, rbType, mass, density, physMaterial, boxData, circleData);
+					}
 					if (component == "Sprite")
 					{
 						std::string spriteName;
