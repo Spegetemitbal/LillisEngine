@@ -79,6 +79,7 @@ LilObj<RigidBody> GameObject::CreateRigidBody(RigidBodyShape shape, RigidBodyTyp
 	if (!rigidbody.Exists())
 	{
 		rigidbody = WORLD->addRigidbody(shape, rbType, mass, density, material, boxData, circleData);
+		rigidbody->transform = this->transform;
 		rigidbody->setControlledObject(thisObject);
 	}
 	return rigidbody;

@@ -8,6 +8,16 @@
 
 #include "CollisionChecker.h"
 
+void PhysicsSystem::InitRigidBodies(ActiveTracker<RigidBody *> &physObjects, unsigned int numActive)
+{
+    for (unsigned int i = 0; i < numActive; i++)
+    {
+        physObjects[i]->UpdateVertices();
+        physObjects[i]->GetAABB();
+    }
+}
+
+
 void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, unsigned int iterations)
 {
     if (numActive == 0)
@@ -27,7 +37,7 @@ void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &phys
         //Movement Step
         for (int i = 0; i < numActive; i++)
         {
-            if (physObjects[i]->GetActive())
+            if (physObjects[i]->GetActive() && physObjects[i]->bodyType != RigidBodyType::RB_STATIC)
             {
                 physObjects[i]->Integrate(deltaTime, gravity);
                 physObjects[i]->UpdateVertices();

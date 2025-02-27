@@ -96,6 +96,8 @@ void RigidBody::InitVertices()
         boxData.vertices[1] = {right, top};
         boxData.vertices[2] = {right, bottom};
         boxData.vertices[3] = {left, bottom};
+        numVertices = 4;
+        //UpdateVertices();
     }
 }
 
@@ -119,23 +121,26 @@ void RigidBody::UpdateVertices()
     boxData.transformedVertices[1] = transformVertex(boxData.vertices[1], transform->GlobalPosition(), transform->GlobalRotation());
     boxData.transformedVertices[2] = transformVertex(boxData.vertices[2], transform->GlobalPosition(), transform->GlobalRotation());
     boxData.transformedVertices[3] = transformVertex(boxData.vertices[3], transform->GlobalPosition(), transform->GlobalRotation());
+    //GetAABB();
 }
 
 void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
 {
+    if (bodyType == RigidBodyType::RB_STATIC)
+    {
+        return;
+    }
+
     //TODO: Add force generators.
     //TODO: Add drag.
-    accumulatedForce += gravity * deltaTime * gravityScale;
+    accumulatedForce += gravity * gravityScale * deltaTime;
 
     glm::vec2 linearAcceleration = accumulatedForce / mass;
 
-    linearVelocity += linearAcceleration * deltaTime;
+    linearVelocity += linearAcceleration;
 
-    if (bodyType != RigidBodyType::RB_STATIC)
-    {
-        transform->Translate(linearVelocity * deltaTime);
-        transform->Rotate(angularVelocity * deltaTime);
-    }
+    transform->Translate(linearVelocity * deltaTime);
+    transform->Rotate(angularVelocity * deltaTime);
 
     accumulatedForce = {0,0};
     if (bodyShape == RigidBodyShape::RB_BOX)
@@ -143,14 +148,13 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
         if (transform->getToUpdate())
         {
             UpdateVertices();
-            GetAABB();
         }
     }
 }
 
 void RigidBody::CalcInvMass()
 {
-    if (bodyType != RigidBodyType::RB_DYNAMIC)
+    if (bodyType != RigidBodyType::RB_STATIC)
     {
         invMass = 1.0f / mass;
     } else
@@ -161,16 +165,20 @@ void RigidBody::CalcInvMass()
 
 AABB RigidBody::GetAABB()
 {
-    if (transform->getToUpdate())
+    if (!transform->getToUpdate())
     {
         //TODO: ignore this loop if you change shape.
-        return aabb;
+        //Ignores invalid initialization.
+        if (aabb.min != aabb.max)
+        {
+            return aabb;
+        }
     }
 
-    float minX = std::numeric_limits<float>::max();
-    float minY = std::numeric_limits<float>::max();
-    float maxX = std::numeric_limits<float>::min();
-    float maxY = std::numeric_limits<float>::min();
+    float minX = std::numeric_limits<float>::infinity();
+    float minY = std::numeric_limits<float>::infinity();
+    float maxX = -std::numeric_limits<float>::infinity();
+    float maxY = -std::numeric_limits<float>::infinity();
 
     if (bodyShape == RigidBodyShape::RB_BOX)
     {
@@ -180,8 +188,8 @@ AABB RigidBody::GetAABB()
             glm::vec2 v = boxData.transformedVertices[i];
             if (v.x < minX) {minX = v.x;}
             if (v.x > maxX) {maxX = v.x;}
-            if (v.y < minX) {minX = v.y;}
-            if (v.y > maxX) {maxX = v.y;}
+            if (v.y < minY) {minY = v.y;}
+            if (v.y > maxY) {maxY = v.y;}
         }
     } else if (bodyShape == RigidBodyShape::RB_CIRCLE)
     {
@@ -194,7 +202,8 @@ AABB RigidBody::GetAABB()
         throw std::runtime_error("Invalid body shape");
     }
 
-    return {minX, minY, maxX, maxY};
+    aabb = {minX, minY, maxX, maxY};
+    return aabb;
 }
 
 float RigidBody::CalculateRotationalInertia() const

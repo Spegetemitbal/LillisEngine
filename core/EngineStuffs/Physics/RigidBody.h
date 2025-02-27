@@ -57,6 +57,7 @@ public:
     glm::vec2 GetSize() { return boxData.boxSize; };
     void SetRadius(float rad) {circleData.radius = rad;}
     float GetRadius() {return circleData.radius;};
+    int GetNumVertices() {return numVertices;}
     void InitVertices();
 
     void SetLinearVelocity(glm::vec2 velocity) {linearVelocity = velocity;}
@@ -121,6 +122,8 @@ private:
 
     AABB aabb;
     //Hook up to gameobject my guy.
+
+    int numVertices = 0;
 
     PhysicsMaterial material;
     BoxData boxData;

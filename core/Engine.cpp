@@ -70,6 +70,9 @@ void Engine::SceneLoad(std::string Data)
     SceneLoader::LoadData(Data);
     WORLD->initRenderOrder();
     WORLD->RunTransformHierarchy();
+    ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
+    unsigned int numRB = WORLD->getRBActive();
+    engine.physics->InitRigidBodies(rb, numRB);
     CurrentLevel = Data;
 }
 

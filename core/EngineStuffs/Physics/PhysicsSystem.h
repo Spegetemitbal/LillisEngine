@@ -15,6 +15,9 @@ public:
     static inline unsigned int MaxIterations = 5;
 
     glm::vec2 getGravity() const { return gravity; };
+
+    void InitRigidBodies(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
+
     void PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, unsigned int iterations);
 private:
 

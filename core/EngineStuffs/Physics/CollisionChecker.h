@@ -23,9 +23,9 @@ public:
 
     //Circle stuff
     static bool IntersectCircles(glm::vec2 centerA, glm::vec2 centerB, float radA, float radB, float& depth, glm::vec2& normal);
-    static bool IntersectCirclePolygon(glm::vec2 circleCenter, float circleRad, glm::vec2 polyCenter, glm::vec2 *vertices, glm::vec2 &normal, float& depth);
+    static bool IntersectCirclePolygon(glm::vec2 circleCenter, float circleRad, glm::vec2 polyCenter, glm::vec2 *vertices, int len, glm::vec2 &normal, float& depth);
     //Polygon stuff
-    static bool IntersectPolygons(glm::vec2 *verticesA, glm::vec2 centerA, glm::vec2 *verticesB, glm::vec2 centerB, glm::vec2 &normal, float &depth);
+    static bool IntersectPolygons(glm::vec2 *verticesA, int aLen, glm::vec2 centerA, glm::vec2 *verticesB, int bLen, glm::vec2 centerB, glm::vec2 &normal, float &depth);
 
     static bool CollideCheck(RigidBody bodyA, RigidBody bodyB, glm::vec2 &normal, float &depth);
     //Resolve
