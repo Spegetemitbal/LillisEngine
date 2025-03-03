@@ -39,15 +39,17 @@ void SceneLoader::LoadData(const std::string& fileName)
 		stream >> word;
 		if (word == "Object")
 		{
-			float x, y;
+			float x, y, r;
 			std::string name, parent;
 			stream >> x;
 			stream >> y;
+			stream >> r;
 			stream >> name;
 			stream >> parent;
 
 			//Intake texture ID here
 			LilObj<GameObject> G = WORLD->addObject(x, y, name);
+			G->transform->Rotate(r);
 			if (parent != "NONE")
 			{
 				WORLD->SetObjectParent(parent, G);

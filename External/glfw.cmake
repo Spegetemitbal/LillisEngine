@@ -3,7 +3,7 @@ string(TIMESTAMP BEFORE "%s")
 
 CPMAddPackage(
         NAME "glfw"
-        URL "https://github.com/glfw/glfw/releases/download/3.3.8/glfw-3.3.8.zip"
+        URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip"
         OPTIONS ("GLFW_BUILD_EXAMPLES OFF" "GLFW_BUILD_TESTS OFF" "GLFW_BUILD_DOCS OFF")
 )
 find_package(glfw REQUIRED)

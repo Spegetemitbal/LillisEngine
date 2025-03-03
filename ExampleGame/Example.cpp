@@ -50,7 +50,6 @@ int main(int argc, char* argv[])
 	EventSystem* events = EventSystem::getInstance();
 	events->addCallback((EventType)COLLISION_EVENT ,handleEvent);
 
-	//e->LoadLevel("Level.lvl");
 	e->LoadImportData("assets/StaticData.lil");
 	e->InjectAssets("assets", SPRITE);
 	e->InjectAssets("assets", DATA);

@@ -1,22 +1,22 @@
-Object 0 0 Background NONE
+Object 0 0 0 Background NONE
 Sprite Background 0 0 0
 ;
-Object -320 240 Player1 NONE
+Object -320 240 0 Player1 NONE
 Collider 40 40 0
 Sprite UniformTest 1 40 40
 Animator Multiple Player1
 Behavior PlayerController )
 ;
-Object 0 -100 Player2 Player1
+Object 0 -100 0 Player2 Player1
 Collider 40 40 1
 Sprite Player2 1 40 40
 Behavior PlayerController )
 ;
-Object 320 0 WinFlag NONE
+Object 320 0 0 WinFlag NONE
 Sprite WinFlag 1 40 40
 Collider 40 40 2
 ;
-Object 0 0 FlippyBoy NONE
+Object 0 0 0 FlippyBoy NONE
 Sprite Angry 1 40 40
 Animator Single FigureEight
 ;

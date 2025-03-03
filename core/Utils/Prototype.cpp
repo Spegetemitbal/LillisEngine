@@ -49,10 +49,11 @@ LilObj<GameObject> Prototype::CreatePrototype(const std::string &name, glm::vec2
 		stream >> word;
 		if (word == "Object")
 		{
-			float x, y;
+			float x, y, r;
 			std::string name, parent;
 			stream >> x;
 			stream >> y;
+			stream >> r;
 			stream >> name;
 			stream >> parent;
 
@@ -62,6 +63,7 @@ LilObj<GameObject> Prototype::CreatePrototype(const std::string &name, glm::vec2
 			}
 
 			LilObj<GameObject> G = WORLD->addObject(x + pos.x, y + pos.y, name);
+			G->transform->Rotate(r);
 			if (parent != "NONE")
 			{
 				WORLD->SetObjectParent(parent, G);
