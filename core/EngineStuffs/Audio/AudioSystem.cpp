@@ -60,7 +60,7 @@ bool AudioSystem::Init()
 
 AudioSystem::AudioSystem()
 {
-    soundEngine = (ma_engine*)malloc(sizeof(*soundEngine));
+    soundEngine = new ma_engine;
 }
 
 AudioSystem::~AudioSystem()
@@ -69,8 +69,13 @@ AudioSystem::~AudioSystem()
     {
         ma_sound_uninit(&s.second);
     }
-    ma_engine_uninit(soundEngine);
-    free(soundEngine);
+
+    if (soundEngine != nullptr)
+    {
+        ma_engine_uninit(soundEngine);
+        delete soundEngine;
+        soundEngine = nullptr;
+    }
 }
 
 void AudioSystem::SetMasterVolume(float volume)

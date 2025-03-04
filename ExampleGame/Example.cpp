@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 	e->LoadImportData("assets/StaticData.lil");
 	e->InjectAssets("assets", SPRITE);
 	e->InjectAssets("assets", DATA);
-	e->InitAudio();
+	//e->InitAudio();
 	BehaviorSystem::RegisterBehavior("PlayerController", sizeof(PlayerController), PlayerController::CreatePlayerController);
 	BehaviorSystem::RegisterBehavior("Rotator", sizeof(Rotator), Rotator::CreateRotator);
 	e->LoadLevel("PhysLevel");
