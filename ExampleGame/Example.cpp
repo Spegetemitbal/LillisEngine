@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 	//e->InitAudio();
 	BehaviorSystem::RegisterBehavior("PlayerController", sizeof(PlayerController), PlayerController::CreatePlayerController);
 	BehaviorSystem::RegisterBehavior("Rotator", sizeof(Rotator), Rotator::CreateRotator);
-	e->LoadLevel("PhysLevel");
+	e->LoadLevel("Level");
 	e->Run();
 
 	Engine::DestroyGameInstance();

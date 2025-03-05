@@ -17,16 +17,21 @@ RigidBody::RigidBody(): aabb(1,1,1,1)
 
 void RigidBody::SetMass(float mass)
 {
-    if (mass > 0)
+    this->mass = mass;
+    if (mass < 0.0f)
     {
-        this->mass = mass;
-    } else
-    {
-        this->mass = 1;
+        this->mass = 0.0f;
     }
     CalcInvMass();
     inertia = CalculateRotationalInertia();
-    invInertia = 1.0f/inertia;
+    if (bodyType == RigidBodyType::RB_STATIC)
+    {
+        invMass = 0.0f;
+        invInertia = 0.0f;
+    } else
+    {
+        invInertia = 1.0f/inertia;
+    }
 }
 
 void RigidBody::SetDensity(float density)
@@ -106,6 +111,8 @@ glm::vec2 RigidBody::transformVertex(glm::vec2 v, glm::vec2 tr, float r)
 {
     //You know this is gonna be your own transform-
 
+    r = glm::radians(r);
+
     float Sin = glm::sin(r);
     float Cos = glm::cos(r);
 
@@ -128,21 +135,24 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
 {
     if (bodyType == RigidBodyType::RB_STATIC)
     {
+        linearVelocity = {};
+        angularVelocity = 0.0f;
         return;
     }
 
     //TODO: Add force generators.
     //TODO: Add drag.
-    accumulatedForce += gravity * gravityScale * deltaTime;
+    //accumulatedForce += gravity * gravityScale * deltaTime;
 
-    glm::vec2 linearAcceleration = accumulatedForce / mass;
+    //glm::vec2 linearAcceleration = accumulatedForce / mass;
 
-    linearVelocity += linearAcceleration;
+    //linearVelocity += linearAcceleration;
+    linearVelocity += gravity * deltaTime;
 
     transform->Translate(linearVelocity * deltaTime);
-    transform->Rotate(angularVelocity * deltaTime);
+    transform->Rotate(glm::degrees(angularVelocity) * deltaTime);
 
-    accumulatedForce = {0,0};
+   // accumulatedForce = {0,0};
     if (bodyShape == RigidBodyShape::RB_BOX)
     {
         if (transform->getToUpdate())
@@ -154,7 +164,7 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
 
 void RigidBody::CalcInvMass()
 {
-    if (bodyType != RigidBodyType::RB_STATIC)
+    if (mass > 0.0f)
     {
         invMass = 1.0f / mass;
     } else
@@ -208,6 +218,7 @@ AABB RigidBody::GetAABB()
 
 float RigidBody::CalculateRotationalInertia() const
 {
+
     if (bodyShape == RigidBodyShape::RB_BOX)
     {
         return (1.0f / 12.0f) * mass * (boxData.boxSize.x * boxData.boxSize.x + boxData.boxSize.y * boxData.boxSize.y);

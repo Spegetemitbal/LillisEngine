@@ -23,15 +23,48 @@ public:
 	void SetLocalPosition(glm::vec2 pos) {localPosition = pos; toUpdate = true;}
 
 	float LocalRotation() const {return localRotation;}
-	void Rotate(float rotation) {localRotation += rotation;}
-	void SetLocalRotation(float rotation) {localRotation = rotation;}
+	void Rotate(float rotation)
+	{
+		if (rotation == 0.0f)
+		{
+			return;
+		}
+		localRotation += rotation;
+		toUpdate = true;
+	}
+	void SetLocalRotation(float rotation)
+	{
+		localRotation = rotation;
+		toUpdate = true;
+	}
 
 	glm::vec2 LocalScale() const {return localScale;}
 	void SetLocalScale(glm::vec2 scale) {localScale = scale;}
 
-	glm::vec2 GlobalPosition() const {return globalPosition;};
-	float GlobalRotation() const {return globalRotation;};
-	glm::vec2 GlobalScale() const {return globalScale;};
+	glm::vec2 GlobalPosition() const
+	{
+		if (isChild)
+		{
+			return globalPosition;
+		}
+		return localPosition;
+	};
+	float GlobalRotation() const
+	{
+		if (isChild)
+		{
+			return globalRotation;
+		}
+		return localRotation;
+	};
+	glm::vec2 GlobalScale() const
+	{
+		if (isChild)
+		{
+			return globalScale;
+		}
+		return localScale;
+	};
 
 	bool getIsChild() const {return isChild;};
 	bool getToUpdate() const {return toUpdate;};

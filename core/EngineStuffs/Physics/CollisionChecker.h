@@ -20,6 +20,7 @@ public:
 
     static bool IntersectAABBs(AABB a, AABB b);
     static bool GetNearlyEqual(glm::vec2 a, glm::vec2 b);
+    static bool GetNearlyEqual(float a, float b);
 
     //Circle stuff
     static bool IntersectCircles(glm::vec2 centerA, glm::vec2 centerB, float radA, float radB, float& depth, glm::vec2& normal);
@@ -42,9 +43,9 @@ private:
     //Circle-Circle
     static void FindContactPoint(glm::vec2 centerA, glm::vec2 centerB, float radA, glm::vec2& contact);
     //Circle-Polygon
-    static void FindContactPoint(glm::vec2 centerA, float radA, glm::vec2 polyCenter, glm::vec2 *vertices, glm::vec2& contact);
+    static void FindContactPoint(glm::vec2 centerA, float radA, glm::vec2 polyCenter, glm::vec2 *vertices, int len, glm::vec2& contact);
     //Polygon-Polygon
-    static void FindContactPoint(glm::vec2 *verticesA, glm::vec2 *verticesB, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
+    static void FindContactPoint(glm::vec2 *verticesA, int aLen, glm::vec2 *verticesB, int bLen, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
 };
 
 

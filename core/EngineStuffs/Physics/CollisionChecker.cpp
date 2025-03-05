@@ -240,15 +240,18 @@ void CollisionChecker::FindContactPoints(RigidBody *bodyA, RigidBody *bodyB, glm
     RigidBodyShape typeA = bodyA->bodyShape;
     RigidBodyShape typeB = bodyB->bodyShape;
 
+    int aLen = bodyA->GetNumVertices();
+    int bLen = bodyB->GetNumVertices();
+
     if (typeA == RigidBodyShape::RB_BOX)
     {
         if (typeA == typeB)
         {
-            FindContactPoint(bodyA->GetTransformedVertices(), bodyB->GetTransformedVertices(), contact1, contact2, contactCount);
+            FindContactPoint(bodyA->GetTransformedVertices(), aLen, bodyB->GetTransformedVertices(), bLen, contact1, contact2, contactCount);
         } else if (typeB == RigidBodyShape::RB_CIRCLE)
         {
             FindContactPoint(bodyB->transform->GlobalPosition(), bodyB->GetRadius(),
-                bodyA->transform->GlobalPosition(), bodyA->GetTransformedVertices(), contact1);
+                bodyA->transform->GlobalPosition(), bodyA->GetTransformedVertices(), aLen, contact1);
             contactCount = 1;
         }
     } else if (typeA == RigidBodyShape::RB_CIRCLE)
@@ -261,7 +264,7 @@ void CollisionChecker::FindContactPoints(RigidBody *bodyA, RigidBody *bodyB, glm
         } else if (typeB == RigidBodyShape::RB_BOX)
         {
             FindContactPoint(bodyA->transform->GlobalPosition(), bodyA->GetRadius(),
-                bodyB->transform->GlobalPosition(), bodyB->GetTransformedVertices(), contact1);
+                bodyB->transform->GlobalPosition(), bodyB->GetTransformedVertices(), bLen, contact1);
             contactCount = 1;
         }
     }
@@ -301,10 +304,8 @@ void CollisionChecker::FindContactPoint(glm::vec2 centerA, glm::vec2 centerB, fl
 }
 
 //Circle polygon
-void CollisionChecker::FindContactPoint(glm::vec2 centerA, float radA, glm::vec2 polyCenter, glm::vec2 *vertices, glm::vec2 &contact)
+void CollisionChecker::FindContactPoint(glm::vec2 centerA, float radA, glm::vec2 polyCenter, glm::vec2 *vertices, int len, glm::vec2 &contact)
 {
-    int len = sizeof(vertices) / sizeof(glm::vec2);
-
     float minDistSq = std::numeric_limits<float>::infinity();
 
     for (int i = 0; i < len; i++)
@@ -325,11 +326,8 @@ void CollisionChecker::FindContactPoint(glm::vec2 centerA, float radA, glm::vec2
 }
 
 //Polygon polygon
-void CollisionChecker::FindContactPoint(glm::vec2 *verticesA, glm::vec2 *verticesB, glm::vec2 &contact1, glm::vec2 &contact2, int &contactCount)
+void CollisionChecker::FindContactPoint(glm::vec2 *verticesA, int aLen, glm::vec2 *verticesB, int bLen, glm::vec2 &contact1, glm::vec2 &contact2, int &contactCount)
 {
-    int aLen = sizeof(verticesA) / sizeof(glm::vec2);
-    int bLen = sizeof(verticesB) / sizeof(glm::vec2);
-
     float minDistSq = std::numeric_limits<float>::infinity();
 
     //Check for one
@@ -346,7 +344,7 @@ void CollisionChecker::FindContactPoint(glm::vec2 *verticesA, glm::vec2 *vertice
             glm::vec2 testContact;
             PointSegmentDistance(p, va, vb, distanceSquared, testContact);
 
-            if (std::abs(minDistSq - distanceSquared) < NearlyEqual)
+            if (GetNearlyEqual(distanceSquared, minDistSq))
             {
                 if (!GetNearlyEqual(testContact, contact1))
                 {
@@ -370,13 +368,13 @@ void CollisionChecker::FindContactPoint(glm::vec2 *verticesA, glm::vec2 *vertice
         for (int j = 0; j < aLen; j++)
         {
             glm::vec2 va = verticesA[j];
-            glm::vec2 vb = verticesA[(j + 1) % bLen];
+            glm::vec2 vb = verticesA[(j + 1) % aLen];
 
             float distanceSquared;
             glm::vec2 testContact;
             PointSegmentDistance(p, va, vb, distanceSquared, testContact);
 
-            if (std::abs(minDistSq - distanceSquared) < NearlyEqual)
+            if (GetNearlyEqual(distanceSquared, minDistSq))
             {
                 if (!GetNearlyEqual(testContact, contact1))
                 {
@@ -449,8 +447,18 @@ bool CollisionChecker::IntersectAABBs(AABB a, AABB b)
 
 bool CollisionChecker::GetNearlyEqual(glm::vec2 a, glm::vec2 b)
 {
-    return (std::abs(a.x - b.x) < NearlyEqual) && (std::abs(a.y - b.y) < NearlyEqual);
+    float dx = a.x - b.x;
+    float dy = a.y - b.y;
+    float sqrDist = std::sqrt(dx * dx + dy * dy);
+    //return FlatMath.DistanceSquared(a, b) < FlatMath.VerySmallAmount * FlatMath.VerySmallAmount;
+    return sqrDist < NearlyEqual * NearlyEqual;
 }
+
+bool CollisionChecker::GetNearlyEqual(float a, float b)
+{
+    return std::abs(a - b) < NearlyEqual;
+}
+
 
 
 

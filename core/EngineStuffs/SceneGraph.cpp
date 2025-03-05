@@ -254,14 +254,14 @@ void SceneGraph::DoForwardKinematics()
         Transform* obj = mObjPool->poolDir[i];
         if (obj->GetActive())
         {
-            if (obj->toUpdate)
-            {
-                obj->globalPosition = obj->localPosition;
-                obj->globalRotation = obj->localRotation;
-                obj->globalScale = obj->localScale;
+            //if (obj->toUpdate)
+            //{
+            //    obj->globalPosition = obj->localPosition;
+            //    obj->globalRotation = obj->localRotation;
+            //    obj->globalScale = obj->localScale;
 
-                obj->toUpdate = false;
-            }
+            //    obj->toUpdate = false;
+            //}
         } else
         {
             numInactive++;

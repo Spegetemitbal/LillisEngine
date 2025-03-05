@@ -108,6 +108,7 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects)
             glm::vec2 contact1, contact2;
             CollisionChecker::FindContactPoints(bodyA, bodyB, contact1, contact2, contactCount);
             ColManifold cm = ColManifold(bodyA, bodyB, normal, depth, contactCount, contact1, contact2);
+            //ResolveCollisionBasic(cm);
             ResolveCollisionComplex(cm);
         }
     }
@@ -116,13 +117,20 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects)
 
 void PhysicsSystem::SeparateBodies(RigidBody *bodyA, RigidBody *bodyB, const glm::vec2 &mtv)
 {
-    //TODO: If the normal is 0, generate a normal based on last position and continue.
-    if (bodyA->bodyType != RigidBodyType::RB_DYNAMIC)
+    RigidBodyType typeA = bodyA->bodyType;
+    RigidBodyType typeB = bodyB->bodyType;
+
+    if (typeA != RigidBodyType::RB_DYNAMIC && typeB != RigidBodyType::RB_DYNAMIC)
+    {
+        return;
+    }
+
+    if (typeA != RigidBodyType::RB_DYNAMIC)
     {
         bodyB->transform->Translate(mtv);
-    } else if (bodyB->bodyType != RigidBodyType::RB_DYNAMIC)
+    } else if (typeB != RigidBodyType::RB_DYNAMIC)
     {
-        bodyA->transform->Translate(mtv);
+        bodyA->transform->Translate(-mtv);
     } else
     {
         bodyA->transform->Translate(-mtv / 2.0f);
@@ -134,7 +142,7 @@ void PhysicsSystem::SeparateBodies(RigidBody *bodyA, RigidBody *bodyB, const glm
 void PhysicsSystem::ResolveCollisionBasic(ColManifold& contact)
 {
     //Double statics touching would be a guarantee of UH-OH.
-    if (contact.BodyA->bodyType == RigidBodyType::RB_DYNAMIC || contact.BodyB->bodyType == RigidBodyType::RB_DYNAMIC)
+    if (contact.BodyA->bodyType == RigidBodyType::RB_STATIC && contact.BodyB->bodyType == RigidBodyType::RB_STATIC)
     {
         return;
     }
@@ -270,6 +278,7 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
 
         float raPerpDotT = glm::dot(raPerp, tangent);
         float rbPerpDotT = glm::dot(rbPerp, tangent);
+
         float denom = bodyA->invMass + bodyB->invMass +
             (raPerpDotT * raPerpDotT) * bodyA->invInertia +
                 (rbPerpDotT * rbPerpDotT) * bodyB->invInertia;
@@ -300,10 +309,11 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
         glm::vec2 rb = rbList[i];
 
         //TODO: Make a cross product function-
-        bodyA->linearVelocity += -frictionImpulse * bodyA->invMass;
-        bodyA->angularVelocity += -(ra.x * frictionImpulse.y - frictionImpulse.x * ra.y) * bodyA->invInertia;
-        bodyB->linearVelocity += frictionImpulse * bodyB->invMass;
-        bodyB->angularVelocity += (rb.x * frictionImpulse.y - frictionImpulse.x * rb.y) * bodyB->invInertia;
+        // cz = ax * by − ay * bx
+        //bodyA->linearVelocity += -frictionImpulse * bodyA->invMass;
+        //bodyA->angularVelocity += -((ra.x * frictionImpulse.y) - (frictionImpulse.x * ra.y)) * bodyA->invInertia;
+        //bodyB->linearVelocity += frictionImpulse * bodyB->invMass;
+        //bodyB->angularVelocity += ((rb.x * frictionImpulse.y) - (frictionImpulse.x * rb.y)) * bodyB->invInertia;
     }
 }
 

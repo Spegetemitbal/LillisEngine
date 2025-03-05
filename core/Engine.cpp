@@ -153,7 +153,7 @@ void Engine::frameStep()
     ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
     unsigned int numRB = WORLD->getRBActive();
     //TODO: make a double please!
-    engine.physics->PhysicsStep((float)Timing::fixedUpdateTime, rb, numRB,2);
+    engine.physics->PhysicsStep((float)Timing::fixedUpdateTime, rb, numRB,3);
 
     //First run all possible changes, then run hierarchy.
     WORLD->RunTransformHierarchy();
