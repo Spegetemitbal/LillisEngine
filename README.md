@@ -26,3 +26,12 @@ The primary restraints or limitations are optimizations, which many of these sys
 
 4.
 The primary deliverable will be a small generic game that shows every major feature at least once. Along with a walkthrough of various systems of the interface.
+
+CURRENT PROGRESS:
+
+-Audio functionality has been added, however it has been temporarily disabled until a patch with the build settings, pending soon.
+-In-house physics for collisions has been added with base functionality, however there are some significant issues that will require some restructuring, this should be enough for the demo reels at the bare minimum.
+-Prefabs (Called prototypes) have been added, the grouping mechanism/hierarchy is to be changed in an update to the architecture shortly, but they work for now.
+-Tilemaps and other graphical functionalities are the current priority, a restructuring of the graphics pipeline is underway to facilitate the implementation of these features.
+
+The goal currently is to complete features most easily showable on demo reels, and complete actually desired functionality once the pressure is off.
