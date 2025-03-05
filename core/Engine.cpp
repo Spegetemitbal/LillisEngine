@@ -181,14 +181,8 @@ void Engine::renderStep()
 
     ActiveTracker<Sprite*> sprites = WORLD->getSpritesRaw();
     unsigned int lastSpr = WORLD->getSprActive();
-    for (int i = 0; i < lastSpr; i++)
-    {
-        if (sprites[i]->GetActive())
-        {
-            //Might be dereferencing something you shouldn't.
-            engine.graphics->RenderSprite(*sprites[i]);
-        }
-    }
+
+    engine.graphics->RenderCall(sprites, lastSpr);
 
     engine.graphics->PostDraw();
 

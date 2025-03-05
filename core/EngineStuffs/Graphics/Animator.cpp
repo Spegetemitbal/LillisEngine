@@ -174,8 +174,8 @@ void Animator::SwapKeyFrame()
         {
             sprt->frame = kf.fsd.sprFrame;
             sprt->image = kf.fsd.sprImage;
-            sprt->offset = kf.fsd.sprOffset;
-            sprt->renderSize = kf.fsd.sprSize;
+            sprt->Offset() = kf.fsd.sprOffset;
+            sprt->RenderSize() = kf.fsd.sprSize;
         } else
         {
             std::cerr << "Animation requires a functional sprite!" << '\n';

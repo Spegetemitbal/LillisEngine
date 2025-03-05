@@ -22,7 +22,7 @@ public:
 	void Update();
 
 	void PreDraw();
-	void RenderSprite(Sprite& spr);
+	void RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite);
 	void PostDraw();
 
 	//Major allocation, do not use often.
@@ -51,6 +51,8 @@ public:
 	static void error_callback(int error, const char* description);
 
 private:
+
+	std::vector<Sprite*> CullToScreen(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite);
 
 	SpriteRenderer* defaultRenderer;
 	LILLIS::Camera mainCamera;

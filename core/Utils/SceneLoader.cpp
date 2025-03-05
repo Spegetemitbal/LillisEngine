@@ -131,10 +131,10 @@ void SceneLoader::LoadData(const std::string& fileName)
 						{
 							//Add import settings to determine default size later.
 							Texture2D tex = ResourceManager::GetTexture(s->image);
-							s->renderSize = tex.spriteSizes[0];
+							s->setRenderSize(tex.spriteSizes[0]);
 						} else
 						{
-							s->renderSize = {sprWidth, sprHeight};
+							s->setRenderSize({sprWidth, sprHeight});
 						}
 					}
 					if (component == "Animator")

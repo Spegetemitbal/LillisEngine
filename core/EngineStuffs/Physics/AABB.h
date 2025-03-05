@@ -21,6 +21,10 @@ struct AABB {
         this->min = glm::vec2(minX, minY);
         this->max = glm::vec2(maxX, maxY);
     }
+
+    void UpdateBox(glm::vec2 vert[4]);
+
+    static bool Intersect(AABB a, AABB b);
 };
 
 

@@ -9,19 +9,34 @@
 
 #include "../Component.h"
 #include "../Transform.h"
+#include "../Physics/AABB.h"
 
 class Sprite : public Component
 {
 public:
 
-    Sprite() = default;
+    Sprite();
     ~Sprite() = default;
 
     explicit Sprite(const std::string& spr);
 
     std::string image;
-    glm::vec2 offset = glm::vec2(0.0f, 0.0f);
-    glm::vec2 renderSize = glm::vec2(0.0f, 0.0f);
+
+    glm::vec2 Offset() const {return offset;}
+    glm::vec2 RenderSize() const {return renderSize;}
+
+    void setOffset(const glm::vec2& offset)
+    {
+        this->offset = offset;
+        InitVertices();
+    }
+
+    void setRenderSize(const glm::vec2& renderSize)
+    {
+        this->renderSize = renderSize;
+        InitVertices();
+    }
+
     unsigned int frame = 0;
     glm::vec2 getRenderLocation();
     glm::vec2 getRenderCenter();
@@ -31,9 +46,19 @@ public:
     void SetLayer(unsigned int lyr);
 
     LilObj<Transform> transform;
+    AABB getAABB();
 
 private:
     void LazySetTransform();
+
+    void InitVertices();
+    static glm::vec2 transformVertex(glm::vec2 v, glm::vec2 tr, float r);
+
+    glm::vec2 verts[4]{};
+
+    AABB aabb;
+    glm::vec2 offset = glm::vec2(0.0f, 0.0f);
+    glm::vec2 renderSize = glm::vec2(1.0f, 1.0f);
 
     friend class RenderOrder;
     unsigned int layer = 0;

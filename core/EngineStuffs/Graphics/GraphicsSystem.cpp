@@ -1,5 +1,7 @@
 #include "GraphicsSystem.h"
 #include "glad/gl.h"
+#include "../Physics/AABB.h"
+#include <glm/vec4.hpp>
 
 GraphicsSystem::GraphicsSystem(unsigned int width, unsigned int height, std::string name)
 {
@@ -66,15 +68,49 @@ void GraphicsSystem::ShutDown()
 	glfwTerminate();
 }
 
-void GraphicsSystem::RenderSprite(Sprite& spr)
+std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &sprites, unsigned int lastSprite)
 {
-	if (spr.image.empty())
+	std::vector<Sprite *> culledSprites = std::vector<Sprite *>();
+
+	glm::vec4 camAB = mainCamera.getAABB();
+	AABB cameraAABB = {camAB.x, camAB.y, camAB.z, camAB.w};
+
+	for (int i = 0; i < lastSprite; i++)
 	{
-		return;
+		Sprite* spr = sprites[i];
+		if (spr->GetActive())
+		{
+			if (spr->image.empty())
+			{
+				continue;
+			}
+			if (AABB::Intersect(spr->getAABB(), cameraAABB))
+			{
+				culledSprites.push_back(sprites[i]);
+			}
+		}
 	}
-	Texture2D tex = ResourceManager::GetTexture(spr.image);
-	defaultRenderer->DrawSprite(tex, spr.getRenderLocation(), spr.frame,
-		spr.renderSize * spr.getRenderScale(), spr.getRenderRotation());
+
+	return culledSprites;
+}
+
+
+void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite)
+{
+	std::vector<Sprite *> spritesOnScreen = CullToScreen(sprites,lastSprite);
+
+	for (int i = 0; i < spritesOnScreen.size(); i++)
+	{
+		Sprite* spr = spritesOnScreen[i];
+		//Might be dereferencing something you shouldn't.
+		if (spr->image.empty())
+		{
+			return;
+		}
+		Texture2D tex = ResourceManager::GetTexture(spr->image);
+		defaultRenderer->DrawSprite(tex, spr->getRenderLocation(), spr->frame,
+			spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
+	}
 }
 
 void GraphicsSystem::PreDraw()

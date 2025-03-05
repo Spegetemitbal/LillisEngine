@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec4.hpp>
 
 //Exclusively 2D camera for now.
 namespace LILLIS
@@ -27,6 +28,12 @@ namespace LILLIS
 		//float orthoHeight = 6.0f;
 		float aspectRatio = 0;
 
+		inline glm::vec4 getAABB() const
+		{
+			float halfWidth = WIDTH * 0.5f;
+			float halfHeight = HEIGHT * 0.5f;
+			return {position.x - halfWidth, position.y - halfHeight, halfWidth + position.x, halfHeight + position.y};
+		}
 
 		inline glm::mat4 viewMatrix()const {
 			//Simply determine what's in the camera space here.
