@@ -52,8 +52,6 @@ public:
 
 	LilObj<Sprite> addSprite(const std::string& name, unsigned int layer = 0);
 	void setSpriteLayer(Sprite* spr);
-	void doRenderOrder(const std::unordered_set<unsigned int>& toUpdate);
-	void initRenderOrder();
 	ActiveTracker<Sprite*> getSpritesRaw() const { return spritePool->getPool(); };
 	unsigned int getSprActive() { return spritePool->GetActiveLine(); };
 	void compactSprites(int active) {spritePool->CompactPool(active);}

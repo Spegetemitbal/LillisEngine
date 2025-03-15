@@ -8,9 +8,16 @@ public:
 	friend class GraphicsSystem;
 	friend class InputSystem;
 
-	bool InitWindow(unsigned int _width, unsigned int _height, const char* _name)
+	bool InitWindow(unsigned int _width, unsigned int _height, const char* _name, bool isFullScreen)
 	{
-		window = glfwCreateWindow(_width, _height, _name, NULL, NULL);
+		if (isFullScreen)
+		{
+			monitor = glfwGetPrimaryMonitor();
+			window = glfwCreateWindow(_width, _height, _name, monitor, NULL);
+		} else
+		{
+			window = glfwCreateWindow(_width, _height, _name, NULL, NULL);
+		}
 		if (window == NULL)
 		{
 			glfwTerminate();
@@ -25,9 +32,14 @@ public:
 		glfwDestroyWindow(window);
 	}
 
-	LillisWindow(unsigned int _width, unsigned int _height, const char* _name)
+	std::pair<int, int> getWindowSize()
 	{
-		//window = glfwCreateWindow(_width, _height, _name, NULL, NULL);
+		if (monitor == NULL)
+		{
+			return {};
+		}
+		const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+		return {mode->width, mode->height};
 	}
 
 	LillisWindow(const LillisWindow& win) = delete;
@@ -40,6 +52,7 @@ public:
 private:
 
 	GLFWwindow* window = nullptr;
+	GLFWmonitor* monitor = nullptr;
 
 	LillisWindow() {};
 };

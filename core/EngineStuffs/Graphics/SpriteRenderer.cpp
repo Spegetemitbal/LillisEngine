@@ -19,13 +19,12 @@ void SpriteRenderer::initRenderData()
     // configure VAO/VBO
     //Maybe swap to triangle strips for efficiency?
 
-    glGenVertexArrays(1, &this->quadVAO);
+    glCreateVertexArrays(1, &this->quadVAO);
     glGenBuffers(2, VBO);
 
     glBindVertexArray(this->quadVAO);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-
 
     float positions[] = {
         0.0f, 1.0f,
@@ -47,6 +46,8 @@ void SpriteRenderer::initRenderData()
         1.0f, 0.0f
     };
 
+    //float rendValue = 0.0f;
+
     //load positions
     glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
@@ -61,7 +62,7 @@ void SpriteRenderer::initRenderData()
     glBindVertexArray(0);
 }
 
-void SpriteRenderer::DrawSprite(const Texture2D& texture, glm::vec2 position, int frame,
+void SpriteRenderer::DrawSprite(const Texture2D& texture, glm::vec2 position, float renderVal, int frame,
     glm::vec2 size, float rotate, glm::vec3 color)
 {
     // prepare transformations
@@ -78,6 +79,8 @@ void SpriteRenderer::DrawSprite(const Texture2D& texture, glm::vec2 position, in
 
     this->shader.SetMatrix4("model", model);
     this->shader.SetVector3f("spriteColor", color);
+    this->shader.SetFloat("renderValue", renderVal);
+    this->shader.SetInteger("image", 0);
 
     glm::vec4 spriteQuad = texture.spriteLocations[frame];
     float texCoords[] =

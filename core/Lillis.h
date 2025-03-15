@@ -8,4 +8,5 @@
 #include "Utils/Events/CollisionEvent.h"
 #include "Utils/Events/InputEvent.h"
 #include "Utils/LilRandom.h"
+#include "EngineStuffs/Graphics/RenderSettings.h"
 //#include "Utils/Events/CollisionEvent.h"

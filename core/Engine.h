@@ -8,6 +8,7 @@
 #include "Utils/StackAllocator.h"
 #include "Utils/InputSystem.h"
 #include "EngineStuffs/GameObjectManager.h"
+#include "EngineStuffs/Graphics/RenderSettings.h"
 #include "System/System_Common.h"
 #include "Utils/ResourceManager.h"
 
@@ -39,10 +40,16 @@ public:
     std::string CurrentLevel = std::string();
 
     //TODO Split this
-    void Init(int screenWidth, int screenHeight, std::string gameName, std::vector<LILLIS::KeyCode>);
+    void Init(RenderSettings render_settings, std::string gameName, std::vector<LILLIS::KeyCode>);
 
     //Do after loading import data.
     bool InitAudio();
+
+    //TODO: Make better access to graphics and physics system data, this won't cut it. Try dependency injection?
+    const GraphicsSystem& GetGraphicsSystem() const
+    {
+        return *engine.graphics;
+    }
 
     void InjectAssets(const char* filePath, AssetType resourceType);
     void InjectSingleAsset(const char* filePath, AssetType resourceType);

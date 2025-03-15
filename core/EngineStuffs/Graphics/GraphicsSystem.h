@@ -7,22 +7,38 @@
 #include "Camera.h"
 #include "Sprite.h"
 #include "Animator.h"
+#include "RenderSettings.h"
 #include "../GameObject.h"
 
 class GraphicsSystem
 {
 public:
 
-	GraphicsSystem(unsigned int width, unsigned int height, std::string name);
+	GraphicsSystem(RenderSettings render_settings, std::string name);
 	~GraphicsSystem();
 
 	bool Init();
 	void ShutDown();
 
-	void Update();
+	//void Update();
 
 	void PreDraw();
 	void RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite);
+
+	void RunPostProcessing();
+	void AddPostProcess(LILLIS::Shader shader);
+	void RemovePostProcess(LILLIS::Shader shader)
+	{
+		for (int i = 0; i < postProcessChain.size(); i++)
+		{
+			if (postProcessChain[i].ID == shader.ID)
+			{
+				postProcessChain.erase(postProcessChain.begin() + i);
+				break;
+			}
+		}
+	}
+
 	void PostDraw();
 
 	//Major allocation, do not use often.
@@ -49,17 +65,26 @@ public:
 	bool isWindowOpen() { return glfwWindowShouldClose(_win.window); }
 
 	static void error_callback(int error, const char* description);
+	//void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 private:
 
+	unsigned int depthBuffer{}, fbo{}, colorBuffer{};
+	unsigned int postProcessVAO{}, postProcessFBO{}, postProcessColorBuffer{};
+
+	std::vector<LILLIS::Shader> postProcessChain;
+
+	RenderSettings render_settings;
+
 	std::vector<Sprite*> CullToScreen(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite);
 
-	SpriteRenderer* defaultRenderer;
+	SpriteRenderer* defaultRenderer{};
 	LILLIS::Camera mainCamera;
 
 	std::unordered_map<std::string, GLFWcursor*> _cursors;
 
+	float upSprite, downSprite;
+
 	LillisWindow _win;
 	std::string _windowName = "";
-	unsigned int _height = 0, _width = 0;
 };

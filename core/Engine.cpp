@@ -68,7 +68,6 @@ void Engine::SceneLoad(std::string Data)
         WORLD->clearAll();
     }
     SceneLoader::LoadData(Data);
-    WORLD->initRenderOrder();
     WORLD->RunTransformHierarchy();
     ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
     unsigned int numRB = WORLD->getRBActive();
@@ -270,10 +269,10 @@ void Engine::LoadImportData(const char *filePath)
 }
 
 
-void Engine::Init(int screenWidth, int screenHeight, std::string gameName, std::vector<LILLIS::KeyCode> keys)
+void Engine::Init(RenderSettings render_settings, std::string gameName, std::vector<LILLIS::KeyCode> keys)
 {
 
-    engine.graphics = DBG_NEW GraphicsSystem(screenWidth, screenHeight, gameName);
+    engine.graphics = DBG_NEW GraphicsSystem(render_settings, gameName);
     if (!engine.graphics->Init())
     {
         exit(1);

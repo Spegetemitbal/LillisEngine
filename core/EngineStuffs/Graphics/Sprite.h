@@ -45,6 +45,8 @@ public:
     unsigned int getLayer() const {return layer;}
     void SetLayer(unsigned int lyr);
 
+    float getRenderValue() const {return renderValue;}
+
     LilObj<Transform> transform;
     AABB getAABB();
 
@@ -61,6 +63,9 @@ private:
     glm::vec2 renderSize = glm::vec2(1.0f, 1.0f);
 
     friend class RenderOrder;
+
+    float renderValue = 0.0f;
+
     unsigned int layer = 0;
 };
 

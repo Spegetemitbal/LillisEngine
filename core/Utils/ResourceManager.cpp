@@ -123,9 +123,17 @@ Shader ResourceManager::loadDefaultPipeline()
     const char* fShaderCode = pipeline.fragment.c_str();
     //const char* gShaderCode = pipeline.geometry.c_str();
 
+    const char* vppShaderCode = pipeline.postProcessVertex.c_str();
+    const char* fppShaderCode = pipeline.postProcessFragment.c_str();
+
     Shader shader;
     shader.Compile(vShaderCode, fShaderCode, nullptr);
     Shaders["Default"] = shader;
+
+    Shader postProc;
+    postProc.Compile(vppShaderCode, fppShaderCode, nullptr);
+    Shaders["DefaultPostProcess"] = postProc;
+
     return Shaders["Default"];
 }
 

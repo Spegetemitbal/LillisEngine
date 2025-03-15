@@ -139,7 +139,6 @@ void GameObjectManager::clearAll()
 		spritePool->ClearPool();
 		animatorPool->ClearPool();
 		behaviors->ClearPool();
-		renderOrder->Clear();
 		numObjects = 0;
 	}
 	//sprites.clear();
@@ -192,16 +191,6 @@ void GameObjectManager::RemoveObjectParent(LilObj<GameObject> child, bool inacti
 void GameObjectManager::RunTransformHierarchy()
 {
 	return sceneGraph->DoForwardKinematics();
-}
-
-void GameObjectManager::doRenderOrder(const std::unordered_set<unsigned int>& toUpdate)
-{
-	renderOrder->OrderByAxis(toUpdate);
-}
-
-void GameObjectManager::initRenderOrder()
-{
-	renderOrder->OrderAll();
 }
 
 

@@ -42,7 +42,7 @@ namespace LILLIS
 		inline glm::mat4 projectionMatrix()const {
 			float halfWidth = WIDTH * 0.5f;
 			float halfHeight = HEIGHT * 0.5f;
-			glm::mat4 view = glm::ortho(position.x - halfWidth, halfWidth + position.x, halfHeight + position.y, position.y - halfHeight, -1.0f, 1.0f);
+			glm::mat4 view = glm::ortho(position.x - halfWidth, halfWidth + position.x, halfHeight + position.y, position.y - halfHeight, 10.0f, 20.0f);
 			view[1][1] *= -1.0f;
 			return view;
 		}

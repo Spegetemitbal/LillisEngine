@@ -19,22 +19,18 @@ public:
     ~RenderOrder() = default;
     explicit RenderOrder(ComponentPool<Sprite>* sprPool) {spritePool = sprPool;}
 
-    void OrderByAxis(const std::unordered_set<unsigned int>& toUpdate);
-    void OrderAll();
+    static void CalculateOrder(std::vector<Sprite*>& spritesOnScreen, const float& up, const float& down);
 
-    void SetRenderAxis(glm::vec2 ax)
+    //Currently only supporting upwards axis
+    static void SetRenderAxis(bool axUp)
     {
-        if (ax == glm::vec2(0))
+        if (axUp && highestLayer < maxLayers)
         {
-            axis = ax;
-            return;
+            axis = {0,1};
+        } else
+        {
+            axis = {};
         }
-        axis = glm::normalize(ax);
-    }
-
-    void Clear()
-    {
-        sorted = false;
     }
 
     void MoveSprite(LilObj<Sprite> spr);
@@ -42,15 +38,16 @@ private:
     int compareAxis(Sprite* const &spr1, Sprite* const &spr2);
     ComponentPool<Sprite>* spritePool;
     std::vector<unsigned int> layerIndices;
-    glm::vec2 axis;
 
-    //Determines if the level has been loaded or not. To stop OrderByAxis from causing errors.
-    bool sorted = false;
+    static inline glm::vec2 axis;
+    static inline unsigned int highestLayer = 0;
 
-    //include low and high
-    int Partition(int low, int high);
-    void RenderSort(int low, int high);
-    void SingleSort(int low, int high, std::unordered_set<unsigned int> toUpdate);
+    //A quick safety feature.
+    //TODO: add engine settings to change the precision.
+    const static inline unsigned int maxLayers = 20;
+    const static inline float NEAR_PLANE = 10.0f;
+    const static inline float FAR_PLANE = 20.0f;
+    const static inline float AXIS_BUFFER = 0.98f;
 };
 
 

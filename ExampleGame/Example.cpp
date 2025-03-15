@@ -45,7 +45,9 @@ int main(int argc, char* argv[])
 		LILLIS::W, LILLIS::S, LILLIS::A, LILLIS::D, LILLIS::ESC
 	};
 
-	e->Init(640, 480, "Game", importantKeys);
+	RenderSettings renderSettings = RenderSettings(640, 480, 1280, 960);
+
+	e->Init(renderSettings, "Game", importantKeys);
 
 	EventSystem* events = EventSystem::getInstance();
 	events->addCallback((EventType)COLLISION_EVENT ,handleEvent);

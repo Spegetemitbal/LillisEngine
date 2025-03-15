@@ -85,57 +85,55 @@ void RenderOrder::MoveSprite(LilObj<Sprite> spr)
     int ly = -1;
     for (int i = 0; i < spritePool->activeLine; i++)
     {
-        if (spritePool->poolDir[i]->getLayer() > ly)
+        int sprLayer = spritePool->poolDir[i]->getLayer();
+        if (sprLayer > ly)
         {
             ly++;
             layerIndices.push_back(i);
         }
     }
+    highestLayer = ly;
+    if (highestLayer >= maxLayers)
+    {
+        SetRenderAxis(false);
+    }
     layerIndices.push_back(spritePool->activeLine);
-
-    OrderByAxis({spr->thisObject.GetID()});
 }
 
-//Assumes an ordered setup.
-void RenderOrder::OrderByAxis(const std::unordered_set<unsigned int>& toUpdate)
+//Get Crackin.
+void RenderOrder::CalculateOrder(std::vector<Sprite*>& spritesOnScreen, const float& up, const float& down)
 {
-    if (axis == glm::vec2(0) || !sorted)
+    float dist = up - down, invDist = 1 / dist;
+    float planeDist = FAR_PLANE - NEAR_PLANE;
+
+    float layerDif;
+
+    if (highestLayer == -1)
     {
-        return;
+        layerDif = 0;
+    } else
+    {
+        layerDif = planeDist / ((float)highestLayer + 1);
     }
 
-    if (toUpdate.size() / spritePool->poolDir.size() > 0.75)
+    for (auto spr : spritesOnScreen)
     {
-        OrderAll();
-        return;
-    }
-
-    for (int i = 0; i < layerIndices.size() - 1; i++)
-    {
-        if (layerIndices[i] < layerIndices[i + 1] + 1)
+        spr->renderValue = FAR_PLANE - (layerDif * (float)spr->layer);
+        if (axis != glm::vec2(0))
         {
-            SingleSort(layerIndices[i], layerIndices[i + 1] - 1, toUpdate);
+            //Basically just inverse LERP.
+            float toAdd = (up - spr->getRenderLocation().y) * invDist;
+            if (layerDif > 0)
+            {
+                toAdd *= layerDif;
+            } else
+            {
+                toAdd *= planeDist;
+            }
+            toAdd *= AXIS_BUFFER;
+            spr->renderValue -= toAdd;
         }
     }
-}
-
-//Assumes an entirely unordered setup.
-void RenderOrder::OrderAll()
-{
-    if (layerIndices.empty())
-    {
-        return;
-    }
-
-    //Sort once for each sorting layer!
-    for (int i = 0; i < layerIndices.size() - 1; i++)
-    {
-        if (layerIndices[i] < layerIndices[i + 1] + 1)
-        {
-            RenderSort(layerIndices[i], layerIndices[i + 1] - 1);
-        }
-    }
-    sorted = true;
 }
 
 //If spr1 is further along the axis than spr2 (rendered later), dist will be negative. Return 1
@@ -153,150 +151,6 @@ int RenderOrder::compareAxis(Sprite* const &spr1, Sprite* const &spr2)
         return -1;
     }
     return 0;
-}
-
-int RenderOrder::Partition(int low, int high)
-{
-    // Selecting last element as the pivot
-    Sprite* pivot = spritePool->poolDir[high];
-
-    // Index of elemment just before the last element
-    // It is used for swapping
-    int i = (low - 1);
-
-    for (int j = low; j <= high - 1; j++) {
-
-        //If 1 is further along, send it back
-        if (compareAxis(spritePool->poolDir[j], pivot) >= 0)
-        {
-            i++;
-            spritePool->SwapObjects(spritePool->poolDir[i], spritePool->poolDir[j]);
-        }
-    }
-
-    // Put pivot to its position
-    spritePool->SwapObjects(spritePool->poolDir[i + 1], spritePool->poolDir[high]);
-
-    // Return the point of partition
-    return (i + 1);
-}
-
-void RenderOrder::RenderSort(int low, int high)
-{
-    if (low < high) {
-
-        int pi = Partition(low, high);
-
-        RenderSort(low, pi - 1);
-        RenderSort(pi + 1, high);
-    }
-}
-
-//For each marked item in need of sorting, moves to correct spot while ignoring other marked items.
-//Then unmarks itself.
-void RenderOrder::SingleSort(int low, int high, std::unordered_set<unsigned int> toUpdate)
-{
-    for (int i = low; i <= high; i++)
-    {
-        //Check if item is marked.
-        if (toUpdate.contains(spritePool->poolDir[i]->entityID))
-        {
-            bool goingLeft = false, goingRight = false;
-            int viableLeft = -1, viableRight = -1;
-
-            //First check if there are any unmarked things in each direction.
-            for (int j = i + 1; j <= high; j++)
-            {
-                if (!toUpdate.contains(spritePool->poolDir[j]->entityID))
-                {
-                    viableRight = j;
-                    break;
-                }
-            }
-            for (int j = i - 1; j >= low; j--)
-            {
-                if (!toUpdate.contains(spritePool->poolDir[j]->entityID))
-                {
-                    viableLeft = j;
-                    break;
-                }
-            }
-
-            if (viableLeft >= 0 || viableRight >= 0)
-            {
-                //Determine direction
-                if (viableLeft >= 0)
-                {
-                    goingLeft = compareAxis(spritePool->poolDir[i], spritePool->poolDir[viableLeft]) == 1;
-                }
-                if (viableRight >= 0)
-                {
-                    goingRight = compareAxis(spritePool->poolDir[i], spritePool->poolDir[viableRight]) == -1;
-                }
-
-                //Scoot in that direction
-                int toMove = i;
-                int nextMove;
-                if (goingLeft)
-                {
-                    nextMove = viableLeft;
-                    while (nextMove != toMove)
-                    {
-                        //Determine if the next place to move is out of order.
-                        if (compareAxis(spritePool->poolDir[toMove], spritePool->poolDir[nextMove]) == 1)
-                        {
-                            spritePool->SwapObjects(spritePool->poolDir[toMove], spritePool->poolDir[nextMove]);
-                            toMove = nextMove;
-                        } else
-                        {
-                            break;
-                        }
-
-                        //Find next viable place
-                        int nextCheck = nextMove;
-                        while (nextCheck >= low)
-                        {
-                            nextCheck--;
-                            if (!toUpdate.contains(spritePool->poolDir[nextCheck]->entityID))
-                            {
-                                nextMove = nextCheck;
-                                break;
-                            }
-                        }
-                    }
-                } else if (goingRight)
-                {
-                    nextMove = viableRight;
-                    while (nextMove != toMove)
-                    {
-                        //Determine if the next place to move is out of order.
-                        if (compareAxis(spritePool->poolDir[toMove], spritePool->poolDir[nextMove]) == -1)
-                        {
-                            spritePool->SwapObjects(spritePool->poolDir[toMove], spritePool->poolDir[nextMove]);
-                            toMove = nextMove;
-                        } else
-                        {
-                            break;
-                        }
-
-                        //Find next viable place
-                        int nextCheck = nextMove;
-                        while (nextCheck <= high)
-                        {
-                            nextCheck++;
-                            if (!toUpdate.contains(spritePool->poolDir[nextCheck]->entityID))
-                            {
-                                nextMove = nextCheck;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            toUpdate.erase(spritePool->poolDir[i]->entityID);
-        }
-    }
 }
 
 
