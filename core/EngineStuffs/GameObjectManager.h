@@ -5,6 +5,7 @@
 #include "Behaviors/BehaviorSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Graphics/GraphicsSystem.h"
+#include "UI/UIObject.h"
 
 class GameObject;
 class GameObjPool;

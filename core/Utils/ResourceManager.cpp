@@ -126,6 +126,8 @@ Shader ResourceManager::loadDefaultPipeline()
     const char* vppShaderCode = pipeline.postProcessVertex.c_str();
     const char* fppShaderCode = pipeline.postProcessFragment.c_str();
 
+    const char* uiVertexCode = pipeline.uiVertex.c_str();
+
     Shader shader;
     shader.Compile(vShaderCode, fShaderCode, nullptr);
     Shaders["Default"] = shader;
@@ -133,6 +135,10 @@ Shader ResourceManager::loadDefaultPipeline()
     Shader postProc;
     postProc.Compile(vppShaderCode, fppShaderCode, nullptr);
     Shaders["DefaultPostProcess"] = postProc;
+
+    Shader uiShader;
+    uiShader.Compile(uiVertexCode, fShaderCode, nullptr);
+    Shaders["DefaultUI"] = uiShader;
 
     return Shaders["Default"];
 }

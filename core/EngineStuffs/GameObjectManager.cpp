@@ -3,6 +3,7 @@
 #include "MemoryManagement/GameObjPool.h"
 #include "SceneGraph.h"
 #include "Graphics/RenderOrder.h"
+#include "UI/UISystem.h"
 
 GameObjectManager::GameObjectManager()
 {
@@ -139,6 +140,7 @@ void GameObjectManager::clearAll()
 		spritePool->ClearPool();
 		animatorPool->ClearPool();
 		behaviors->ClearPool();
+		UISystem::getInstance()->clearUIObjects();
 		numObjects = 0;
 	}
 	//sprites.clear();

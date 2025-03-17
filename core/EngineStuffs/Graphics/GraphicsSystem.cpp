@@ -92,7 +92,9 @@ bool GraphicsSystem::Init()
 	ResourceManager::GetShader("Default").Use().SetInteger("image", 0);
 	ResourceManager::GetShader("Default").SetMatrix4("projection", mainCamera.projectionMatrix());
 	// set render-specific controls
-	defaultRenderer = DBG_NEW SpriteRenderer(ResourceManager::GetShader("Default"));
+	SpriteRenderer::setDefaultShader(ResourceManager::GetShader("Default"));
+	SpriteRenderer::setDefaultUIShader(ResourceManager::GetShader("DefaultUI"));
+	SpriteRenderer::initRenderData();
 	// load textures
 
 	//Beep beep I'm a sheep
@@ -115,7 +117,7 @@ void GraphicsSystem::ShutDown()
 	{
 		glDeleteFramebuffers(1, &postProcessFBO);
 	}
-	delete defaultRenderer;
+	SpriteRenderer::shutdownRenderData();
 	_win.DelWindow();
 	glfwTerminate();
 }
@@ -177,7 +179,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 			throw;
 		}
 		Texture2D tex = ResourceManager::GetTexture(spr->image);
-		defaultRenderer->DrawSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), spr->frame,
+		SpriteRenderer::DrawSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), spr->frame,
 			spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
 	}
 

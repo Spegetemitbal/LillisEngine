@@ -24,6 +24,14 @@ public:
 			"void main(){ TexCoords = texCoord;"
 			"gl_Position = projection * model * vec4(vertex.xy, -renderValue, 1.0);}");
 
+		uiVertex = std::string(
+			"#version 450\n"
+			"layout(location = 0) in vec2 vertex;" // <vec2 position, vec2 texCoords>
+			"layout(location = 1) in vec2 texCoord;"
+			"out vec2 TexCoords;"
+			"void main(){ TexCoords = texCoord;"
+			"gl_Position = vec4(vertex.xy, 0.0, 1.0);}");
+
 		postProcessVertex = std::string(
 			"#version 450\n"
 			"out vec2 UV;"
@@ -42,6 +50,8 @@ public:
 	std::string fragment;
 	std::string vertex;
 	std::string geometry;
+
+	std::string uiVertex;
 
 	std::string postProcessVertex;
 	std::string postProcessFragment;

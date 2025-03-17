@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 #include "EngineStuffs/Audio/AudioSystem.h"
+#include "EngineStuffs/UI/UISystem.h"
 #include "Utils/ResourceLoader.h"
 #include "Utils/Timing.h"
 
@@ -183,6 +184,8 @@ void Engine::renderStep()
 
     engine.graphics->RenderCall(sprites, lastSpr);
 
+    UISystem::getInstance()->RenderUI();
+
     engine.graphics->PostDraw();
 
     //End of Frame Garbage collection
@@ -284,6 +287,8 @@ void Engine::Init(RenderSettings render_settings, std::string gameName, std::vec
     Timing::Init();
 
     WORLD = DBG_NEW GameObjectManager();
+
+    UISystem* uiSys = UISystem::createInstance(render_settings);
 }
 
 

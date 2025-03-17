@@ -3,3 +3,11 @@
 //
 
 #include "UIObject.h"
+
+#include "UISystem.h"
+
+void UIObject::SetLayer(unsigned int lyr)
+{
+    layer = lyr;
+    UISystem::getInstance()->UpdateUILayer(this);
+}

@@ -163,6 +163,7 @@ public:
 		friend class RenderOrder;
 		friend class SpatialPartitioner;
 		friend class SceneGraph;
+		friend class UIRenderer;
 
 		unsigned int FindObjectIndex(Comp* g)
 		{

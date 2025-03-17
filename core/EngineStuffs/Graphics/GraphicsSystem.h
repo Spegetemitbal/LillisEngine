@@ -78,7 +78,6 @@ private:
 
 	std::vector<Sprite*> CullToScreen(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite);
 
-	SpriteRenderer* defaultRenderer{};
 	LILLIS::Camera mainCamera;
 
 	std::unordered_map<std::string, GLFWcursor*> _cursors;

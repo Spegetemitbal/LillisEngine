@@ -9,6 +9,7 @@
 
 #include "Prototype.h"
 #include "StaticDataManager.h"
+#include "EngineStuffs/UI/UISystem.h"
 
 #ifndef WORLD
 #define WORLD GameObjectManager::world
@@ -219,6 +220,13 @@ void SceneLoader::LoadData(const std::string& fileName)
 			stream >> y;
 			stream >> rot;
 			Prototype::CreatePrototype(name, {x,y}, rot);
+		} else if (word == "UIObject")
+		{
+			std::string name, image;
+			unsigned int layer, frame;
+			float renderPosX, renderPosY, screenPosX, screenPosY;
+			UISystem::getInstance()->addUIObject(name, image, frame, layer, {screenPosX, screenPosY},
+				{renderPosX, renderPosY});
 		}
 	}
 
