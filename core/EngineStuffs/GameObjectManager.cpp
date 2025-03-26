@@ -31,6 +31,10 @@ GameObjectManager::~GameObjectManager()
 	delete rigidBodyPool;
 	delete colliderPool;
 	delete behaviors;
+	if (worldGrid != nullptr)
+	{
+		delete worldGrid;
+	}
 }
 
 LilObj<GameObject> GameObjectManager::addObject(const std::string& name)
@@ -199,5 +203,54 @@ void GameObjectManager::RunTransformHierarchy()
 ActiveTracker<GameObject*> GameObjectManager::getObjectsRaw() const { return objects->getPool(); };
 unsigned int GameObjectManager::getObjActive() const { return objects->GetActiveLine(); };
 void GameObjectManager::compactObjects(int active) const {objects->CompactPool(active);}
+
+TileGrid *GameObjectManager::createTileGrid(GridShape tileShape, glm::vec2 tileSize)
+{
+	if (tileSize.x < 1)
+	{
+		tileSize.x = 1;
+	}
+	if (tileSize.y < 1)
+	{
+		tileSize.y = 1;
+	}
+
+	TileGrid* tg = DBG_NEW TileGrid(tileShape, tileSize);
+
+	if (worldGrid != nullptr)
+	{
+		delete worldGrid;
+		for (auto tm : tileMaps)
+		{
+			tm.setTileGrid(tg);
+		}
+	}
+
+	worldGrid = tg;
+	return worldGrid;
+}
+
+TileMap *GameObjectManager::createTileMap(TileSet tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions)
+{
+	if (dimensions.first < 5)
+	{
+		dimensions.first = 5;
+	}
+	if (dimensions.second < 5)
+	{
+		dimensions.second = 5;
+	}
+
+	if (worldGrid == nullptr)
+	{
+		std::cerr << "No world grid found!" << std::endl;
+		return nullptr;
+	}
+
+	tileMaps.emplace_back(worldGrid, tileSet, gridIndex, dimensions);
+	return &tileMaps.back();
+}
+
+
 
 //GameObjectManager* GameObjectManager::world = nullptr;

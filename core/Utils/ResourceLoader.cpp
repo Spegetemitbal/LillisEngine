@@ -30,6 +30,9 @@ void ResourceLoader::LoadProjectInfo(const char* path)
         } else if (word == "STATEMACHINE")
         {
             StaticDataManager::LoadStateObject(stream);
+        } else if (word == "TILESET")
+        {
+            StaticDataManager::LoadTileSet(stream);
         }
     }
     stream.close();

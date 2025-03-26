@@ -8,6 +8,7 @@
 std::map<std::string, TexImportData> StaticDataManager::SpriteInfo = std::map<std::string, TexImportData>();
 std::map<std::string, Animation> StaticDataManager::Animations = std::map<std::string, Animation>();
 std::map<std::string, StateObject> StaticDataManager::StateObjects = std::map<std::string, StateObject>();
+std::map<std::string, TileSet> StaticDataManager::TileSets = std::map<std::string, TileSet>();
 std::string StaticDataManager::SettingsFileName;
 
 void StaticDataManager::LoadStateObject(std::ifstream& file)
@@ -184,5 +185,31 @@ void StaticDataManager::LoadSpriteInfo(std::ifstream& file)
     } else if (importType == "WindowImage")
     {
         SpriteInfo[name].spriteType = SPR_WINDOW_IMAGE;
+    }
+}
+
+void StaticDataManager::LoadTileSet(std::ifstream &file)
+{
+    char symbol;
+    int conversionSymbol, frame, numTiles;
+    std::string image, setName;
+    float height;
+
+    file >> setName;
+
+    TileSets.emplace(setName, TileSet());
+
+    file >> numTiles;
+
+    for (int i = 0; i < numTiles; i++)
+    {
+        file >> symbol;
+        file >> conversionSymbol;
+        file >> image;
+        file >> frame;
+        file >> height;
+
+        TileSets[setName].inputConversion.emplace(symbol, conversionSymbol);
+        TileSets[setName].tileSet.emplace_back(image, height, frame);
     }
 }

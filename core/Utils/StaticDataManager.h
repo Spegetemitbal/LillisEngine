@@ -7,6 +7,8 @@
 
 #include <glm/vec2.hpp>
 
+#include "../EngineStuffs/Tilemaps/TileMap.h"
+
 class Animation;
 class StateObject;
 
@@ -32,11 +34,13 @@ public:
     static std::map<std::string, StateObject> StateObjects;
     static std::map<std::string, Animation> Animations;
     static std::map<std::string, TexImportData> SpriteInfo;
+    static std::map<std::string, TileSet> TileSets;
     static std::string SettingsFileName;
 
     static void LoadStateObject(std::ifstream& file);
     static void LoadAnimation(std::ifstream& file);
     static void LoadSpriteInfo(std::ifstream& file);
+    static void LoadTileSet(std::ifstream& file);
     //void LoadPrefab(std::ifstream& file);
 
 private:

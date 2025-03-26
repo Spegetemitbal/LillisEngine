@@ -6,6 +6,8 @@
 #include "Physics/PhysicsSystem.h"
 #include "Graphics/GraphicsSystem.h"
 #include "UI/UIObject.h"
+#include "Tilemaps/TileGrid.h"
+#include "Tilemaps/TileMap.h"
 
 class GameObject;
 class GameObjPool;
@@ -69,8 +71,15 @@ public:
 
 	//A flyweight should be implemented here soon.
 	//std::vector<Texture2D> sprites = std::vector<Texture2D>();
+	TileMap* createTileMap(TileSet tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions);
+	TileGrid* createTileGrid(GridShape tileShape, glm::vec2 tileSize);
+	std::vector<TileMap>& getTileMaps() { return tileMaps; }
+	TileGrid* getTileGrid() const {return worldGrid;};
 
 private:
+
+	TileGrid* worldGrid = nullptr;
+	std::vector<TileMap> tileMaps;
 
 	//For now these are tightly bound.
 	GameObjPool* objects;

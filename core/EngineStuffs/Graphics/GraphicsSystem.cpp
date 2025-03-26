@@ -161,10 +161,40 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 }
 
 
-void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite)
+void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite, std::vector<TileMap>& tile_maps)
 {
 	//Do broad phase, cull all sprites not on screen.
 	std::vector<Sprite *> spritesOnScreen = CullToScreen(sprites,lastSprite);
+
+	glm::vec4 camRect = mainCamera.getAABB();
+	AABB camAABB = {camRect.x, camRect.y, camRect.z, camRect.w};
+
+	//Cull all tilemaps on screen.
+	for (auto tMap: tile_maps)
+	{
+		if (tMap.active)
+		{
+			glm::vec2 cullVals = tMap.CullMap(camAABB);
+			if (cullVals.x < downSprite)
+			{
+				downSprite = cullVals.x;
+			}
+			if (cullVals.y > upSprite)
+			{
+				upSprite = cullVals.y;
+			}
+		}
+	}
+
+	//Do the same for tiles
+	//MAKE SURE THIS IS ALWAYS CALLED BEFORE OTHER CALCULATE ORDER... or you might have 1 goofy frame?
+	for (auto tMap: tile_maps)
+	{
+		if (tMap.active)
+		{
+			RenderOrder::CalculateTileOrder(&tMap, upSprite, downSprite);
+		}
+	}
 
 	//Set the relevant depth values
 	RenderOrder::CalculateOrder(spritesOnScreen, upSprite, downSprite);
@@ -181,6 +211,27 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 		Texture2D tex = ResourceManager::GetTexture(spr->image);
 		SpriteRenderer::DrawSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), spr->frame,
 			spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
+	}
+
+	for (auto tMap: tile_maps)
+	{
+		if (tMap.active)
+		{
+			glm::vec2 renderSize = tMap.getTileSize();
+			for (int i = 0; i < tMap.tilesToRender.size(); i++)
+			{
+				TileLoc t = tMap.tilesToRender[i];
+				std::string img = tMap.getImageFromIndex(t.tile);
+				unsigned int frm = tMap.getFrameFromIndex(t.tile);
+				if (img.empty())
+				{
+					throw;
+				}
+				Texture2D tex = ResourceManager::GetTexture(img);
+				SpriteRenderer::DrawSprite(tex, t.worldPos, t.zVal, frm,
+					renderSize, 0);
+			}
+		}
 	}
 
 	RunPostProcessing();

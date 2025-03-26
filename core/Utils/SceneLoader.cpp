@@ -10,6 +10,7 @@
 #include "Prototype.h"
 #include "StaticDataManager.h"
 #include "EngineStuffs/UI/UISystem.h"
+#include "EngineStuffs/Tilemaps/TileMap.h"
 
 #ifndef WORLD
 #define WORLD GameObjectManager::world
@@ -227,6 +228,57 @@ void SceneLoader::LoadData(const std::string& fileName)
 			float renderPosX, renderPosY, screenPosX, screenPosY;
 			UISystem::getInstance()->addUIObject(name, image, frame, layer, {screenPosX, screenPosY},
 				{renderPosX, renderPosY});
+		} else if (word == "Grid")
+		{
+			std::string shape;
+			float x, y;
+
+			GridShape gridShape = GRID_RECTANGULAR;
+			stream >> shape;
+			if (shape == "Isometric")
+			{
+				gridShape = GRID_ISOMETRIC;
+			} else if (shape == "Hexagonal")
+			{
+				gridShape = GRID_HEXAGON;
+			}
+
+			stream >> x;
+			stream >> y;
+
+			WORLD->createTileGrid(gridShape, {x,y});
+		} else if (word == "TileMap")
+		{
+			TileGrid* tileGrid = WORLD->getTileGrid();
+			if (tileGrid == nullptr)
+			{
+				std::cerr << "Tile Grid does not exist to put on tilemap" << std::endl;
+				throw;
+			}
+
+			int width, height, gridX, gridY;
+			char input;
+			std::string tileSetName;
+
+			stream >> tileSetName;
+			stream >> gridX;
+			stream >> gridY;
+			stream >> width;
+			stream >> height;
+
+			TileSet set = StaticDataManager::TileSets[tileSetName];
+
+			TileMap* map = WORLD->createTileMap(set,
+				{gridX,gridY}, {width,height});
+
+			for (int y = 0; y < height; y++)
+			{
+				for (int x = 0; x < width; x++)
+				{
+					stream >> input;
+					map->setTile({x,y}, input);
+				}
+			}
 		}
 	}
 

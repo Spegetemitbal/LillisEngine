@@ -12,6 +12,7 @@
 #include "../MemoryManagement/ComponentPool.h"
 
 class Sprite;
+class TileMap;
 
 class RenderOrder {
 public:
@@ -20,6 +21,7 @@ public:
     explicit RenderOrder(ComponentPool<Sprite>* sprPool) {spritePool = sprPool;}
 
     static void CalculateOrder(std::vector<Sprite*>& spritesOnScreen, const float& up, const float& down);
+    static void CalculateTileOrder(TileMap* tileMap, const float& up, const float& down);
 
     //Currently only supporting upwards axis
     static void SetRenderAxis(bool axUp)

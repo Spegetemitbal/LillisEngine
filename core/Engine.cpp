@@ -182,7 +182,7 @@ void Engine::renderStep()
     ActiveTracker<Sprite*> sprites = WORLD->getSpritesRaw();
     unsigned int lastSpr = WORLD->getSprActive();
 
-    engine.graphics->RenderCall(sprites, lastSpr);
+    engine.graphics->RenderCall(sprites, lastSpr, WORLD->getTileMaps());
 
     UISystem::getInstance()->RenderUI();
 

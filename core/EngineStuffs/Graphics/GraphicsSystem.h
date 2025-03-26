@@ -9,6 +9,7 @@
 #include "Animator.h"
 #include "RenderSettings.h"
 #include "../GameObject.h"
+#include "../Tilemaps/TileMap.h"
 
 class GraphicsSystem
 {
@@ -23,7 +24,7 @@ public:
 	//void Update();
 
 	void PreDraw();
-	void RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite);
+	void RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite, std::vector<TileMap>& tile_maps);
 
 	void RunPostProcessing();
 	void AddPostProcess(LILLIS::Shader shader);
