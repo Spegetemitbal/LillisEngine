@@ -199,9 +199,21 @@ Texture2D ResourceManager::loadTextureFromFile(const char* name,const char* file
             }
             break;
         case SPR_MANUAL:
+            for (int i = 0; i < importData.data.size(); i++)
+            {
+                glm::vec2 startPos = importData.data[i].second;
+                glm::vec2 sizes = importData.data[i].first;
+                glm::vec2 endPos = startPos + sizes;
+                texture.spriteLocations.emplace_back(startPos.x, endPos.x, startPos.y, endPos.y);
+                texture.spriteSizes.push_back(sizes);
+            }
+            break;
+        default:
             break;
     }
 
+    //Each texture import data is only ever used once.
+    StaticDataManager::SpriteInfo.erase(name);
     return texture;
 }
 

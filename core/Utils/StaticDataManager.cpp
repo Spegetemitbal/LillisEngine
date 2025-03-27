@@ -178,7 +178,23 @@ void StaticDataManager::LoadSpriteInfo(std::ifstream& file)
         SpriteInfo[name].height = height;
     } else if (importType == "Manual")
     {
-        std::cout << "Manual size spritesheet not implemented yet, ending load";
+        int numSprites, totalWidth, totalHeight;
+        float xPos, yPos, width, height;
+        file >> numSprites;
+        file >> totalWidth;
+        file >> totalHeight;
+        SpriteInfo[name].spriteType = SPR_MANUAL;
+        SpriteInfo[name].numSprites = numSprites;
+        SpriteInfo[name].width = totalWidth;
+        SpriteInfo[name].height = totalHeight;
+        for (int i = 0; i < numSprites; i++)
+        {
+            file >> xPos;
+            file >> yPos;
+            file >> width;
+            file >> height;
+            SpriteInfo[name].data.push_back({{width, height},{xPos,yPos}});
+        }
     } else if (importType == "Cursor")
     {
         SpriteInfo[name].spriteType = SPR_CURSOR;
