@@ -109,7 +109,7 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects)
             CollisionChecker::FindContactPoints(bodyA, bodyB, contact1, contact2, contactCount);
             ColManifold cm = ColManifold(bodyA, bodyB, normal, depth, contactCount, contact1, contact2);
             //ResolveCollisionBasic(cm);
-            ResolveCollisionComplex(cm);
+            ResolveCollisionBasic(cm);
         }
     }
 }
