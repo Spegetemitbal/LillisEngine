@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Utils/FileDataWrapper.h"
-
-class ma_engine;
-class ma_sound;
+#define MINIAUDIO_IMPLEMENTATION
+#include "miniaudio.h"
 
 class AudioSystem
 {

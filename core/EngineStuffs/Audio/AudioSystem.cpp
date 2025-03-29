@@ -3,8 +3,6 @@
 //
 
 #include "AudioSystem.h"
-#define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
 #include "Utils/ResourceManager.h"
 
 AudioSystem* AudioSystem::instance = nullptr;

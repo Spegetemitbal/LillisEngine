@@ -11,7 +11,6 @@ file(
         *.cpp
 )
 
-
 add_library(LillisLib SHARED ${CORE_INC} ${CORE_SRC})
 
 # if (WIN32) remove System/System_Win32.cpp and System/System_Win32.h
@@ -25,7 +24,7 @@ find_package(OpenGL REQUIRED)
 
 target_include_directories(LillisLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(
-        LillisLib PUBLIC glm glfw glad
+        LillisLib PUBLIC glm glfw glad miniaudio
 )
 
 target_precompile_headers(LillisLib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/pch.h)
