@@ -37,9 +37,7 @@ void AudioSystem::destroyInstance()
 
 bool AudioSystem::Init()
 {
-    ma_result result;
-
-    result = ma_engine_init(nullptr, soundEngine);
+    ma_result result = ma_engine_init(nullptr, &soundEngine);
     if (result != MA_SUCCESS) {
         return false;  // Failed to initialize the engine.
     }
@@ -58,7 +56,7 @@ bool AudioSystem::Init()
 
 AudioSystem::AudioSystem()
 {
-    soundEngine = new ma_engine;
+
 }
 
 AudioSystem::~AudioSystem()
@@ -68,12 +66,8 @@ AudioSystem::~AudioSystem()
         ma_sound_uninit(&s.second);
     }
 
-    if (soundEngine != nullptr)
-    {
-        ma_engine_uninit(soundEngine);
-        delete soundEngine;
-        soundEngine = nullptr;
-    }
+    ma_engine_uninit(&soundEngine);
+
 }
 
 void AudioSystem::SetMasterVolume(float volume)
@@ -86,13 +80,13 @@ void AudioSystem::SetMasterVolume(float volume)
 
     if (volume > 1.0f)
     {
-        ma_engine_set_volume(soundEngine, 1.0f);
+        ma_engine_set_volume(&soundEngine, 1.0f);
     } else if (volume < 0.0f)
     {
-        ma_engine_set_volume(soundEngine, 0.0f);
+        ma_engine_set_volume(&soundEngine, 0.0f);
     } else
     {
-        ma_engine_set_volume(soundEngine, volume);
+        ma_engine_set_volume(&soundEngine, volume);
     }
 }
 
@@ -120,7 +114,7 @@ void AudioSystem::LoadSound(FileDataWrapper sound)
     ma_result result;
 
     result = ma_sound_init_from_file(
-        soundEngine, sound.getFilePath().c_str(), 0, NULL, NULL, &sounds[sound.getFileName()]);
+        &soundEngine, sound.getFilePath().c_str(), 0, NULL, NULL, &sounds[sound.getFileName()]);
     if (result != MA_SUCCESS) {
         std::cerr << "Failed to load sound: " << sound.getFileName() << std::endl;
         sounds.erase(sound.getFileName());

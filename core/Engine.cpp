@@ -35,11 +35,11 @@ Engine::~Engine()
 
     delete engine.physics;
 
-    AudioSystem::destroyInstance();
-
     engine.graphics->ShutDown();
     delete engine.graphics;
     engine.graphics = nullptr;
+
+    AudioSystem::destroyInstance();
 
     engine.system->Shutdown();
     delete engine.system;

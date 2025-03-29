@@ -33,5 +33,5 @@ private:
 
     std::unordered_map<std::string, ma_sound> sounds;
 
-    ma_engine* soundEngine;
+    ma_engine soundEngine{};
 };
