@@ -34,7 +34,7 @@ class TileMap {
 public:
 
     TileMap();
-    TileMap(TileGrid* grid, TileSet tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions);
+    TileMap(TileGrid* grid, TileSet tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions, unsigned int chunkSize = 20);
     //Has no data ownership.
     ~TileMap() = default;
 
@@ -87,9 +87,18 @@ public:
     bool active = true;
 private:
 
+    void GeneratePartitions();
+    std::pair<int, int> partitionDimensions;
+    std::vector<glm::vec4> partitions;
+
+    std::vector<int> chunksToRender;
+
+    int FindIndexOfTile(int x, int y) const;
+
     //Assume each tilemap is neatly packed.
 
     std::pair<int, int> gridIndex = { 0, 0 }, dimensions = { 5, 5 };
+    unsigned int chunkSize = 20;
 
     //-1 is empty.
     std::vector<int> tiles;
