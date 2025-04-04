@@ -207,7 +207,7 @@ void StaticDataManager::LoadSpriteInfo(std::ifstream& file)
 void StaticDataManager::LoadTileSet(std::ifstream &file)
 {
     char symbol;
-    int conversionSymbol, frame, numTiles;
+    int frame, numTiles;
     std::string image, setName;
     float height;
 
@@ -220,12 +220,11 @@ void StaticDataManager::LoadTileSet(std::ifstream &file)
     for (int i = 0; i < numTiles; i++)
     {
         file >> symbol;
-        file >> conversionSymbol;
         file >> image;
         file >> frame;
         file >> height;
 
-        TileSets[setName].inputConversion.emplace(symbol, conversionSymbol);
+        TileSets[setName].inputConversion.emplace(symbol, i);
         TileSets[setName].tileSet.emplace_back(image, height, frame);
     }
 }

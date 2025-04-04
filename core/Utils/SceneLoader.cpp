@@ -247,6 +247,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 			stream >> y;
 
 			WORLD->createTileGrid(gridShape, {x,y});
+
 		} else if (word == "TileMap")
 		{
 			TileGrid* tileGrid = WORLD->getTileGrid();

@@ -170,7 +170,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	AABB camAABB = {camRect.x, camRect.y, camRect.z, camRect.w};
 
 	//Cull all tilemaps on screen.
-	for (auto tMap: tile_maps)
+	for (auto & tMap: tile_maps)
 	{
 		if (tMap.active)
 		{
@@ -188,7 +188,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 
 	//Do the same for tiles
 	//MAKE SURE THIS IS ALWAYS CALLED BEFORE OTHER CALCULATE ORDER... or you might have 1 goofy frame?
-	for (auto tMap: tile_maps)
+	for (auto & tMap: tile_maps)
 	{
 		if (tMap.active)
 		{
@@ -213,7 +213,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 			spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
 	}
 
-	for (auto tMap: tile_maps)
+	for (auto & tMap: tile_maps)
 	{
 		if (tMap.active)
 		{

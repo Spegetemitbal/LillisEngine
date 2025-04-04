@@ -11,7 +11,7 @@ void TileMap::setTile(std::pair<int, int> index, char tile)
     if (!tileSet.tileSet.empty())
     {
         int newTile = -1;
-        int tileIndex = 0;
+        int tileIndex = FindIndexOfTile(index.first, index.second);
         if (tileSet.inputConversion.contains(tile))
         {
             newTile = tileSet.inputConversion[tile];
@@ -20,8 +20,6 @@ void TileMap::setTile(std::pair<int, int> index, char tile)
                 std::cout << "Tile index out of bounds" << std::endl;
                 return;
             }
-            //Make sure this doesn't go out of bounds. Test!
-            tileIndex = FindIndexOfTile(index.first, index.second);
         }
         tiles[tileIndex] = newTile;
     } else
@@ -51,7 +49,7 @@ TileMap::TileMap(TileGrid *grid, TileSet tileSet, std::pair<int, int> gridIndex,
 
     tiles.reserve(dimSize);
     tileWorldPositions.reserve(dimSize);
-    for (int y = 0; y < dimensions.second; y += dimensions.first)
+    for (int y = 0; y < dimensions.second; y ++)
     {
         for (int x = 0; x < dimensions.first; x++)
         {
@@ -112,7 +110,7 @@ glm::vec2 TileMap::CullMap(AABB camAABB)
                 }
 
                 int index = FindIndexOfTile(x, y);
-                if (tiles[index] != -1)
+                if (tiles[index] > -1)
                 {
                     tileAABB.min = tileWorldPositions[index] - tileSize;
                     tileAABB.max = tileWorldPositions[index] + tileSize;
@@ -142,8 +140,23 @@ void TileMap::GeneratePartitions()
     unsigned int xPartitions = (dimensions.first / chunkSize);
     unsigned int yPartitions = (dimensions.second / chunkSize);
 
-    unsigned int modX = dimensions.first % xPartitions;
-    unsigned int modY = dimensions.second % yPartitions;
+    unsigned int modX, modY;
+
+    if (xPartitions == 0)
+    {
+        modX = dimensions.first;
+    } else
+    {
+        modX = dimensions.first % xPartitions;
+    }
+
+    if (yPartitions == 0)
+    {
+        modY = dimensions.second;
+    } else
+    {
+        modY = dimensions.second % yPartitions;
+    }
 
     if (modX > 0)
     {

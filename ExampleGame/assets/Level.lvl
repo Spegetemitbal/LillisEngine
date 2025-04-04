@@ -1,3 +1,15 @@
+Grid Rectangle 32 32
+TileMap rectTest -5 -5 10 10
+C 0 0 0 0 0 0 0 0 C
+0 B A D 0 0 B 0 0 0
+0 0 D B A 0 0 0 0 D
+0 0 0 0 0 0 D B 0 0
+0 0 0 B 0 0 0 A 0 0
+0 0 0 0 0 0 0 0 0 C
+0 D C 0 0 B 0 0 0 0
+D 0 0 0 0 0 0 A 0 0
+0 0 B 0 0 0 B 0 0 0
+C 0 0 0 0 0 D 0 0 A
 Object -320 240 0 Player1 NONE
 Collider 40 40 0
 Sprite UniformTest 1 40 40
@@ -17,7 +29,7 @@ Object 0 0 0 FlippyBoy NONE
 Sprite Angry 1 40 40
 Animator Single FigureEight
 ;
-Object 0 0 0 Background NONE
+NonObject 0 0 0 Background NONE
 Sprite Background 0 0 0
 ;
 END

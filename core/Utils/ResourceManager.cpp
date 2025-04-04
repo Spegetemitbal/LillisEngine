@@ -147,7 +147,7 @@ Texture2D ResourceManager::loadTextureFromFile(const char* name,const char* file
 {
     if (!StaticDataManager::SpriteInfo.contains(name))
     {
-        std::cout << "No import data found, unable to import";
+        std::cout << "No import data found for file: " << name << ", unable to import" << std::endl;
         return {};
     }
 

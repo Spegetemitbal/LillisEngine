@@ -5,6 +5,7 @@ SPRITE Player2 Auto
 SPRITE Test Auto
 SPRITE WinFlag Auto
 SPRITE UniformTest Uniform 6 2 3
+SPRITE TileBackdrop Uniform 4 2 2
 ANIMATION Player1Idle 3 STOP false false
 KeyFrame 0.5 1
 Sprite UniformTest 0 0 0 40 40
@@ -42,3 +43,8 @@ KeyFrame 0.5 0
 SplinePoint -50 -20
 KeyFrame 0 0
 SplinePoint 50 20
+TILESET rectTest 4
+A TileBackdrop 0 32
+B TileBackdrop 1 32
+C TileBackdrop 2 32
+D TileBackdrop 3 32

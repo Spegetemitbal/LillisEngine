@@ -161,7 +161,7 @@ void RenderOrder::CalculateTileOrder(TileMap *tileMap, const float &up, const fl
         layerDif = planeDist / ((float)highestLayer + 1);
     }
 
-    for (auto til : tileMap->tilesToRender)
+    for (auto & til : tileMap->tilesToRender)
     {
         til.zVal = FAR_PLANE - (layerDif * (float)layer);
         if (axis != glm::vec2(0))
