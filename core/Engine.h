@@ -7,25 +7,19 @@
 #include "EngineStuffs/GameObject.h"
 #include "Utils/StackAllocator.h"
 #include "Utils/InputSystem.h"
-#include "EngineStuffs/GameObjectManager.h"
 #include "EngineStuffs/Graphics/RenderSettings.h"
 #include "System/System_Common.h"
 #include "Utils/ResourceManager.h"
 
-#define WORLD GameObjectManager::world
-
 
 struct EngineState
 {
-    GraphicsSystem* graphics;
-    PhysicsSystem* physics;
-    InputSystem* gameInputs;
-    LILLIS::System* system;
-    bool quit;
-    bool isRunning;
-    std::string nextLevel;
-    bool loadNextLevel = false;
-    bool isEditor;
+    GraphicsSystem* graphics = nullptr;
+    PhysicsSystem* physics = nullptr;
+    InputSystem* gameInputs = nullptr;
+    LILLIS::System* system = nullptr;
+    bool quit = false;
+    bool isRunning = false;
 };
 
 class Engine
@@ -36,8 +30,6 @@ public:
     static Engine* GetGameInstance();
     static Engine* CreateGameInstance();
     static void DestroyGameInstance();
-
-    std::string CurrentLevel = std::string();
 
     //TODO Split this
     void Init(RenderSettings render_settings, std::string gameName, std::vector<LILLIS::KeyCode>);
@@ -55,7 +47,6 @@ public:
     void InjectSingleAsset(const char* filePath, AssetType resourceType);
     void LoadImportData(const char* filePath);
 
-    void LoadLevel(std::string Data);
     void Run();
 private:
     EngineState engine;
@@ -64,7 +55,7 @@ private:
     ~Engine();
 
     //StackAllocator* FrameAllocator = DBG_NEW StackAllocator();
-    void SceneLoad(std::string Data);
+    void SceneLoad() const;
     void frameStep();
     void renderStep();
     void updateScripts();

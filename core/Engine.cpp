@@ -1,9 +1,11 @@
 #include "Engine.h"
-
+#include "EngineStuffs/WorldManager.h"
 #include "EngineStuffs/Audio/AudioSystem.h"
 #include "EngineStuffs/UI/UISystem.h"
 #include "Utils/ResourceLoader.h"
 #include "Utils/Timing.h"
+
+#define WORLD WorldManager::getInstance()->GetCurrentWorld()
 
 //Creates window, Initializes low level systems and loads scene.
 Engine::Engine()
@@ -24,7 +26,7 @@ Engine::Engine()
 Engine::~Engine()
 {
     //WORLD->DelWorld();
-    delete WORLD;
+    WorldManager::destroyInstance();
     //delete FrameAllocator
 
     EventSystem* ev = EventSystem::getInstance();
@@ -45,35 +47,13 @@ Engine::~Engine()
     delete engine.system;
 }
 
-//Resets WORLD and loads a new scene.
-void Engine::LoadLevel(std::string Data)
+void Engine::SceneLoad() const
 {
-    if (engine.isRunning)
-    {
-        engine.nextLevel = Data;
-        engine.loadNextLevel = true;
-    } else
-    {
-        SceneLoad(Data);
-    }
-}
-
-void Engine::SceneLoad(std::string Data)
-{
-    if (WORLD == nullptr)
-    {
-        WORLD = DBG_NEW GameObjectManager();
-    }
-    else
-    {
-        WORLD->clearAll();
-    }
-    SceneLoader::LoadData(Data);
+    SceneLoader::LoadData(WorldManager::getInstance()->GetCurrentWorldName());
     WORLD->RunTransformHierarchy();
     ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
     unsigned int numRB = WORLD->getRBActive();
     engine.physics->InitRigidBodies(rb, numRB);
-    CurrentLevel = Data;
 }
 
 bool Engine::InitAudio()
@@ -87,6 +67,11 @@ bool Engine::InitAudio()
 //Game loop
 void Engine::Run()
 {
+    if (WORLD == nullptr)
+    {
+        std::cout << "A world must exist to start LILLIS" << std::endl;
+        return;
+    }
     engine.isRunning = true;
     //Timing::SetTime();
 #ifdef __EMSCRIPTEN__
@@ -94,10 +79,9 @@ void Engine::Run()
 #else
     while (!engine.quit)
     {
-        if (engine.loadNextLevel)
+        if (WorldManager::getInstance()->SetWorld())
         {
-            SceneLoad(engine.nextLevel);
-            engine.loadNextLevel = false;
+            SceneLoad();
         }
 
         Timing::Tick();
@@ -286,7 +270,7 @@ void Engine::Init(RenderSettings render_settings, std::string gameName, std::vec
 
     Timing::Init();
 
-    WORLD = DBG_NEW GameObjectManager();
+    WorldManager::createInstance();
 
     UISystem* uiSys = UISystem::createInstance(render_settings);
 }

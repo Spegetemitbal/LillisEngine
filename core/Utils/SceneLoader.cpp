@@ -1,6 +1,6 @@
 #include "SceneLoader.h"
 #include "../EngineStuffs/GameObject.h"
-#include "../EngineStuffs/GameObjectManager.h"
+#include "../EngineStuffs/WorldManager.h"
 #include "../EngineStuffs/MemoryManagement/Serializer.h"
 #include "../EngineStuffs/Behaviors/BehaviorSystem.h"
 #include "ResourceManager.h"
@@ -13,11 +13,17 @@
 #include "EngineStuffs/Tilemaps/TileMap.h"
 
 #ifndef WORLD
-#define WORLD GameObjectManager::world
+#define WORLD WorldManager::getInstance()->GetCurrentWorld()
 #endif
 
 void SceneLoader::LoadData(const std::string& fileName)
 {
+	if (WORLD == nullptr)
+	{
+		std::cout << "Invalid LoadData Call" << std::endl;
+		return;
+	}
+
 	SceneInfo info = AnalyzeScene(fileName);
 	if (info.numObjects == 0)
 	{

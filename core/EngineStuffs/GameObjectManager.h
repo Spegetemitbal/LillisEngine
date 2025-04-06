@@ -17,9 +17,6 @@ class RenderOrder;
 class GameObjectManager
 {
 public:
-	static inline GameObjectManager* world;
-
-	static void DelWorld() { delete world; }
 
 	void clearAll();
 
@@ -71,7 +68,7 @@ public:
 
 	//A flyweight should be implemented here soon.
 	//std::vector<Texture2D> sprites = std::vector<Texture2D>();
-	TileMap* createTileMap(TileSet tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions);
+	TileMap* createTileMap(const TileSet& tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions);
 	TileGrid* createTileGrid(GridShape tileShape, glm::vec2 tileSize);
 	std::vector<TileMap>& getTileMaps() { return tileMaps; }
 	TileGrid* getTileGrid() const {return worldGrid;};

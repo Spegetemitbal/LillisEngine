@@ -1,7 +1,7 @@
 #include "GameObject.h"
-#include "GameObjectManager.h"
+#include "WorldManager.h"
 
-#define WORLD GameObjectManager::world
+#define WORLD WorldManager::getInstance()->GetCurrentWorld()
 
 void GameObject::SetSpriteImage(const std::string &name)
 {

@@ -3,6 +3,7 @@
 #include "PlayerController.h"
 
 Engine* e;
+WorldManager* wm;
 
 void handleEvent(const Event& theEvent)
 {
@@ -15,13 +16,13 @@ void handleEvent(const Event& theEvent)
 		if (id1 == 0 && id2 == 2 || id1 == 1 && id2 == 3)
 		{
 			std::cout << "Player1 Wins!" << '\n';
-			e->LoadLevel(e->CurrentLevel);
+			wm->ReloadCurrentWorld();
 		}
 
 		if (id1 == 1 && id2 == 2 || id1 == 0 && id2 == 3)
 		{
 			std::cout << "Player2 Wins!" << '\n';
-			e->LoadLevel(e->CurrentLevel);
+			wm->ReloadCurrentWorld();
 		}
 	}
 }
@@ -48,6 +49,7 @@ int main(int argc, char* argv[])
 	RenderSettings renderSettings = RenderSettings(640, 480, 1280, 960);
 
 	e->Init(renderSettings, "Game", importantKeys);
+	wm = WorldManager::getInstance();
 
 	EventSystem* events = EventSystem::getInstance();
 	events->addCallback((EventType)COLLISION_EVENT ,handleEvent);
@@ -58,7 +60,7 @@ int main(int argc, char* argv[])
 	e->InitAudio();
 	BehaviorSystem::RegisterBehavior("PlayerController", sizeof(PlayerController), PlayerController::CreatePlayerController);
 	BehaviorSystem::RegisterBehavior("Rotator", sizeof(Rotator), Rotator::CreateRotator);
-	e->LoadLevel("Level");
+	wm->MakeWorld("Level");
 	e->Run();
 
 	Engine::DestroyGameInstance();

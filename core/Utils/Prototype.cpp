@@ -6,12 +6,12 @@
 
 #include "StaticDataManager.h"
 #include "EngineStuffs/GameObject.h"
-#include "EngineStuffs/GameObjectManager.h"
+#include "EngineStuffs/WorldManager.h"
 
 std::unordered_map<std::string, unsigned int> Prototype::numExisting = std::unordered_map<std::string, unsigned int>();
 
 #ifndef WORLD
-#define WORLD GameObjectManager::world
+#define WORLD WorldManager::getInstance()->GetCurrentWorld()
 #endif
 
 LilObj<GameObject> Prototype::CreatePrototype(const std::string &name, glm::vec2 pos, float rot)

@@ -5,7 +5,7 @@
 #include "Sprite.h"
 
 #include "EngineStuffs/GameObject.h"
-#include "EngineStuffs/GameObjectManager.h"
+#include "EngineStuffs/WorldManager.h"
 #include "EngineStuffs/MemoryManagement/LilObj.h"
 
 Sprite::Sprite(const std::string& spr): aabb(0,0,0,0)
@@ -21,7 +21,7 @@ Sprite::Sprite(): aabb(0,0,0,0)
 void Sprite::SetLayer(unsigned int lyr)
 {
     layer = lyr;
-    GameObjectManager::world->setSpriteLayer(this);
+    WorldManager::getInstance()->GetCurrentWorld()->setSpriteLayer(this);
 }
 
 glm::vec2 Sprite::getRenderCenter()

@@ -230,7 +230,7 @@ TileGrid *GameObjectManager::createTileGrid(GridShape tileShape, glm::vec2 tileS
 	return worldGrid;
 }
 
-TileMap *GameObjectManager::createTileMap(TileSet tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions)
+TileMap *GameObjectManager::createTileMap(const TileSet& tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions)
 {
 	if (dimensions.first < 5)
 	{
@@ -250,7 +250,5 @@ TileMap *GameObjectManager::createTileMap(TileSet tileSet, std::pair<int, int> g
 	tileMaps.emplace_back(worldGrid, tileSet, gridIndex, dimensions);
 	return &tileMaps.back();
 }
-
-
 
 //GameObjectManager* GameObjectManager::world = nullptr;
