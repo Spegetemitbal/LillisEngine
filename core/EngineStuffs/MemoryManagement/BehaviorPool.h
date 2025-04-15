@@ -45,6 +45,14 @@ public:
         mHead = mPool;
     }
 
+    ~BehaviorHandler()
+    {
+        for (auto & i : poolDir)
+        {
+            i->DeallocateBehavior();
+        }
+    }
+
     LilObj<Behavior> CreateBehavior(const std::string& typeID)
     {
         BehaviorData B = BehaviorSystem::GetBehavior(typeID);
@@ -71,20 +79,6 @@ public:
         }
     }
 
-    //Technically doesn't destroy the data yet but marks it as garbage.
-    void DestroyBehavior(Behavior* Bhvr)
-    {
-        auto f = std::find(poolDir.begin(), poolDir.end(), Bhvr);
-
-        if (f != poolDir.end())
-        {
-            size_t index = std::distance(poolDir.begin(), f);
-            objMap.erase(Bhvr->GetID());
-            poolDir.erase(f);
-            inactive++;
-        }
-    }
-
     void ClearPool()
     {
         mHead = mPool;
@@ -100,7 +94,7 @@ public:
             return;
         }
 
-        if (inactive / mCount > 0.5)
+        if (active / mCount > 0.5)
         {
             EventSystem* ev = EventSystem::getInstance();
 
@@ -109,21 +103,28 @@ public:
             std::vector<ForwardingAddress> addresses = std::vector<ForwardingAddress>();
 
             //Load over everything.
-            for (int index = 0; index < poolDir.size(); ++index)
+            for (auto & index : poolDir)
             {
-                BehaviorData B = BehaviorSystem::GetBehavior(poolDir[index]->GetName());
-                addresses.emplace_back(free, poolDir[index], B.byteSize);
+                BehaviorData B = BehaviorSystem::GetBehavior(index->GetName());
+                if (index->GetActive())
+                {
+                    addresses.emplace_back(free, index, B.byteSize);
+                } else
+                {
+                    index->DeallocateBehavior();
+                }
                 free += B.byteSize;
             }
 
+            poolDir.clear();
+
             //Relocate
-            for (int index = 0; index < addresses.size(); ++index)
+            for (auto address : addresses)
             {
-                ForwardingAddress address = addresses[index];
                 if (address.forward != address.origin)
                 {
                     ev->removeListenerFromAllEvents(address.origin);
-                    poolDir[index] = (Behavior*)address.forward;
+                    poolDir.push_back((Behavior*)address.forward);
                     std::memmove(address.forward, address.origin, address.objSize);
                 }
             }
@@ -136,7 +137,6 @@ public:
             }
 
             UpdateEventPointers();
-            inactive = 0;
             mCount = poolDir.size();
         }
     }
@@ -171,10 +171,16 @@ protected:
         for (int i = 0; i < tempDir.size(); i++)
         {
             //Find a safer way to do this!
-            BehaviorData B = BehaviorSystem::GetBehavior(tempDir[i]->GetName());
-            std::memmove(tempHead, tempDir[i], B.byteSize);
-            poolDir.push_back(reinterpret_cast<Behavior*>(tempHead));
-            tempHead += B.byteSize;
+            if (tempDir[i]->GetActive())
+            {
+                BehaviorData B = BehaviorSystem::GetBehavior(tempDir[i]->GetName());
+                std::memmove(tempHead, tempDir[i], B.byteSize);
+                poolDir.push_back(reinterpret_cast<Behavior*>(tempHead));
+                tempHead += B.byteSize;
+            } else
+            {
+                tempDir[i]->DeallocateBehavior();
+            }
         }
 
         //Final swap over.
@@ -186,7 +192,6 @@ protected:
         {
             objMap.emplace(poolDir[i]->GetID(), poolDir[i]);
         }
-        inactive = 0;
         mCount = poolDir.size();
         UpdateEventPointers();
     }
@@ -202,7 +207,6 @@ private:
         }
     }
 
-    int inactive = 0;
     size_t stackSize;
     char* mHead;
 };

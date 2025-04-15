@@ -28,9 +28,13 @@ public:
 	virtual void Deserialize(Serializer& ser) {};
 
 	virtual void LoadListeners() {}
+	virtual void DeallocateBehavior()
+	{
+		this->~Behavior();
+	}
 
 private:
-	std::string BehaviorName = "";
+	std::string BehaviorName;
 
 protected:
 	void addListener(GameEventType type);

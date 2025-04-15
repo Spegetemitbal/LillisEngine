@@ -21,7 +21,13 @@ public:
 			base += sizeToAllocate;
 		}
 	}
-	~GameObjPool() = default;
+	~GameObjPool()
+	{
+		for (int i = 0; i < poolDir.size(); i++)
+		{
+			poolDir[i]->~GameObject();
+		}
+	}
 
 	GameObjPool(unsigned int numComp)
 	{

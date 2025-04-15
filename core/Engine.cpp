@@ -106,6 +106,8 @@ void Engine::frameStep()
 {
     engine.gameInputs->UpdateControllers();
 
+    updateScripts();
+
     ActiveTracker<Animator*> anims = WORLD->getAnimatorsRaw();
     unsigned int lastAnim = WORLD->getAnimActive();
     for (int i = 0; i < lastAnim; i++)
@@ -115,8 +117,6 @@ void Engine::frameStep()
             anims[i]->Update(Timing::fixedUpdateTime);
         }
     }
-
-    updateScripts();
 
     ActiveTracker<RectangleCollider*> col = WORLD->getCollidersRaw();
 
@@ -179,7 +179,8 @@ void Engine::renderStep()
 void Engine::updateScripts()
 {
     ActiveTracker<Behavior*> behvs = WORLD->getBehaviorsRaw();
-    for (int i = 0; i < behvs.size(); i++)
+    int bevSize = behvs.size();
+    for (int i = 0; i < bevSize; i++)
     {
         if (behvs[i]->GetActive())
         {

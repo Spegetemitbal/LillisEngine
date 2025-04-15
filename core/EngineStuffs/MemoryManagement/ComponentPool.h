@@ -37,124 +37,130 @@ public:
 			exit(1);
 		}
 	}
+
 	~ComponentPool()
+	{
+		//delete[] MemoryPool<Comp>::mPool;
+		activeCheckDir.clear();
+		//poolDir.clear();
+		for (int i = 0; i < poolDir.size(); i++)
 		{
-			//delete[] MemoryPool<Comp>::mPool;
-			activeCheckDir.clear();
-			//poolDir.clear();
+			poolDir[i]->~Comp();
 		}
-		ComponentPool(unsigned int numComp)
-		{
-			POOL_PARENT::mCount = numComp;
-			poolDir.reserve(POOL_PARENT::mCount);
-			activeCheckDir.reserve(POOL_PARENT::mCount);
-			POOL_PARENT::mPool = DBG_NEW char[sizeof(Comp) * POOL_PARENT::mCount];
+	}
 
-			size_t sizeToAllocate = sizeof(Comp);
-			char* base = POOL_PARENT::mPool;
-			try
+	ComponentPool(unsigned int numComp)
+	{
+		POOL_PARENT::mCount = numComp;
+		poolDir.reserve(POOL_PARENT::mCount);
+		activeCheckDir.reserve(POOL_PARENT::mCount);
+		POOL_PARENT::mPool = DBG_NEW char[sizeof(Comp) * POOL_PARENT::mCount];
+
+		size_t sizeToAllocate = sizeof(Comp);
+		char* base = POOL_PARENT::mPool;
+		try
+		{
+			for (int i = 0; i < POOL_PARENT::mCount; i++)
 			{
-				for (int i = 0; i < POOL_PARENT::mCount; i++)
+				Comp* toScoot = POOL_PARENT::template AllocateObj<Comp>(base);
+				activeCheckDir.push_back(toScoot);
+				poolDir.push_back(toScoot);
+				POOL_PARENT::objMap.emplace(activeCheckDir.back()->GetID(), toScoot);
+				base += sizeToAllocate;
+			}
+		}
+		catch (...)
+		{
+			std::cout << "Non Component Type!, Failure imminent.";
+			exit(1);
+		}
+	}
+
+	Comp* AddComponent()
+	{
+		if (activeLine == POOL_PARENT::mCount)
+		{
+			ResizePool();
+		}
+		activeCheckDir[activeLine]->SetActive(true);
+		activeLine++;
+		return poolDir[activeLine - 1];
+	}
+
+	void DestroyComponent(Comp& comp)
+	{
+		auto f = std::find(poolDir.begin(), poolDir.end(), comp);
+
+		if (f != poolDir.end())
+		{
+			size_t index = distance(poolDir.begin(), f);
+			activeCheckDir[index]->SetActive(false);
+		}
+	}
+
+	//Wipes the pool, doesn't do so on the Object's side
+	void ClearPool()
+	{
+		for (int i = 0; i < activeCheckDir.size(); i++)
+		{
+			//POOL_PARENT::objMap.clear();
+			activeCheckDir[i]->SetActive(false);
+			activeCheckDir[i]->setControlledObject({});
+		}
+		activeLine = 0;
+		//objMap.clear();
+	}
+
+	unsigned int GetActiveLine() { return activeLine; };
+
+	//Two finger compaction
+	void CompactPool(int numInactive) override
+	{
+		if (activeLine == 0)
+		{
+			return;
+		}
+
+		if (numInactive / activeLine > 0.5)
+		{
+			size_t freeSpace = 0;
+			size_t scan = 0;
+			//First is origin, second is forwarding
+			std::vector<std::pair<size_t,size_t>> forwarding = std::vector<std::pair<size_t,size_t>>();
+
+			while (scan < activeLine)
+			{
+				if (poolDir[scan]->GetActive())
 				{
-					Comp* toScoot = POOL_PARENT::template AllocateObj<Comp>(base);
-					activeCheckDir.push_back(toScoot);
-					poolDir.push_back(toScoot);
-					POOL_PARENT::objMap.emplace(activeCheckDir.back()->GetID(), toScoot);
-					base += sizeToAllocate;
+					forwarding.emplace_back(scan, freeSpace);
+					freeSpace++;
 				}
+				scan++;
 			}
-			catch (...)
+
+			for (int i = 0; i < forwarding.size(); i++)
 			{
-				std::cout << "Non Component Type!, Failure imminent.";
-				exit(1);
+				pair<size_t,size_t> f = forwarding[i];
+				SwapObjects(poolDir[f.first], poolDir[f.second]);
+				activeLine--;
 			}
 		}
+	}
 
-		Comp* AddComponent()
+	void SwapObjects(Comp* obj1, Comp* obj2)
+	{
+		if (obj1 == obj2)
 		{
-			if (activeLine == POOL_PARENT::mCount)
-			{
-				ResizePool();
-			}
-			activeCheckDir[activeLine]->SetActive(true);
-			activeLine++;
-			return poolDir[activeLine - 1];
+			return;
 		}
 
-		void DestroyComponent(Comp& comp)
-		{
-			auto f = std::find(poolDir.begin(), poolDir.end(), comp);
+		objMap[obj1->GetID()] = obj2;
+		objMap[obj2->GetID()] = obj1;
 
-			if (f != poolDir.end())
-			{
-				size_t index = distance(poolDir.begin(), f);
-				activeCheckDir[index]->SetActive(false);
-			}
-		}
-
-		//Wipes the pool, doesn't do so on the Object's side
-		void ClearPool()
-		{
-			for (int i = 0; i < activeCheckDir.size(); i++)
-			{
-				//POOL_PARENT::objMap.clear();
-				activeCheckDir[i]->SetActive(false);
-				activeCheckDir[i]->setControlledObject({});
-			}
-			activeLine = 0;
-			//objMap.clear();
-		}
-
-		unsigned int GetActiveLine() { return activeLine; };
-
-		//Two finger compaction
-		void CompactPool(int numInactive) override
-		{
-			if (activeLine == 0)
-			{
-				return;
-			}
-
-			if (numInactive / activeLine > 0.5)
-			{
-				size_t freeSpace = 0;
-				size_t scan = 0;
-				//First is origin, second is forwarding
-				std::vector<std::pair<size_t,size_t>> forwarding = std::vector<std::pair<size_t,size_t>>();
-
-				while (scan < activeLine)
-				{
-					if (poolDir[scan]->GetActive())
-					{
-						forwarding.emplace_back(scan, freeSpace);
-						freeSpace++;
-					}
-					scan++;
-				}
-
-				for (int i = 0; i < forwarding.size(); i++)
-				{
-					pair<size_t,size_t> f = forwarding[i];
-					SwapObjects(poolDir[f.first], poolDir[f.second]);
-					activeLine--;
-				}
-			}
-		}
-
-		void SwapObjects(Comp* obj1, Comp* obj2)
-		{
-			if (obj1 == obj2)
-			{
-				return;
-			}
-
-			objMap[obj1->GetID()] = obj2;
-			objMap[obj2->GetID()] = obj1;
-
-			Comp temp = *obj1;
-			*obj1 = *obj2;
-			*obj2 = temp;
-		}
+		Comp temp = *obj1;
+		*obj1 = *obj2;
+		*obj2 = temp;
+	}
 
 	ActiveTracker<Comp*> getPool() {return {poolDir, activeLine};}
 

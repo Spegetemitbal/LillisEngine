@@ -41,10 +41,15 @@ class LilObj
 
   bool Exists()
   {
-    if (itemID == 0)
+    if (itemID == 0 || pool == nullptr)
     {
       return false;
     }
+    if (pool->GetObjByID<Obj>(itemID) == nullptr)
+    {
+      return false;
+    }
+
     return true;
   }
 

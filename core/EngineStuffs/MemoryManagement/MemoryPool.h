@@ -79,7 +79,7 @@ public:
             return (T*)objMap[id];
         } catch(...)
         {
-            std::cout << "Invalid type or ID";
+            //std::cout << "Invalid type or ID";
             return nullptr;
         }
     }

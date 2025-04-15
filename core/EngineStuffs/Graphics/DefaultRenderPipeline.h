@@ -11,7 +11,9 @@ public:
 			"out vec4 color;"
 			"uniform sampler2D image;"
 			"uniform vec3 spriteColor;"
-			"void main() { color = vec4(spriteColor, 1.0) * texture(image, TexCoords); }");
+			"void main() { vec4 texColor = texture(image, TexCoords);"
+			"if (texColor.a == 0.0) {discard;} "
+			"color = vec4(spriteColor, 1.0) * texColor; }");
 
 		vertex = std::string(
 			"#version 450\n"

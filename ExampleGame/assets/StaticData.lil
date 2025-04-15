@@ -4,6 +4,7 @@ SPRITE Player1 Auto
 SPRITE Player2 Auto
 SPRITE Test Auto
 SPRITE WinFlag Auto
+SPRITE Calm Auto
 SPRITE UniformTest Uniform 6 2 3
 SPRITE TileBackdrop Uniform 4 2 2
 ANIMATION Player1Idle 3 STOP false false
