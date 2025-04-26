@@ -6,20 +6,37 @@
 #include "RigidBody.h"
 #include "ColManifold.h"
 
+struct PhysicsSettings
+{
+    unsigned int physicsIterations = 2;
+    glm::vec2 gravity = glm::vec2(0.0f, -9.8f);
+};
+
 class PhysicsSystem
 {
 public:
 
+    PhysicsSystem() = delete;
+    static PhysicsSystem* createInstance(PhysicsSettings settings = PhysicsSettings());
+    static PhysicsSystem* getInstance();
+    static void destroyInstance();
+
     //TODO: Add this to engine settings
     static inline unsigned int MinIterations = 1;
     static inline unsigned int MaxIterations = 5;
+    unsigned int iterations = 2;
 
     glm::vec2 getGravity() const { return gravity; };
+    void SetPhysicsSettings(PhysicsSettings settings);
 
     void InitRigidBodies(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
+    void PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
 
-    void PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, unsigned int iterations);
 private:
+
+    static PhysicsSystem* instance;
+    PhysicsSystem(PhysicsSettings settings);
+    ~PhysicsSystem() = default;
 
     void BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
     void NarrowPhase(ActiveTracker<RigidBody*> &physObjects);

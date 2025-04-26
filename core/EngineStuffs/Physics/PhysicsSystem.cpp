@@ -8,6 +8,49 @@
 
 #include "CollisionChecker.h"
 
+PhysicsSystem* PhysicsSystem::instance = nullptr;
+
+PhysicsSystem *PhysicsSystem::createInstance(PhysicsSettings settings)
+{
+    if (instance == nullptr)
+    {
+        instance = new PhysicsSystem(settings);
+    }
+    return instance;
+}
+
+
+PhysicsSystem *PhysicsSystem::getInstance()
+{
+    if (instance == nullptr)
+    {
+        return createInstance();
+    }
+    return instance;
+}
+
+
+void PhysicsSystem::destroyInstance()
+{
+    if (instance != nullptr)
+    {
+        delete instance;
+        instance = nullptr;
+    }
+}
+
+PhysicsSystem::PhysicsSystem(PhysicsSettings settings)
+{
+    SetPhysicsSettings(settings);
+}
+
+void PhysicsSystem::SetPhysicsSettings(PhysicsSettings settings)
+{
+    iterations = settings.physicsIterations;
+    gravity = settings.gravity;
+}
+
+
 void PhysicsSystem::InitRigidBodies(ActiveTracker<RigidBody *> &physObjects, unsigned int numActive)
 {
     for (unsigned int i = 0; i < numActive; i++)
@@ -18,7 +61,7 @@ void PhysicsSystem::InitRigidBodies(ActiveTracker<RigidBody *> &physObjects, uns
 }
 
 
-void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, unsigned int iterations)
+void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive)
 {
     if (numActive == 0)
     {

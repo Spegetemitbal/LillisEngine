@@ -4,30 +4,15 @@
 #include "Events/ControllerButtonEvent.h"
 #include "Events/MouseEvent.h"
 
-std::vector<InputSystem*> InputSystem::_instances;
 std::vector<GLFWgamepadstate> InputSystem::_gamepadStates;
 
 unsigned int InputSystem::numControllersConnected = 0;
 
-InputSystem::InputSystem(std::vector<LILLIS::KeyCode> keysToMonitor) : _isEnabled(true) {
+void InputSystem::addKeyCodes(const std::vector<LILLIS::KeyCode>& keysToMonitor)
+{
     for (int key : keysToMonitor) {
         _keys[key] = false;
     }
-
-    for (int i = 0; i < 3; i++)
-    {
-        _mouseButtons.push_back(false);
-    }
-
-    // Add this instance to the list of instances
-    InputSystem::_instances.push_back(this);
-    evSys = EventSystem::getInstance();
-    _window = nullptr;
-}
-
-InputSystem::~InputSystem() {
-    // Remove this instance from the list of instances
-    _instances.erase(std::remove(_instances.begin(), _instances.end(), this), _instances.end());
 }
 
 bool InputSystem::getIsKeyDown(int key) {
@@ -55,18 +40,18 @@ void InputSystem::setIsKeyDown(int key, bool isDown) {
     std::map<int, bool>::iterator it = _keys.find(key);
     if (it != _keys.end()) {
         _keys[key] = isDown;
-        evSys->fireEvent(InputEvent(key, isDown));
+        EventSystem::getInstance()->fireEvent(InputEvent(key, isDown));
     }
 }
 
 void InputSystem::setMouseIsKeyDown(int key, bool isDown)
 {
     _mouseButtons[key] = isDown;
-    evSys->fireEvent(MouseEvent(key, isDown));
+    EventSystem::getInstance()->fireEvent(MouseEvent(key, isDown));
 }
 
 
-void InputSystem::setupKeyInputs(const LillisWindow* window) {
+void InputSystem::Init(const LillisWindow* window) {
     _window = window;
     glfwSetKeyCallback(window->window, InputSystem::keyboard_callback);
     glfwSetCursorPosCallback(window->window, InputSystem::mouse_pos_callback);
@@ -77,24 +62,18 @@ void InputSystem::setupKeyInputs(const LillisWindow* window) {
 //Eventually add an ENUM abstraction.
 void InputSystem::keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // Send key event to all KeyInput instances
-    for (InputSystem* keyInput : _instances) {
-        keyInput->setIsKeyDown(key, action != GLFW_RELEASE);
-    }
+    setIsKeyDown(key, action != GLFW_RELEASE);
 }
 
 void InputSystem::mouse_pos_callback(GLFWwindow *window, double xPos, double yPos)
 {
-    for (InputSystem* keyInput : _instances) {
-        keyInput->mouseXpos = xPos;
-        keyInput->mouseYPos = yPos;
-    }
+    mouseXpos = xPos;
+    mouseYPos = yPos;
 }
 
 void InputSystem::mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 {
-    for (InputSystem* keyInput : _instances) {
-        keyInput->setMouseIsKeyDown(button, action != GLFW_RELEASE);
-    }
+    setMouseIsKeyDown(button, action != GLFW_RELEASE);
 }
 
 void InputSystem::joystick_callback(int jid, int event)
@@ -165,12 +144,12 @@ void InputSystem::UpdateControllers()
             {
                 if (pastState.buttons[j] != _gamepadStates[i].buttons[j])
                 {
-                    evSys->fireEvent(ControllerButtonEvent(j, _gamepadStates[i].buttons[j] != GLFW_RELEASE));
+                    EventSystem::getInstance()->fireEvent(ControllerButtonEvent(j, _gamepadStates[i].buttons[j] != GLFW_RELEASE));
                 }
             }
             for (int j = 0; j < GLFW_GAMEPAD_AXIS_LAST; j++)
             {
-                evSys->fireEvent(ControllerAxisEvent(j, _gamepadStates[i].axes[j]));
+                EventSystem::getInstance()->fireEvent(ControllerAxisEvent(j, _gamepadStates[i].axes[j]));
             }
         }
     }

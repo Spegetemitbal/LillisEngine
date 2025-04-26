@@ -14,15 +14,15 @@ class GameObjPool;
 class SceneGraph;
 class RenderOrder;
 
-class GameObjectManager
+class GameWorld
 {
 public:
 
 	void clearAll();
 
-	GameObjectManager();
+	GameWorld();
 	
-	~GameObjectManager();
+	~GameWorld();
 
 	int numObjects = 0;
 

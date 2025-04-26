@@ -2,7 +2,7 @@
 #include "EngineStuffs/WorldManager.h"
 #include "EngineStuffs/Audio/AudioSystem.h"
 #include "EngineStuffs/UI/UISystem.h"
-#include "Utils/ResourceLoader.h"
+//#include "Utils/ResourceLoader.h"
 #include "Utils/Timing.h"
 
 #define WORLD WorldManager::getInstance()->GetCurrentWorld()
@@ -10,16 +10,12 @@
 //Creates window, Initializes low level systems and loads scene.
 Engine::Engine()
 {
-    engine = EngineState();
-    engine.quit = false;
+    timeToQuit = false;
+    system = System::Create();
+    system->Init();
+    Timing::Init();
 
-    engine.physics = new PhysicsSystem();
-
-    engine.system = System::Create();
-    engine.system->Init();
-
-    EventSystem* ev = EventSystem::createInstance();
-    ev->init();
+    WorldManager::createInstance();
 }
 
 //Clears everything
@@ -32,34 +28,15 @@ Engine::~Engine()
     EventSystem* ev = EventSystem::getInstance();
     ev->cleanup();
     EventSystem::delInstance();
-    
-    delete engine.gameInputs;
 
-    delete engine.physics;
+    PhysicsSystem::destroyInstance();
 
-    engine.graphics->ShutDown();
-    delete engine.graphics;
-    engine.graphics = nullptr;
+    GraphicsSystem::delInstance();
 
     AudioSystem::destroyInstance();
 
-    engine.system->Shutdown();
-    delete engine.system;
-}
-
-void Engine::SceneLoad() const
-{
-    SceneLoader::LoadData(WorldManager::getInstance()->GetCurrentWorldName());
-    WORLD->RunTransformHierarchy();
-    ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
-    unsigned int numRB = WORLD->getRBActive();
-    engine.physics->InitRigidBodies(rb, numRB);
-}
-
-bool Engine::InitAudio()
-{
-    AudioSystem* as = AudioSystem::createInstance();
-    return as->Init();
+    system->Shutdown();
+    delete system;
 }
 
 
@@ -72,17 +49,21 @@ void Engine::Run()
         std::cout << "A world must exist to start LILLIS" << std::endl;
         return;
     }
-    engine.isRunning = true;
+
+    if (!GraphicsSystem::getInstance()->GetIsInitted())
+    {
+        std::cout << "Graphics System must be initialized to start LILLIS" << std::endl;
+        return;
+    }
+
+    isRunning = true;
     //Timing::SetTime();
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&frameStep, engine, 0, true);
 #else
-    while (!engine.quit)
+    while (!timeToQuit)
     {
-        if (WorldManager::getInstance()->SetWorld())
-        {
-            SceneLoad();
-        }
+        WorldManager::getInstance()->SetWorld();
 
         Timing::Tick();
 
@@ -94,7 +75,7 @@ void Engine::Run()
 
         renderStep();
 
-        engine.quit = engine.graphics->isWindowOpen();
+        timeToQuit = GraphicsSystem::getInstance()->isWindowOpen();
     }
 #endif
 
@@ -104,7 +85,7 @@ void Engine::Run()
 //Occurs every frame, the 'content' of the game loop
 void Engine::frameStep()
 {
-    engine.gameInputs->UpdateControllers();
+    InputSystem::UpdateControllers();
 
     updateScripts();
 
@@ -137,7 +118,7 @@ void Engine::frameStep()
     ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
     unsigned int numRB = WORLD->getRBActive();
     //TODO: make a double please!
-    engine.physics->PhysicsStep((float)Timing::fixedUpdateTime, rb, numRB,3);
+    PhysicsSystem::getInstance()->PhysicsStep((float)Timing::fixedUpdateTime, rb, numRB);
 
     //First run all possible changes, then run hierarchy.
     WORLD->RunTransformHierarchy();
@@ -152,25 +133,27 @@ void Engine::frameStep()
 
 
 #ifdef _DEBUG
-    if (engine.gameInputs->getIsKeyDown(LILLIS::ESC))
+    if (InputSystem::getIsKeyDown(LILLIS::ESC))
     {
-        engine.graphics->closeWindow();
+        GraphicsSystem::getInstance()->closeWindow();
     }
 #endif
 }
 
 void Engine::renderStep()
 {
-    engine.graphics->PreDraw();
+    GraphicsSystem* graphics = GraphicsSystem::getInstance();
+
+    graphics->PreDraw();
 
     ActiveTracker<Sprite*> sprites = WORLD->getSpritesRaw();
     unsigned int lastSpr = WORLD->getSprActive();
 
-    engine.graphics->RenderCall(sprites, lastSpr, WORLD->getTileMaps());
+    graphics->RenderCall(sprites, lastSpr, WORLD->getTileMaps());
 
     UISystem::getInstance()->RenderUI();
 
-    engine.graphics->PostDraw();
+    graphics->PostDraw();
 
     //End of Frame Garbage collection
     WORLD->compactSprites(sprites.GetNumInactive());
@@ -189,93 +172,6 @@ void Engine::updateScripts()
     }
     WORLD->compactBehaviors(behvs.GetNumInactive());
 }
-
-
-
-std::string GetFileName(const char* path)
-{
-    stringstream ss = stringstream(path);
-    std::string currentString;
-    while (!ss.eof())
-    {
-        currentString.clear();
-        std::getline(ss, currentString, '/');
-    }
-    return currentString;
-}
-
-//Call this once for each type of asset you'd like to import.
-void Engine::InjectAssets(const char* filePath, AssetType resourceType)
-{
-    switch (resourceType)
-    {
-        case SPRITE:
-            ResourceLoader::LoadTextureRecursive(filePath, true);
-            break;
-        case SHADERS:
-            ResourceLoader::LoadShaderRecursive(filePath);
-            break;
-        case SOUNDS:
-            std::cout << "Not implemented yet" << '\n';
-            break;
-        case DATA:
-            ResourceLoader::LoadDataRecursive(filePath);
-            break;
-        default:
-            std::cerr << "INVALID ASSET INSERTION" << '\n';
-            break;
-    }
-}
-
-void Engine::InjectSingleAsset(const char* filePath, AssetType resourceType)
-{
-    std::string FileName = GetFileName(filePath);
-
-    switch (resourceType)
-    {
-        case SPRITE:
-            ResourceLoader::LoadTexture(filePath, true);
-            break;
-        case SHADERS:
-            std::cerr << "SINGLE SHADER INSERTION PROHIBITED" << '\n';
-            break;
-        case SOUNDS:
-            std::cout << "Not implemented yet" << '\n';
-            break;
-        case DATA:
-            ResourceLoader::LoadData(filePath);
-            break;
-        default:
-            std::cerr << "INVALID ASSET INSERTION" << '\n';
-            break;
-    }
-}
-
-void Engine::LoadImportData(const char *filePath)
-{
-    ResourceLoader::LoadProjectInfo(filePath);
-}
-
-
-void Engine::Init(RenderSettings render_settings, std::string gameName, std::vector<LILLIS::KeyCode> keys)
-{
-
-    engine.graphics = DBG_NEW GraphicsSystem(render_settings, gameName);
-    if (!engine.graphics->Init())
-    {
-        exit(1);
-    }
-
-    engine.gameInputs = DBG_NEW InputSystem(keys);
-    engine.gameInputs->setupKeyInputs(engine.graphics->GetWin());
-
-    Timing::Init();
-
-    WorldManager::createInstance();
-
-    UISystem* uiSys = UISystem::createInstance(render_settings);
-}
-
 
 //Singleton getter
 Engine* Engine::GetGameInstance()

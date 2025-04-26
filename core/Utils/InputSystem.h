@@ -22,45 +22,47 @@ class InputSystem
 {
     // Main KeyInput functionality
 public:
-    // Takes a list of which keys to keep state for
-    InputSystem(std::vector<LILLIS::KeyCode> keysToMonitor);
-    ~InputSystem();
+
+    InputSystem() = default;
+    ~InputSystem() = default;
     // If this KeyInput is enabled and the given key is monitored,
     // returns pressed state.  Else returns false.
-    bool getIsKeyDown(int key);
-    bool getIsMouseButtonDown(int key);
+    static bool getIsKeyDown(int key);
+    static bool getIsMouseButtonDown(int key);
     // See _isEnabled for details
-    bool getIsEnabled() { return _isEnabled; }
-    void setIsEnabled(bool value) { _isEnabled = value; }
+    static inline bool getIsEnabled() { return _isEnabled; }
+    static inline void setIsEnabled(bool value) { _isEnabled = value; }
 
+    static void addKeyCodes(const std::vector<LILLIS::KeyCode>& keysToMonitor);
 
-    glm::vec2 getMousePosition() const {return {mouseXpos, mouseYPos};}
+    static glm::vec2 getMousePosition() {return {mouseXpos, mouseYPos};}
 
-    void setMouseType(LILLIS::MouseSetting ms);
-    LILLIS::MouseSetting getMouseType() { return mouseSetting; }
+    static void setMouseType(LILLIS::MouseSetting ms);
+    static LILLIS::MouseSetting getMouseType() { return mouseSetting; }
 
-    void UpdateControllers();
+    static void UpdateControllers();
+
+    // Must be called before any KeyInput instances will work
+    static void Init(const LillisWindow* window);
 
 private:
-    // Used internally to update key states.  Called by the GLFW callback.
-    void setIsKeyDown(int key, bool isDown);
-    void setMouseIsKeyDown(int key, bool isDown);
-    // Map from monitored keyes to their pressed states
-    std::map<int, bool> _keys;
-    std::vector<bool> _mouseButtons;
-    // If disabled, KeyInput.getIsKeyDown always returns false
-    bool _isEnabled;
 
-    double mouseXpos = 0, mouseYPos = 0;
+    // Used internally to update key states.  Called by the GLFW callback.
+    static void setIsKeyDown(int key, bool isDown);
+    static void setMouseIsKeyDown(int key, bool isDown);
+    // Map from monitored keyes to their pressed states
+    static inline std::map<int, bool> _keys = std::map<int, bool>();
+    //3 mouse buttons, left right and center! why is this a vector? good question.
+    //TODO make this not a vector.
+    static inline std::vector<bool> _mouseButtons = {false, false, false};
+    // If disabled, KeyInput.getIsKeyDown always returns false
+    static inline bool _isEnabled = true;
+
+    static inline double mouseXpos = 0, mouseYPos = 0;
 
     static unsigned int numControllersConnected;
     static std::vector<GLFWgamepadstate> _gamepadStates;
 
-    // Workaround for C++ class using a c-style-callback
-public:
-    // Must be called before any KeyInput instances will work
-    void setupKeyInputs(const LillisWindow* window);
-private:
     // The GLFW callback for key events.  Sends events to all KeyInput instances
     static void keyboard_callback(
         GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -72,12 +74,8 @@ private:
         int jid, int event);
 
     static void checkNumControllers();
-    // Keep a list of all KeyInput instances and notify them all of key events
-    static std::vector<InputSystem*> _instances;
 
-    const LillisWindow* _window;
+    static inline const LillisWindow* _window = nullptr;
 
-    LILLIS::MouseSetting mouseSetting = LILLIS::MouseSetting::NORMAL_CURSOR;
-
-    EventSystem* evSys;
+    static inline LILLIS::MouseSetting mouseSetting = LILLIS::MouseSetting::NORMAL_CURSOR;
 };

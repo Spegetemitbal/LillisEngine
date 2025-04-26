@@ -13,7 +13,7 @@ class UISystem
 public:
 
     static UISystem* getInstance();
-    static UISystem* createInstance(RenderSettings render_settings);
+    static UISystem* createInstance(RenderSettings render_settings = RenderSettings());
     static void delInstance();
 
     void RenderUI()

@@ -1,6 +1,7 @@
 #include "../core/Lillis.h"
 #include "Rotator.h"
 #include "PlayerController.h"
+#include "EngineStuffs/UI/UISystem.h"
 
 Engine* e;
 WorldManager* wm;
@@ -48,19 +49,23 @@ int main(int argc, char* argv[])
 
 	RenderSettings renderSettings = RenderSettings(640, 480, 1280, 960);
 
-	e->Init(renderSettings, "Game", importantKeys);
+	GraphicsSystem* graphics = GraphicsSystem::createInstance(renderSettings, "Game");
+	graphics->Init();
+	InputSystem::addKeyCodes(importantKeys);
+	UISystem::createInstance(renderSettings);
 	wm = WorldManager::getInstance();
 
 	EventSystem* events = EventSystem::getInstance();
 	events->addCallback((EventType)COLLISION_EVENT ,handleEvent);
 
-	e->LoadImportData("assets/StaticData.lil");
-	e->InjectAssets("assets", SPRITE);
-	e->InjectAssets("assets", DATA);
-	e->InitAudio();
+	ResourceLoader::LoadProjectInfo("assets/StaticData.lil");
+	ResourceLoader::LoadDataRecursive("assets");
+	ResourceLoader::LoadTextureRecursive("assets");
+
+	AudioSystem::getInstance()->Init();
 	BehaviorSystem::RegisterBehavior("PlayerController", sizeof(PlayerController), PlayerController::CreatePlayerController);
 	BehaviorSystem::RegisterBehavior("Rotator", sizeof(Rotator), Rotator::CreateRotator);
-	wm->MakeWorld("PhysLevel");
+	wm->MakeWorld("Level");
 	e->Run();
 
 	Engine::DestroyGameInstance();

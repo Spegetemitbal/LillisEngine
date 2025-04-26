@@ -5,7 +5,7 @@
 #ifndef WORLDMANAGER_H
 #define WORLDMANAGER_H
 
-#include "GameObjectManager.h"
+#include "GameWorld.h"
 #include "Audio/AudioSystem.h"
 
 //The true SceneManager
@@ -14,9 +14,7 @@ class WorldManager {
 public:
 
     static WorldManager* createInstance();
-
     static WorldManager* getInstance();
-
     static void destroyInstance();
 
     bool WorldIsLoaded(const std::string& name)
@@ -29,6 +27,9 @@ public:
         if (loadedWorlds.contains(name))
         {
             nextLevel = name;
+        } else
+        {
+            std::cout << "No world named: " << name << " Is currently loaded." << std::endl;
         }
     }
 
@@ -52,7 +53,7 @@ public:
     {
         if (loadedWorlds.contains(name))
         {
-            GameObjectManager* delworld = loadedWorlds[name];
+            GameWorld* delworld = loadedWorlds[name];
             delete delworld;
             if (delworld == current_world)
             {
@@ -69,7 +70,7 @@ public:
         {
             loadedWorlds[name]->clearAll();
         }
-        auto* newWorld = DBG_NEW GameObjectManager();
+        auto* newWorld = DBG_NEW GameWorld();
         loadedWorlds.emplace(name, newWorld);
 
         if (current_world == nullptr)
@@ -99,7 +100,7 @@ public:
         loadedWorlds.clear();
     }
 
-    GameObjectManager* GetCurrentWorld()
+    GameWorld* GetCurrentWorld()
     {
         return current_world;
     }
@@ -115,21 +116,7 @@ private:
 
     friend class Engine;
 
-    bool SetWorld()
-    {
-        if (currentWorldName != nextLevel)
-        {
-            currentWorldName = nextLevel;
-            current_world = loadedWorlds[nextLevel];
-        }
-
-        if (generateWorldData)
-        {
-            generateWorldData = false;
-            return true;
-        }
-        return false;
-    }
+    void SetWorld();
 
     std::string nextLevel;
     bool generateWorldData = true;
@@ -139,8 +126,8 @@ private:
     ~WorldManager();
 
     std::string currentWorldName;
-    GameObjectManager* current_world = nullptr;
-    std::map<std::string, GameObjectManager*> loadedWorlds;
+    GameWorld* current_world = nullptr;
+    std::map<std::string, GameWorld*> loadedWorlds;
 };
 
 

@@ -7,7 +7,7 @@ EventSystem* EventSystem::eventSystem = nullptr;
 
 EventSystem::EventSystem()
 {
-
+	init();
 }
 
 EventSystem::~EventSystem()
@@ -118,11 +118,11 @@ void EventSystem::removeCallbackFromAllEvents(EventCallback pCallback)
 //Singleton getter
 EventSystem* EventSystem::getInstance()
 {
-	if (eventSystem != nullptr)
+	if (eventSystem == nullptr)
 	{
-		return eventSystem;
+		return createInstance();
 	}
-	return nullptr;
+	return eventSystem;
 }
 
 //Singleton init
@@ -138,8 +138,11 @@ EventSystem* EventSystem::createInstance()
 //Singleton delete
 void EventSystem::delInstance()
 {
-	delete eventSystem;
-	eventSystem = nullptr;
+	if (eventSystem != nullptr)
+	{
+		delete eventSystem;
+		eventSystem = nullptr;
+	}
 }
 
 //Just marks as innited, wipes it if not.
@@ -167,6 +170,9 @@ void EventSystem::fireEvent(const Event& theEvent)
 	if (IsInitted)
 	{
 		dispatchAllEvents(theEvent);
+	} else
+	{
+		std::cout << "EventSystem not initialized" << std::endl;
 	}
 }
 

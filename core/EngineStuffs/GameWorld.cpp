@@ -1,11 +1,11 @@
-#include "GameObjectManager.h"
+#include "GameWorld.h"
 #include "GameObject.h"
 #include "MemoryManagement/GameObjPool.h"
 #include "SceneGraph.h"
 #include "Graphics/RenderOrder.h"
 #include "UI/UISystem.h"
 
-GameObjectManager::GameObjectManager()
+GameWorld::GameWorld()
 {
 	objects = DBG_NEW GameObjPool(50);
 	transformPool = DBG_NEW ComponentPool<Transform>(50);
@@ -19,7 +19,7 @@ GameObjectManager::GameObjectManager()
 	behaviors = DBG_NEW BehaviorHandler(50);
 }
 
-GameObjectManager::~GameObjectManager() 
+GameWorld::~GameWorld() 
 { 
 	//clearAll();
 	delete objects;
@@ -37,7 +37,7 @@ GameObjectManager::~GameObjectManager()
 	}
 }
 
-LilObj<GameObject> GameObjectManager::addObject(const std::string& name)
+LilObj<GameObject> GameWorld::addObject(const std::string& name)
 {
 	GameObject* g = objects->AddObject(name);
 	LilObj<GameObject> ob = {objects, g->GetID()};
@@ -50,7 +50,7 @@ LilObj<GameObject> GameObjectManager::addObject(const std::string& name)
 	return ob;
 }
 
-LilObj<GameObject> GameObjectManager::addObject(float x, float y, const std::string& name)
+LilObj<GameObject> GameWorld::addObject(float x, float y, const std::string& name)
 {
 	GameObject* g = objects->AddObject(name);
 	LilObj<GameObject> ob = {objects, g->GetID()};
@@ -63,13 +63,13 @@ LilObj<GameObject> GameObjectManager::addObject(float x, float y, const std::str
 	return ob;
 }
 
-LilObj<GameObject> GameObjectManager::getObjectByName(const std::string &name)
+LilObj<GameObject> GameWorld::getObjectByName(const std::string &name)
 {
 	return objects->GetObjectByName(name);
 }
 
 
-LilObj<RectangleCollider> GameObjectManager::addCollider(float w, float h, int id)
+LilObj<RectangleCollider> GameWorld::addCollider(float w, float h, int id)
 {
 	RectangleCollider* r = colliderPool->AddComponent();
 	r->setHeight(h);
@@ -78,7 +78,7 @@ LilObj<RectangleCollider> GameObjectManager::addCollider(float w, float h, int i
 	return {colliderPool, r->GetID()};
 }
 
-LilObj<RigidBody> GameObjectManager::addRigidbody(RigidBodyShape shape, RigidBodyType rbType, float mass, float density, PhysicsMaterial material,
+LilObj<RigidBody> GameWorld::addRigidbody(RigidBodyShape shape, RigidBodyType rbType, float mass, float density, PhysicsMaterial material,
 		BoxData boxData, CircleData circleData)
 {
 	RigidBody* r = rigidBodyPool->AddComponent();
@@ -111,7 +111,7 @@ LilObj<RigidBody> GameObjectManager::addRigidbody(RigidBodyShape shape, RigidBod
 }
 
 
-LilObj<Sprite> GameObjectManager::addSprite(const std::string& name, unsigned int layer)
+LilObj<Sprite> GameWorld::addSprite(const std::string& name, unsigned int layer)
 {
 	//Probs refactor this later. Have component pools spit out smart pointers.
 	Sprite* s = spritePool->AddComponent();
@@ -121,19 +121,19 @@ LilObj<Sprite> GameObjectManager::addSprite(const std::string& name, unsigned in
 	return sP;
 }
 
-void GameObjectManager::setSpriteLayer(Sprite* spr)
+void GameWorld::setSpriteLayer(Sprite* spr)
 {
 	renderOrder->MoveSprite({spritePool, spr->GetID()});
 }
 
-LilObj<Animator> GameObjectManager::addAnimator()
+LilObj<Animator> GameWorld::addAnimator()
 {
 	Animator* a = animatorPool->AddComponent();
 	return {animatorPool, a->GetID()};
 }
 
 
-void GameObjectManager::clearAll()
+void GameWorld::clearAll()
 {
 	if (numObjects > 0)
 	{
@@ -150,12 +150,12 @@ void GameObjectManager::clearAll()
 	//sprites.clear();
 }
 
-LilObj<Behavior> GameObjectManager::addBehavior(const std::string &name) const
+LilObj<Behavior> GameWorld::addBehavior(const std::string &name) const
 {
 	return behaviors->CreateBehavior(name);
 }
 
-bool GameObjectManager::SetObjectParent(const std::string& parent, LilObj<GameObject> child)
+bool GameWorld::SetObjectParent(const std::string& parent, LilObj<GameObject> child)
 {
 	if (child->getRigidBody().Exists())
 	{
@@ -182,7 +182,7 @@ bool GameObjectManager::SetObjectParent(const std::string& parent, LilObj<GameOb
 	}
 }
 
-void GameObjectManager::RemoveObjectParent(LilObj<GameObject> child, bool inactive)
+void GameWorld::RemoveObjectParent(LilObj<GameObject> child, bool inactive)
 {
 	if (child.Exists())
 	{
@@ -194,17 +194,17 @@ void GameObjectManager::RemoveObjectParent(LilObj<GameObject> child, bool inacti
 	}
 }
 
-void GameObjectManager::RunTransformHierarchy()
+void GameWorld::RunTransformHierarchy()
 {
 	return sceneGraph->DoForwardKinematics();
 }
 
 
-ActiveTracker<GameObject*> GameObjectManager::getObjectsRaw() const { return objects->getPool(); };
-unsigned int GameObjectManager::getObjActive() const { return objects->GetActiveLine(); };
-void GameObjectManager::compactObjects(int active) const {objects->CompactPool(active);}
+ActiveTracker<GameObject*> GameWorld::getObjectsRaw() const { return objects->getPool(); };
+unsigned int GameWorld::getObjActive() const { return objects->GetActiveLine(); };
+void GameWorld::compactObjects(int active) const {objects->CompactPool(active);}
 
-TileGrid *GameObjectManager::createTileGrid(GridShape tileShape, glm::vec2 tileSize)
+TileGrid *GameWorld::createTileGrid(GridShape tileShape, glm::vec2 tileSize)
 {
 	if (tileSize.x < 1)
 	{
@@ -230,7 +230,7 @@ TileGrid *GameObjectManager::createTileGrid(GridShape tileShape, glm::vec2 tileS
 	return worldGrid;
 }
 
-TileMap *GameObjectManager::createTileMap(const TileSet& tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions)
+TileMap *GameWorld::createTileMap(const TileSet& tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions)
 {
 	if (dimensions.first < 5)
 	{

@@ -9,8 +9,8 @@
 
 struct RenderSettings
 {
-    unsigned int resolutionWidth = 0, resolutionHeight = 0;
-    unsigned int windowWidth = 0, windowHeight = 0;
+    unsigned int resolutionWidth = 640, resolutionHeight = 360;
+    unsigned int windowWidth = 640, windowHeight = 360;
     bool fullScreen = false;
 
     RenderSettings()

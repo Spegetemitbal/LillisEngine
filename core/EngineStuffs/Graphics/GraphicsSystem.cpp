@@ -4,7 +4,39 @@
 #include "RenderOrder.h"
 #include <glm/vec4.hpp>
 
-GraphicsSystem::GraphicsSystem(RenderSettings render_settings, std::string name)
+#include "Utils/InputSystem.h"
+
+GraphicsSystem* GraphicsSystem::instance = nullptr;
+
+GraphicsSystem* GraphicsSystem::getInstance()
+{
+	if (instance == nullptr)
+	{
+		return createInstance();
+	}
+	return instance;
+}
+
+GraphicsSystem* GraphicsSystem::createInstance(const RenderSettings &render_settings, const std::string& name)
+{
+	if (instance == nullptr)
+	{
+		instance = DBG_NEW GraphicsSystem(render_settings, name);
+	}
+	return instance;
+}
+
+void GraphicsSystem::delInstance()
+{
+	if (instance != nullptr)
+	{
+		delete instance;
+		instance = nullptr;
+	}
+}
+
+
+GraphicsSystem::GraphicsSystem(const RenderSettings &render_settings, const std::string &name)
 {
 	_windowName = name;
 	this->render_settings = render_settings;
@@ -12,7 +44,7 @@ GraphicsSystem::GraphicsSystem(RenderSettings render_settings, std::string name)
 
 GraphicsSystem::~GraphicsSystem()
 {
-
+	ShutDown();
 }
 
 void GraphicsSystem::error_callback(int error, const char* description)
@@ -23,6 +55,11 @@ void GraphicsSystem::error_callback(int error, const char* description)
 
 bool GraphicsSystem::Init()
 {
+	if (isInitted)
+	{
+		return true;
+	}
+
 	if (!glfwInit())
 	{
 		return false;
@@ -41,6 +78,8 @@ bool GraphicsSystem::Init()
 		printf("GLFW failed to create window");
 		return false;
 	}
+
+	InputSystem::Init(&_win);
 
 	if (render_settings.fullScreen)
 	{
@@ -107,6 +146,7 @@ bool GraphicsSystem::Init()
 
 	//For the love of god, move the sprite holder here.
 	//ResourceManager::LoadTextureRecursive("assets",true,false);
+	isInitted = true;
 	return true;
 }
 
@@ -120,6 +160,7 @@ void GraphicsSystem::ShutDown()
 	SpriteRenderer::shutdownRenderData();
 	_win.DelWindow();
 	glfwTerminate();
+	isInitted = false;
 }
 
 //Add more complex culling for static geometry
@@ -160,9 +201,13 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 	return culledSprites;
 }
 
-
 void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite, std::vector<TileMap>& tile_maps)
 {
+	if (!isInitted)
+	{
+		std::cerr << "Graphics system isn't initialized" << std::endl;
+		return;
+	}
 	//Do broad phase, cull all sprites not on screen.
 	std::vector<Sprite *> spritesOnScreen = CullToScreen(sprites,lastSprite);
 
@@ -239,6 +284,11 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 
 void GraphicsSystem::PreDraw()
 {
+	if (!isInitted)
+	{
+		std::cerr << "Graphics system isn't initialized" << std::endl;
+		return;
+	}
 	glfwPollEvents();
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glViewport(0, 0, render_settings.resolutionWidth, render_settings.resolutionHeight);
@@ -247,11 +297,21 @@ void GraphicsSystem::PreDraw()
 
 void GraphicsSystem::PostDraw()
 {
+	if (!isInitted)
+	{
+		std::cerr << "Graphics system isn't initialized" << std::endl;
+		return;
+	}
 	glfwSwapBuffers(_win.window);
 }
 
 void GraphicsSystem::RunPostProcessing()
 {
+	if (!isInitted)
+	{
+		std::cerr << "Graphics system isn't initialized" << std::endl;
+		return;
+	}
 	glBindVertexArray(postProcessVAO);
 
 	bool usingAlternativeFBO = false;
@@ -315,6 +375,11 @@ void GraphicsSystem::RunPostProcessing()
 
 void GraphicsSystem::AddPostProcess(LILLIS::Shader shader)
 {
+	if (!isInitted)
+	{
+		std::cerr << "Graphics system isn't initialized" << std::endl;
+		return;
+	}
 	postProcessChain.push_back(shader);
 	if (postProcessChain.size() > 2 && postProcessFBO < 1)
 	{
@@ -343,6 +408,11 @@ void GraphicsSystem::AddPostProcess(LILLIS::Shader shader)
 
 void GraphicsSystem::SetCursor(const std::string &imageName, unsigned int xHot, unsigned int yHot)
 {
+	if (!isInitted)
+	{
+		std::cerr << "Graphics system isn't initialized" << std::endl;
+		return;
+	}
 	if (_cursors.find(imageName) != _cursors.end())
 	{
 		glfwSetCursor(_win.window, _cursors[imageName]);

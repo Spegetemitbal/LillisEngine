@@ -9,53 +9,29 @@
 #include "Utils/InputSystem.h"
 #include "EngineStuffs/Graphics/RenderSettings.h"
 #include "System/System_Common.h"
-#include "Utils/ResourceManager.h"
-
-
-struct EngineState
-{
-    GraphicsSystem* graphics = nullptr;
-    PhysicsSystem* physics = nullptr;
-    InputSystem* gameInputs = nullptr;
-    LILLIS::System* system = nullptr;
-    bool quit = false;
-    bool isRunning = false;
-};
+//#include "Utils/ResourceManager.h"
 
 class Engine
 {
 public:
     static Engine* Game;
 
+    //TODO make this no longer a singleton- it's completely unnecessary.
     static Engine* GetGameInstance();
     static Engine* CreateGameInstance();
     static void DestroyGameInstance();
 
-    //TODO Split this
-    void Init(RenderSettings render_settings, std::string gameName, std::vector<LILLIS::KeyCode>);
-
-    //Do after loading import data.
-    bool InitAudio();
-
-    //TODO: Make better access to graphics and physics system data, this won't cut it. Try dependency injection?
-    const GraphicsSystem& GetGraphicsSystem() const
-    {
-        return *engine.graphics;
-    }
-
-    void InjectAssets(const char* filePath, AssetType resourceType);
-    void InjectSingleAsset(const char* filePath, AssetType resourceType);
-    void LoadImportData(const char* filePath);
-
     void Run();
 private:
-    EngineState engine;
+
+    bool timeToQuit = false;
+    bool isRunning = false;
+
+    LILLIS::System* system = nullptr;
 
     Engine();
     ~Engine();
 
-    //StackAllocator* FrameAllocator = DBG_NEW StackAllocator();
-    void SceneLoad() const;
     void frameStep();
     void renderStep();
     void updateScripts();

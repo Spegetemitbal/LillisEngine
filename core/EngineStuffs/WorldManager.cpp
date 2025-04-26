@@ -3,6 +3,8 @@
 //
 
 #include "WorldManager.h"
+#include "Utils/SceneLoader.h"
+#include "Physics/PhysicsSystem.h"
 
 WorldManager::~WorldManager()
 {
@@ -18,13 +20,34 @@ WorldManager *WorldManager::createInstance()
     return world_manager;
 }
 
+void WorldManager::SetWorld()
+{
+    if (currentWorldName != nextLevel)
+    {
+        currentWorldName = nextLevel;
+        current_world = loadedWorlds[nextLevel];
+    }
+
+    if (generateWorldData)
+    {
+        generateWorldData = false;
+        //return true;
+        SceneLoader::LoadData(currentWorldName);
+        current_world->RunTransformHierarchy();
+        ActiveTracker<RigidBody*> rb = current_world->getRBsRaw();
+        unsigned int numRB = current_world->getRBActive();
+        PhysicsSystem::getInstance()->InitRigidBodies(rb, numRB);
+    }
+    //return false;
+}
+
 WorldManager *WorldManager::getInstance()
 {
-    if (world_manager != nullptr)
+    if (world_manager == nullptr)
     {
-        return world_manager;
+        return createInstance();
     }
-    return nullptr;
+    return world_manager;
 }
 
 void WorldManager::destroyInstance()

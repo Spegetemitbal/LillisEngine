@@ -22,10 +22,10 @@ public:
     static Shader LoadShader(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile, const std::string &name);
 
     // loads (and generates) a texture from file
-    static Texture2D LoadTexture(const char* file, bool alpha);
+    static Texture2D LoadTexture(const char* file, bool alpha = true);
 
     // loads all textures in file
-    static void LoadTextureRecursive(const char* path, bool alpha);
+    static void LoadTextureRecursive(const char* path, bool alpha = true);
     // loads all shaders in file
     static void LoadShaderRecursive(const char* path);
     // loads all Data resources in file

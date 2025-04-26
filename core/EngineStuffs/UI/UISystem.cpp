@@ -4,6 +4,8 @@
 
 #include "UISystem.h"
 
+#include "EngineStuffs/Graphics/GraphicsSystem.h"
+
 UISystem::UISystem(RenderSettings render_settings)
 {
     uiPool = DBG_NEW ComponentPool<UIObject>(50);
@@ -29,11 +31,11 @@ LilObj<UIObject> UISystem::addUIObject(const std::string &name, const std::strin
 
 UISystem* UISystem::getInstance()
 {
-    if (instance != nullptr)
+    if (instance == nullptr)
     {
-        return instance;
+        return createInstance();
     }
-    return nullptr;
+    return instance;
 }
 
 //Singleton init
@@ -41,6 +43,11 @@ UISystem* UISystem::createInstance(RenderSettings render_settings)
 {
     if (instance == nullptr)
     {
+        if (!GraphicsSystem::getInstance()->GetIsInitted())
+        {
+            std::cerr << "Cannot create UISystem instance without initialized GraphicsSystem" << std::endl;
+            return nullptr;
+        }
         instance = DBG_NEW UISystem(render_settings);
     }
     return instance;

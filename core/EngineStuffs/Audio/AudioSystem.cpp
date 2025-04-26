@@ -31,6 +31,7 @@ void AudioSystem::destroyInstance()
     if (instance != nullptr)
     {
         delete instance;
+        instance = nullptr;
     }
 }
 

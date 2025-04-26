@@ -15,11 +15,15 @@ class GraphicsSystem
 {
 public:
 
-	GraphicsSystem(RenderSettings render_settings, std::string name);
-	~GraphicsSystem();
+	static GraphicsSystem* createInstance(const RenderSettings &render_settings = RenderSettings(), const std::string& name = "LILLIS");
+	static GraphicsSystem* getInstance();
+	static void delInstance();
+
+	GraphicsSystem() = delete;
 
 	bool Init();
 	void ShutDown();
+	bool GetIsInitted() const { return isInitted;}
 
 	//void Update();
 
@@ -62,13 +66,31 @@ public:
 
 	LillisWindow* GetWin() { return &_win; }
 
-	void closeWindow() { if (_win.window) { glfwSetWindowShouldClose(_win.window, GLFW_TRUE); } }
-	bool isWindowOpen() { return glfwWindowShouldClose(_win.window); }
+	void closeWindow()
+	{
+		if (!isInitted) {return;}
+		if (_win.window) { glfwSetWindowShouldClose(_win.window, GLFW_TRUE); }
+	}
+	bool isWindowOpen()
+	{
+		if (!isInitted)
+		{
+			return false;
+		}
+		return glfwWindowShouldClose(_win.window);
+	}
 
 	static void error_callback(int error, const char* description);
 	//void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 private:
+
+	GraphicsSystem(const RenderSettings &render_settings = RenderSettings(), const std::string &name = "LILLIS");
+	~GraphicsSystem();
+
+	bool isInitted = false;
+
+	static GraphicsSystem* instance;
 
 	unsigned int depthBuffer{}, fbo{}, colorBuffer{};
 	unsigned int postProcessVAO{}, postProcessFBO{}, postProcessColorBuffer{};
@@ -83,7 +105,7 @@ private:
 
 	std::unordered_map<std::string, GLFWcursor*> _cursors;
 
-	float upSprite, downSprite;
+	float upSprite = 0, downSprite = 0;
 
 	LillisWindow _win;
 	std::string _windowName = "";
