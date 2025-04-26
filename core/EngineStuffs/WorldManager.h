@@ -117,6 +117,7 @@ private:
     friend class Engine;
 
     void SetWorld();
+    void LoadWorld();
 
     std::string nextLevel;
     bool generateWorldData = true;

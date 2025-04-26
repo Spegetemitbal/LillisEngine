@@ -32,14 +32,20 @@ void WorldManager::SetWorld()
     {
         generateWorldData = false;
         //return true;
-        SceneLoader::LoadData(currentWorldName);
-        current_world->RunTransformHierarchy();
-        ActiveTracker<RigidBody*> rb = current_world->getRBsRaw();
-        unsigned int numRB = current_world->getRBActive();
-        PhysicsSystem::getInstance()->InitRigidBodies(rb, numRB);
+        LoadWorld();
     }
     //return false;
 }
+
+void WorldManager::LoadWorld()
+{
+    SceneLoader::LoadData(currentWorldName);
+    current_world->RunTransformHierarchy();
+    ActiveTracker<RigidBody*> rb = current_world->getRBsRaw();
+    unsigned int numRB = current_world->getRBActive();
+    PhysicsSystem::getInstance()->InitRigidBodies(rb, numRB);
+}
+
 
 WorldManager *WorldManager::getInstance()
 {
