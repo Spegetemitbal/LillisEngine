@@ -149,6 +149,15 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
     //linearVelocity += linearAcceleration;
     linearVelocity += gravity * deltaTime;
 
+    linearVelocity *= linearDamping;
+
+    if (glm::length(linearVelocity) <= EPSILON)
+    {
+        linearVelocity = {};
+        isSleeping = true;
+        return;
+    }
+
     transform->Translate(linearVelocity * deltaTime);
     transform->Rotate(glm::degrees(angularVelocity) * deltaTime);
 
@@ -231,6 +240,28 @@ float RigidBody::CalculateRotationalInertia() const
         return 0;
     }
 }
+
+void RigidBody::AddForce(glm::vec2 force)
+{
+    accumulatedForce += force;
+}
+
+void RigidBody::AddImpulse(glm::vec2 impulse)
+{
+    linearVelocity += impulse;
+    if (glm::length(impulse) > EPSILON)
+    {
+        isSleeping = false;
+    }
+}
+
+void RigidBody::SetForce(glm::vec2 force)
+{
+    accumulatedForce = force;
+}
+
+
+
 
 
 

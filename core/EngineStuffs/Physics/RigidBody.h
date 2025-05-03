@@ -74,13 +74,27 @@ public:
 
     void Integrate(float deltaTime, glm::vec2 gravity);
 
-    void AddForce(glm::vec2 force)
+    void AddForce(glm::vec2 force);
+    void SetForce(glm::vec2 force);
+    void AddImpulse(glm::vec2 impulse);
+
+    void SetLinearDamping(float damping)
     {
-        accumulatedForce += force;
+        damping = std::clamp(damping, 0.01f, 1.0f);
+        linearDamping = 1.0f - damping;
     }
-    void SetForce(glm::vec2 force)
+    void SetAngularDamping(float damping)
     {
-        accumulatedForce = force;
+        damping = std::clamp(damping, 0.01f, 1.0f);
+        angularDamping = 1.0f - damping;
+    }
+    float GetLinearDamping() const
+    {
+        return 1.0f - linearDamping;
+    }
+    float GetAngularDamping() const
+    {
+        return 1.0f - angularDamping;
     }
 
     AABB GetAABB();
@@ -106,6 +120,11 @@ public:
 private:
 
     friend class PhysicsSystem;
+    static inline float EPSILON = 0.005f;
+
+    bool isSleeping = false;
+    float linearDamping = 0.98f;
+    float angularDamping = 0.98f;
 
     glm::vec2 linearVelocity = {};
     float angularVelocity = 0.0f;

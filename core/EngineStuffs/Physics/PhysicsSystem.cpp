@@ -70,7 +70,6 @@ void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &phys
 
 
     iterations = std::clamp(iterations, MinIterations, MaxIterations);
-    contactList.clear();
     deltaTime /= (float)iterations;
 
     for (unsigned int it = 0; it < iterations; it++)
@@ -80,7 +79,8 @@ void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &phys
         //Movement Step
         for (int i = 0; i < numActive; i++)
         {
-            if (physObjects[i]->GetActive() && physObjects[i]->bodyType != RigidBodyType::RB_STATIC)
+            if (physObjects[i]->GetActive() && physObjects[i]->bodyType != RigidBodyType::RB_STATIC
+                && !physObjects[i]->isSleeping)
             {
                 physObjects[i]->Integrate(deltaTime, gravity);
                 physObjects[i]->UpdateVertices();
@@ -91,7 +91,6 @@ void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &phys
 
         BroadPhase(physObjects, numActive);
         NarrowPhase(physObjects);
-
     }
 }
 
@@ -152,7 +151,7 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects)
             CollisionChecker::FindContactPoints(bodyA, bodyB, contact1, contact2, contactCount);
             ColManifold cm = ColManifold(bodyA, bodyB, normal, depth, contactCount, contact1, contact2);
             //ResolveCollisionBasic(cm);
-            ResolveCollisionBasic(cm);
+            ResolveCollisionComplex(cm);
         }
     }
 }
@@ -285,10 +284,10 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
         glm::vec2 ra = raList[i];
         glm::vec2 rb = rbList[i];
 
-        bodyA->linearVelocity += -impulse * bodyA->invMass;
-        bodyA->angularVelocity += -(ra.x * impulse.y - impulse.x * ra.y) * bodyA->invInertia;
-        bodyB->linearVelocity += impulse * bodyB->invMass;
-        bodyB->angularVelocity += (rb.x * impulse.y - impulse.x * rb.y) * bodyB->invInertia;
+        bodyA->AddImpulse(-impulse * bodyA->invMass);
+        //bodyA->angularVelocity += -(ra.x * impulse.y - impulse.x * ra.y) * bodyA->invInertia;
+        bodyB->AddImpulse(impulse * bodyB->invMass);
+        //bodyB->angularVelocity += (rb.x * impulse.y - impulse.x * rb.y) * bodyB->invInertia;
     }
 
     //Calculate friction impulse
@@ -330,6 +329,12 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
         jt /= denom;
         jt /= (float)contactCount;
 
+        //No tiny stuff.
+        if (jt < RigidBody::EPSILON)
+        {
+            continue;
+        }
+
         glm::vec2 impulseFric;
         float j = jList[i];
 
@@ -353,11 +358,20 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
 
         //TODO: Make a cross product function-
         // cz = ax * by − ay * bx
-        //bodyA->linearVelocity += -frictionImpulse * bodyA->invMass;
+        bodyA->AddImpulse(-frictionImpulse * bodyA->invMass);
         //bodyA->angularVelocity += -((ra.x * frictionImpulse.y) - (frictionImpulse.x * ra.y)) * bodyA->invInertia;
-        //bodyB->linearVelocity += frictionImpulse * bodyB->invMass;
+        bodyB->AddImpulse(frictionImpulse * bodyB->invMass);
         //bodyB->angularVelocity += ((rb.x * frictionImpulse.y) - (frictionImpulse.x * rb.y)) * bodyB->invInertia;
     }
+
+    /*if (glm::length(bodyA->linearVelocity) <= RigidBody::EPSILON)
+    {
+        bodyA->isSleeping = true;
+    }
+    if (glm::length(bodyB->linearVelocity) <= RigidBody::EPSILON)
+    {
+        bodyB->isSleeping = true;
+    }*/
 }
 
 

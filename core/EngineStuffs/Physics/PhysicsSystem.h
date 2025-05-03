@@ -9,7 +9,7 @@
 struct PhysicsSettings
 {
     unsigned int physicsIterations = 2;
-    glm::vec2 gravity = glm::vec2(0.0f, -9.8f);
+    glm::vec2 gravity = glm::vec2(0.0f, -98.1f);
 };
 
 class PhysicsSystem
