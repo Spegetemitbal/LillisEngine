@@ -140,14 +140,35 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
         return;
     }
 
-    //TODO: Add force generators.
-    //TODO: Add drag.
-    //accumulatedForce += gravity * gravityScale * deltaTime;
+    glm::vec2 k1,k2,k3,k4;
 
-    //glm::vec2 linearAcceleration = accumulatedForce / mass;
+    glm::vec2 accumulatedForce = gravity;
 
-    //linearVelocity += linearAcceleration;
-    linearVelocity += gravity * deltaTime;
+    //RUNGE KUTTA DEEZ NUTS.
+
+    //Compute k1
+    //TODO: Replace with accumulated force.
+    //TODO: technically all accumulatedforce things are supposed to be multiplied by invMass. But currently that's too slow.
+    glm::vec2 acceleration = accumulatedForce;
+    k1 = acceleration * deltaTime;
+
+    //Compute k2
+    acceleration = accumulatedForce + (k1 * 0.5f);
+    k2 = acceleration * deltaTime;
+
+    //Compute k3
+    acceleration = accumulatedForce + (k2 * 0.5f);
+    k3 = acceleration * deltaTime;
+
+    //Compute k4
+    acceleration = accumulatedForce + (k3 * 0.5f);
+    k4 = acceleration * deltaTime;
+
+    // (((k2 * 2) + k1) + (k3 * 2) + k4)) / 6;
+    glm::vec2 deltaVelocity = (k1 + (k2 * 2.0f) + (k3 * 2.0f) + k4) / 6.0f;
+    linearVelocity += deltaVelocity;
+    glm::vec2 deltaPosition = linearVelocity * deltaTime;
+    transform->Translate(deltaPosition);
 
     linearVelocity *= linearDamping;
 
@@ -158,8 +179,8 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
         return;
     }
 
-    transform->Translate(linearVelocity * deltaTime);
-    transform->Rotate(glm::degrees(angularVelocity) * deltaTime);
+    //transform->Translate(linearVelocity * deltaTime);
+    //transform->Rotate(glm::degrees(angularVelocity) * deltaTime);
 
    // accumulatedForce = {0,0};
     if (bodyShape == RigidBodyShape::RB_BOX)

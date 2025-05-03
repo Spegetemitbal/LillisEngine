@@ -53,7 +53,7 @@ void PhysicsSystem::SetPhysicsSettings(PhysicsSettings settings)
 
 void PhysicsSystem::InitRigidBodies(ActiveTracker<RigidBody *> &physObjects, unsigned int numActive)
 {
-    for (unsigned int i = 0; i < numActive; i++)
+    for (int i = 0; i < numActive; i++)
     {
         physObjects[i]->UpdateVertices();
         physObjects[i]->GetAABB();
@@ -61,7 +61,7 @@ void PhysicsSystem::InitRigidBodies(ActiveTracker<RigidBody *> &physObjects, uns
 }
 
 
-void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive)
+void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive)
 {
     if (numActive == 0)
     {
@@ -82,7 +82,7 @@ void PhysicsSystem::PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &phys
             if (physObjects[i]->GetActive() && physObjects[i]->bodyType != RigidBodyType::RB_STATIC
                 && !physObjects[i]->isSleeping)
             {
-                physObjects[i]->Integrate(deltaTime, gravity);
+                physObjects[i]->Integrate((float)deltaTime, gravity);
                 physObjects[i]->UpdateVertices();
             }
         }

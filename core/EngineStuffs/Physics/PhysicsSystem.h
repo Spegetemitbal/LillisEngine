@@ -30,7 +30,7 @@ public:
     void SetPhysicsSettings(PhysicsSettings settings);
 
     void InitRigidBodies(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
-    void PhysicsStep(float deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
+    void PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
 
 private:
 
