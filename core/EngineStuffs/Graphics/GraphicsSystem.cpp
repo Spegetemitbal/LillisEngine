@@ -4,6 +4,7 @@
 #include "RenderOrder.h"
 #include <glm/vec4.hpp>
 
+#include "ProcGen.h"
 #include "Utils/InputSystem.h"
 
 GraphicsSystem* GraphicsSystem::instance = nullptr;
@@ -130,15 +131,18 @@ bool GraphicsSystem::Init()
 	// configure shaders
 	ResourceManager::GetShader("Default").Use().SetInteger("image", 0);
 	ResourceManager::GetShader("Default").SetMatrix4("projection", mainCamera.projectionMatrix());
+	ResourceManager::GetShader("DefaultProcGen").SetMatrix4("_projection", mainCamera.projectionMatrix());
 	// set render-specific controls
 	SpriteRenderer::setDefaultShader(ResourceManager::GetShader("Default"));
 	SpriteRenderer::setDefaultUIShader(ResourceManager::GetShader("DefaultUI"));
+	SpriteRenderer::setDefaultProcGenShader(ResourceManager::GetShader("DefaultProcGen"));
 	SpriteRenderer::initRenderData();
 	// load textures
 
 	//Beep beep I'm a sheep
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LEQUAL);
 
@@ -146,6 +150,7 @@ bool GraphicsSystem::Init()
 
 	//For the love of god, move the sprite holder here.
 	//ResourceManager::LoadTextureRecursive("assets",true,false);
+
 	isInitted = true;
 	return true;
 }
@@ -244,7 +249,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	//Set the relevant depth values
 	RenderOrder::CalculateOrder(spritesOnScreen, upSprite, downSprite);
 
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 
 	for (int i = 0; i < spritesOnScreen.size(); i++)
 	{
@@ -278,6 +283,9 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 			}
 		}
 	}
+
+	glDisable(GL_DEPTH_TEST);
+	ProcGen::getInstance()->Render(mainCamera.projectionMatrix());
 
 	RunPostProcessing();
 }

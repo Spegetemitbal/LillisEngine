@@ -171,6 +171,7 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
     transform->Translate(deltaPosition);
 
     linearVelocity *= linearDamping;
+    angularVelocity *= angularDamping;
 
     if (glm::length(linearVelocity) <= EPSILON)
     {
@@ -179,8 +180,7 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
         return;
     }
 
-    //transform->Translate(linearVelocity * deltaTime);
-    //transform->Rotate(glm::degrees(angularVelocity) * deltaTime);
+    //transform->Rotate((angularVelocity) * deltaTime);
 
    // accumulatedForce = {0,0};
     if (bodyShape == RigidBodyShape::RB_BOX)
@@ -267,10 +267,11 @@ void RigidBody::AddForce(glm::vec2 force)
     accumulatedForce += force;
 }
 
-void RigidBody::AddImpulse(glm::vec2 impulse)
+void RigidBody::AddImpulse(glm::vec2 impulse, float torque)
 {
     linearVelocity += impulse;
-    if (glm::length(impulse) > EPSILON)
+    angularVelocity += torque;
+    if (glm::length(impulse) > EPSILON && torque > EPSILON)
     {
         isSleeping = false;
     }

@@ -1,4 +1,5 @@
 #pragma once
+#include <glm/trigonometric.hpp>
 #include <glm/vec2.hpp>
 #include "Component.h"
 
@@ -23,18 +24,32 @@ public:
 	void SetLocalPosition(glm::vec2 pos) {localPosition = pos; toUpdate = true;}
 
 	float LocalRotation() const {return localRotation;}
-	void Rotate(float rotation)
+	void Rotate(float rotation, bool degrees = false)
 	{
 		if (rotation == 0.0f)
 		{
 			return;
 		}
-		localRotation += rotation;
+		if (degrees)
+		{
+			localRotation += glm::radians(rotation);
+		}
+		else
+		{
+			localRotation += rotation;
+		}
 		toUpdate = true;
 	}
-	void SetLocalRotation(float rotation)
+	void SetLocalRotation(float rotation, bool degrees = false)
 	{
-		localRotation = rotation;
+		if (degrees)
+		{
+			localRotation = glm::radians(rotation);
+		}
+		else
+		{
+			localRotation = rotation;
+		}
 		toUpdate = true;
 	}
 
@@ -75,6 +90,7 @@ private:
 	bool toUpdate = true;
 
 	glm::vec2 localPosition;
+	//In radians.
 	float localRotation = 0;
 	glm::vec2 localScale = { 1.0f, 1.0f };
 

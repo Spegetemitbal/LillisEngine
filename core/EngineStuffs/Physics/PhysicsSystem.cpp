@@ -228,7 +228,6 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
     resContacts[0] = contact1;
     resContacts[1] = contact2;
 
-    //Handle normal collision impulse
     for (int i = 0; i < contactCount; i++)
     {
         impulseList[i] = {};
@@ -236,7 +235,11 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
         rbList[i] = {};
         frictionImpulseList[i] = {};
         jList[i] = 0.0f;
+    }
 
+    //Handle normal collision impulse
+    for (int i = 0; i < contactCount; i++)
+    {
         glm::vec2 ra = resContacts[i] - bodyA->transform->GlobalPosition();
         glm::vec2 rb = resContacts[i] - bodyB->transform->GlobalPosition();
 
@@ -284,10 +287,8 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
         glm::vec2 ra = raList[i];
         glm::vec2 rb = rbList[i];
 
-        bodyA->AddImpulse(-impulse * bodyA->invMass);
-        //bodyA->angularVelocity += -(ra.x * impulse.y - impulse.x * ra.y) * bodyA->invInertia;
-        bodyB->AddImpulse(impulse * bodyB->invMass);
-        //bodyB->angularVelocity += (rb.x * impulse.y - impulse.x * rb.y) * bodyB->invInertia;
+        bodyA->AddImpulse(-impulse * bodyA->invMass, -(ra.x * impulse.y - impulse.x * ra.y) * bodyA->invInertia);
+        bodyB->AddImpulse(impulse * bodyB->invMass, (rb.x * impulse.y - impulse.x * rb.y) * bodyB->invInertia);
     }
 
     //Calculate friction impulse
@@ -358,20 +359,9 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
 
         //TODO: Make a cross product function-
         // cz = ax * by − ay * bx
-        bodyA->AddImpulse(-frictionImpulse * bodyA->invMass);
-        //bodyA->angularVelocity += -((ra.x * frictionImpulse.y) - (frictionImpulse.x * ra.y)) * bodyA->invInertia;
-        bodyB->AddImpulse(frictionImpulse * bodyB->invMass);
-        //bodyB->angularVelocity += ((rb.x * frictionImpulse.y) - (frictionImpulse.x * rb.y)) * bodyB->invInertia;
+        bodyA->AddImpulse(-frictionImpulse * bodyA->invMass, -((ra.x * frictionImpulse.y) - (frictionImpulse.x * ra.y)) * bodyA->invInertia);
+        bodyB->AddImpulse(frictionImpulse * bodyB->invMass, ((rb.x * frictionImpulse.y) - (frictionImpulse.x * rb.y)) * bodyB->invInertia);
     }
-
-    /*if (glm::length(bodyA->linearVelocity) <= RigidBody::EPSILON)
-    {
-        bodyA->isSleeping = true;
-    }
-    if (glm::length(bodyB->linearVelocity) <= RigidBody::EPSILON)
-    {
-        bodyB->isSleeping = true;
-    }*/
 }
 
 

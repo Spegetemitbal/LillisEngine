@@ -10,6 +10,8 @@ void SpriteRenderer::initRenderData()
 
     glCreateVertexArrays(1, &quadVAO);
     glGenBuffers(2, VBO);
+    glCreateVertexArrays(1, &ProcGenVAO);
+    glGenBuffers(2, ProcGenVBO);
 
     glBindVertexArray(quadVAO);
     glEnableVertexAttribArray(0);
@@ -48,12 +50,17 @@ void SpriteRenderer::initRenderData()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 
     //glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
     glBindVertexArray(0);
 }
 
 void SpriteRenderer::shutdownRenderData()
 {
     glDeleteVertexArrays(1, &quadVAO);
+    glDeleteBuffers(2, VBO);
+    glDeleteVertexArrays(1, &ProcGenVAO);
+    glDeleteBuffers(2, ProcGenVBO);
 }
 
 
@@ -132,3 +139,34 @@ void SpriteRenderer::DrawUI(const Texture2D &texture, glm::vec2 position, int fr
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
+
+void SpriteRenderer::DrawProcGen(std::vector<float>& verts, std::vector<float>& colors, int numObjects, bool isLine, glm::mat4 camera)
+{
+    procGenShader.Use();
+    procGenShader.SetMatrix4("_projection", camera);
+    glBindVertexArray(ProcGenVAO);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    //Set vertices
+    glBindBuffer(GL_ARRAY_BUFFER, ProcGenVBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(float), verts.data(), GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE,  2 * sizeof(float), (void*)0);
+
+    //Set Colors.
+    glBindBuffer(GL_ARRAY_BUFFER, ProcGenVBO[1]);
+    glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(float), colors.data(), GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE,  4 * sizeof(float), (void*)0);
+
+    if (isLine)
+    {
+        glDrawArrays(GL_LINES, 0, 2 * numObjects);
+    } else
+    {
+        glDrawArrays(GL_POINTS, 0, numObjects);
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+

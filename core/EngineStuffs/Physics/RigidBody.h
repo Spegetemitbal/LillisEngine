@@ -76,7 +76,7 @@ public:
 
     void AddForce(glm::vec2 force);
     void SetForce(glm::vec2 force);
-    void AddImpulse(glm::vec2 impulse);
+    void AddImpulse(glm::vec2 impulse, float torque = 0);
 
     void SetLinearDamping(float damping)
     {

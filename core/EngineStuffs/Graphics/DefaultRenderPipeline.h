@@ -47,6 +47,21 @@ public:
 			"in vec2 UV;"
 			"uniform sampler2D _ColorBuffer;"
 			"void main(){vec3 color = texture(_ColorBuffer,UV).rgb; FragColor = vec4(color,1.0);}");
+
+		procGenVertex = std::string(
+			"#version 450\n"
+			"layout(location = 0) in vec2 vertex1;"
+			"layout(location = 1) in vec4 vertexColor;"
+			"out vec4 color;"
+			"uniform mat4 _projection;"
+			"void main(){ color = vertexColor; gl_Position = _projection * vec4(vertex1.xy, -15.0, 1.0);}");
+
+		procGenFragment = std::string(
+			"#version 450\n"
+			"in vec4 color;"
+			"out vec4 FragColor;"
+			"void main(){FragColor = color;}");
+
 	}
 
 	std::string fragment;
@@ -57,4 +72,7 @@ public:
 
 	std::string postProcessVertex;
 	std::string postProcessFragment;
+
+	std::string procGenVertex;
+	std::string procGenFragment;
 };
