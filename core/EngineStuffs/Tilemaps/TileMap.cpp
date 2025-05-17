@@ -61,15 +61,15 @@ TileMap::TileMap(TileGrid *grid, TileSet tileSet, std::pair<int, int> gridIndex,
     GeneratePartitions();
 }
 
-glm::vec2 TileMap::CullMap(AABB camAABB)
+glm::vec2 TileMap::CullMap(AABB camAABB, unsigned int pixelsPerUnit)
 {
     //BROAD PHASE
 
     AABB chunkAABB = {0,0,0,0};
     for (int i = 0; i < partitions.size(); i++)
     {
-        chunkAABB.min = {partitions[i].x, partitions[i].y};
-        chunkAABB.max = {partitions[i].z, partitions[i].w};
+        chunkAABB.min = {partitions[i].x, partitions[i].y} * (float)pixelsPerUnit;
+        chunkAABB.max = {partitions[i].z, partitions[i].w} * (float)pixelsPerUnit;
 
         if (AABB::Intersect(camAABB, chunkAABB))
         {
@@ -112,11 +112,11 @@ glm::vec2 TileMap::CullMap(AABB camAABB)
                 int index = FindIndexOfTile(x, y);
                 if (tiles[index] > -1)
                 {
-                    tileAABB.min = tileWorldPositions[index] - tileSize;
-                    tileAABB.max = tileWorldPositions[index] + tileSize;
+                    tileAABB.min = (tileWorldPositions[index] - tileSize) * (float)pixelsPerUnit;
+                    tileAABB.max = (tileWorldPositions[index] + tileSize) * (float)pixelsPerUnit;
                     if (AABB::Intersect(camAABB, tileAABB))
                     {
-                        tilesToRender.emplace_back(tileWorldPositions[index], tiles[index], 0);
+                        tilesToRender.emplace_back(tileWorldPositions[index] * (float)pixelsPerUnit, tiles[index], 0);
                         if (tileWorldPositions[index].y < minTileY)
                         {
                             minTileY = tileWorldPositions[index].y;

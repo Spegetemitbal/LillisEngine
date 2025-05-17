@@ -80,7 +80,7 @@ public:
     }
 
     //x value is low, y value is high.
-    glm::vec2 CullMap(AABB camAABB);
+    glm::vec2 CullMap(AABB camAABB, unsigned int pixelsPerUnit);
 
     std::vector<TileLoc> tilesToRender;
     unsigned int layer = 0;

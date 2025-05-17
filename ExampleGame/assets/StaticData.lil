@@ -35,15 +35,15 @@ KeyFrame 0.5 1
 Transform 0 40 0 1 1
 ANIMATION FigureEight 5 LOOP true false
 KeyFrame 0.5 0
-SplinePoint 50 20
+SplinePoint 1.25 0.5
 KeyFrame 0.5 0
-SplinePoint 50 -20
+SplinePoint 1.25 -0.5
 KeyFrame 0.5 0
-SplinePoint -50 20
+SplinePoint -1.25 0.5
 KeyFrame 0.5 0
-SplinePoint -50 -20
+SplinePoint -1.25 -0.5
 KeyFrame 0 0
-SplinePoint 50 20
+SplinePoint 1.25 0.5
 TILESET rectTest 4
 A TileBackdrop 0 32
 B TileBackdrop 1 32

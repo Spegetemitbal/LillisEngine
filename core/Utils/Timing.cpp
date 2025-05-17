@@ -12,7 +12,7 @@ double Timing::deltaTime = 0;
 double Timing::unscaledDeltaTime = 0;
 double Timing::timeSinceLevelStart = 0;
 
-double Timing::realFrameRate = 0.016;
+double Timing::realFrameRate = 0.02;
 u64 Timing::frame = 0;
 
 //Call once, after glfwinit

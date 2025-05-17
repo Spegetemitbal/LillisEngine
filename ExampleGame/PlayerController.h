@@ -18,8 +18,7 @@ public:
 	void LoadListeners() override;
 	void handleEvent(const Event& theEvent);
 
-
 	bool w = false, s = false, a = false, d = false;
 private:
-	
+	const float moveSpeed = 2.0f;
 };

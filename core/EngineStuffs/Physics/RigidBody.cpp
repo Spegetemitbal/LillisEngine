@@ -173,14 +173,15 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
     linearVelocity *= linearDamping;
     angularVelocity *= angularDamping;
 
-    if (glm::length(linearVelocity) <= EPSILON)
+    if (glm::length(linearVelocity) <= EPSILON && std::abs(angularVelocity) <= EPSILON)
     {
         linearVelocity = {};
+        angularVelocity = 0.0f;
         isSleeping = true;
         return;
     }
 
-    //transform->Rotate((angularVelocity) * deltaTime);
+    transform->Rotate((angularVelocity) * deltaTime);
 
    // accumulatedForce = {0,0};
     if (bodyShape == RigidBodyShape::RB_BOX)
@@ -248,6 +249,10 @@ AABB RigidBody::GetAABB()
 
 float RigidBody::CalculateRotationalInertia() const
 {
+    if (bodyType == RigidBodyType::RB_STATIC)
+    {
+        return 0.0f;
+    }
 
     if (bodyShape == RigidBodyShape::RB_BOX)
     {
@@ -271,7 +276,7 @@ void RigidBody::AddImpulse(glm::vec2 impulse, float torque)
 {
     linearVelocity += impulse;
     angularVelocity += torque;
-    if (glm::length(impulse) > EPSILON && torque > EPSILON)
+    if (glm::length(impulse) > EPSILON || std::abs(torque) > EPSILON)
     {
         isSleeping = false;
     }

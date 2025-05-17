@@ -1,4 +1,4 @@
-Grid Rectangle 32 32
+Grid Rectangle 0.8 0.8
 TileMap rectTest -5 -5 10 10
 C 0 0 0 0 0 0 0 0 C
 0 B A D 0 0 B 0 0 0
@@ -10,23 +10,23 @@ C 0 0 0 0 0 0 0 0 C
 D 0 0 0 0 0 0 A 0 0
 0 0 B 0 0 0 B 0 0 0
 C 0 0 0 0 0 D 0 0 A
-Object -320 240 0 Player1 NONE
-Collider 40 40 0
-Sprite UniformTest 1 40 40
+Object -8 6 0 Player1 NONE
+Collider 1 1 0
+Sprite UniformTest 1 1 1
 Animator Multiple Player1
 Behavior PlayerController )
 ;
-Object 0 -100 0 Player2 Player1
-Collider 40 40 1
-Sprite Player2 1 40 40
+Object 0 -2.5 0 Player2 Player1
+Collider 1 1 1
+Sprite Player2 1 1 1
 Behavior PlayerController )
 ;
-Object 320 0 0 WinFlag NONE
-Sprite WinFlag 1 40 40
-Collider 40 40 2
+Object 8 0 0 WinFlag NONE
+Sprite WinFlag 1 1 1
+Collider 1 1 2
 ;
 Object 0 0 0 FlippyBoy NONE
-Sprite Angry 1 40 40
+Sprite Angry 1 1 1
 Animator Single FigureEight
 ;
 NonObject 0 0 0 Background NONE

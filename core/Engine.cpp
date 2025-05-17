@@ -3,6 +3,7 @@
 #include "EngineStuffs/Audio/AudioSystem.h"
 #include "EngineStuffs/UI/UISystem.h"
 //#include "Utils/ResourceLoader.h"
+#include "EngineStuffs/Graphics/ProcGen.h"
 #include "Utils/Timing.h"
 
 #define WORLD WorldManager::getInstance()->GetCurrentWorld()
@@ -86,6 +87,8 @@ void Engine::Run()
 void Engine::frameStep()
 {
     InputSystem::UpdateControllers();
+    //TODO: Move this elsewhere.
+    ProcGen::getInstance()->ClearObjects();
 
     updateScripts();
 
@@ -113,11 +116,8 @@ void Engine::frameStep()
         }
     }
 
-    //TODO: Add physics precision into engine settings.
-
     ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
     unsigned int numRB = WORLD->getRBActive();
-    //TODO: make a double please!
     PhysicsSystem::getInstance()->PhysicsStep(Timing::fixedUpdateTime, rb, numRB);
 
     //First run all possible changes, then run hierarchy.

@@ -11,19 +11,21 @@ struct RenderSettings
 {
     unsigned int resolutionWidth = 640, resolutionHeight = 360;
     unsigned int windowWidth = 640, windowHeight = 360;
+    unsigned int pixelsPerUnit = 40;
     bool fullScreen = false;
 
     RenderSettings()
     = default;
 
     RenderSettings(unsigned int resolutionWidth, unsigned int resolutionHeight,
-        unsigned int windowWidth, unsigned int windowHeight, bool fullScreen = false)
+        unsigned int windowWidth, unsigned int windowHeight, unsigned int pixelsPerUnit, bool fullScreen = false)
     {
         this->resolutionWidth = resolutionWidth;
         this->resolutionHeight = resolutionHeight;
         this->windowWidth = windowWidth;
         this->windowHeight = windowHeight;
         this->fullScreen = fullScreen;
+        this->pixelsPerUnit = pixelsPerUnit;
     }
 
     void ScaleAll(unsigned int scalar, bool increase)

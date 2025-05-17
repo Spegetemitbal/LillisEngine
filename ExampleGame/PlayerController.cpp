@@ -15,26 +15,24 @@ void PlayerController::Update(float deltaTime)
 {
 	//std::cout << "Internal: " << thisObject->getSprite() << '\n';
 
-	int speed = 5;
-
 	//Make this more cache friendly.
 	LilObj<Transform> t = thisObject->transform;
 
 	if (w)
 	{
-		t->Translate({0, speed});
+		t->Translate({0, moveSpeed * deltaTime});
 	}
 	else if (s)
 	{
-		t->Translate({0, -speed});
+		t->Translate({0, -moveSpeed * deltaTime});
 	}
 	if (a)
 	{
-		t->Translate({-speed, 0});
+		t->Translate({-moveSpeed * deltaTime, 0});
 	}
 	else if (d)
 	{
-		t->Translate({speed, 0});
+		t->Translate({moveSpeed * deltaTime, 0});
 	}
 	//std::cout << "PostMove: " << t.x << " " << t.y << '\n';
 }

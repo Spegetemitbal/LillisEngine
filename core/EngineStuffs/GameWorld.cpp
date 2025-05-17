@@ -206,11 +206,11 @@ void GameWorld::compactObjects(int active) const {objects->CompactPool(active);}
 
 TileGrid *GameWorld::createTileGrid(GridShape tileShape, glm::vec2 tileSize)
 {
-	if (tileSize.x < 1)
+	if (tileSize.x <= 0)
 	{
 		tileSize.x = 1;
 	}
-	if (tileSize.y < 1)
+	if (tileSize.y <= 0)
 	{
 		tileSize.y = 1;
 	}

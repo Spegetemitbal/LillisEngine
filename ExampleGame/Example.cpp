@@ -1,6 +1,7 @@
 #include "../core/Lillis.h"
 #include "Rotator.h"
 #include "PlayerController.h"
+#include "EngineStuffs/Graphics/ProcGen.h"
 #include "EngineStuffs/UI/UISystem.h"
 
 Engine* e;
@@ -47,7 +48,7 @@ int main(int argc, char* argv[])
 		LILLIS::W, LILLIS::S, LILLIS::A, LILLIS::D, LILLIS::ESC
 	};
 
-	RenderSettings renderSettings = RenderSettings(640, 480, 1280, 960);
+	RenderSettings renderSettings = RenderSettings(640, 480, 1280, 960, 40);
 
 	GraphicsSystem* graphics = GraphicsSystem::createInstance(renderSettings, "Game");
 	graphics->Init();
@@ -63,9 +64,15 @@ int main(int argc, char* argv[])
 	ResourceLoader::LoadTextureRecursive("assets");
 
 	AudioSystem::getInstance()->Init();
+	PhysicsSettings physics_settings = PhysicsSettings();
+	physics_settings.gravity = {};
+	PhysicsSystem* phys = PhysicsSystem::createInstance(physics_settings);
+	ProcGen* procGen = ProcGen::createInstance(30);
+	procGen->SetPointSize(3.0f);
+	phys->DoRenderPhysics(true);
 	BehaviorSystem::RegisterBehavior("PlayerController", sizeof(PlayerController), PlayerController::CreatePlayerController);
 	BehaviorSystem::RegisterBehavior("Rotator", sizeof(Rotator), Rotator::CreateRotator);
-	wm->MakeWorld("PhysLevel");
+	wm->MakeWorld("Level");
 	e->Run();
 
 	Engine::DestroyGameInstance();

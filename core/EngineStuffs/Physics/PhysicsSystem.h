@@ -32,11 +32,18 @@ public:
     void InitRigidBodies(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
     void PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
 
+    void DoRenderPhysics(bool rndr)
+    {
+        renderPhysics = rndr;
+    }
+
 private:
 
     static PhysicsSystem* instance;
     PhysicsSystem(PhysicsSettings settings);
     ~PhysicsSystem() = default;
+
+    bool renderPhysics = false;
 
     void BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
     void NarrowPhase(ActiveTracker<RigidBody*> &physObjects);
@@ -54,5 +61,6 @@ private:
     static void SeparateBodies(RigidBody* bodyA, RigidBody* bodyB, const glm::vec2& mtv);
     static void ResolveCollisionBasic(ColManifold& contact);
     void ResolveCollisionComplex(ColManifold& contact);
+
     glm::vec2 gravity = glm::vec2(0.0f, -9.81f);
 };

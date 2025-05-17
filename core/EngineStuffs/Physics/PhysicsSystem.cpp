@@ -7,6 +7,7 @@
 #include <glm/detail/func_geometric.inl>
 
 #include "CollisionChecker.h"
+#include "EngineStuffs/Graphics/ProcGen.h"
 
 PhysicsSystem* PhysicsSystem::instance = nullptr;
 
@@ -70,6 +71,7 @@ void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &phy
 
 
     iterations = std::clamp(iterations, MinIterations, MaxIterations);
+    //iterations = 1;
     deltaTime /= (float)iterations;
 
     for (unsigned int it = 0; it < iterations; it++)
@@ -84,9 +86,20 @@ void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &phy
             {
                 physObjects[i]->Integrate((float)deltaTime, gravity);
                 physObjects[i]->UpdateVertices();
+                if (renderPhysics)
+                {
+                    if (physObjects[i]->bodyShape == RigidBodyShape::RB_BOX)
+                    {
+                        BoxData b = physObjects[i]->GetBoxData();
+                        ProcGen* p = ProcGen::getInstance();
+                        for (int j = 0; j < 4; j++)
+                        {
+                            p->DrawPoint(b.transformedVertices[j], {255,0,0});
+                        }
+                    }
+                }
             }
         }
-
         // Collision step
 
         BroadPhase(physObjects, numActive);
@@ -359,8 +372,10 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
 
         //TODO: Make a cross product function-
         // cz = ax * by − ay * bx
-        bodyA->AddImpulse(-frictionImpulse * bodyA->invMass, -((ra.x * frictionImpulse.y) - (frictionImpulse.x * ra.y)) * bodyA->invInertia);
-        bodyB->AddImpulse(frictionImpulse * bodyB->invMass, ((rb.x * frictionImpulse.y) - (frictionImpulse.x * rb.y)) * bodyB->invInertia);
+        //bodyA->AddImpulse(-frictionImpulse * bodyA->invMass
+        //    , -((ra.x * frictionImpulse.y) - (frictionImpulse.x * ra.y)) * bodyA->invInertia);
+        //bodyB->AddImpulse(frictionImpulse * bodyB->invMass
+        //    , ((rb.x * frictionImpulse.y) - (frictionImpulse.x * rb.y)) * bodyB->invInertia);
     }
 }
 

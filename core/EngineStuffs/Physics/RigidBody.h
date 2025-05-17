@@ -78,6 +78,9 @@ public:
     void SetForce(glm::vec2 force);
     void AddImpulse(glm::vec2 impulse, float torque = 0);
 
+    BoxData GetBoxData() {return boxData;}
+    CircleData GetCircleData() {return circleData;}
+
     void SetLinearDamping(float damping)
     {
         damping = std::clamp(damping, 0.01f, 1.0f);

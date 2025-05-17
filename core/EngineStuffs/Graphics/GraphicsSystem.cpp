@@ -188,7 +188,7 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 			{
 				continue;
 			}
-			if (AABB::Intersect(spr->getAABB(), cameraAABB))
+			if (AABB::Intersect(spr->getAABB().Scale((float)render_settings.pixelsPerUnit), cameraAABB))
 			{
 				float yVal = spr->getRenderLocation().y;
 				if (yVal > upSprite)
@@ -224,7 +224,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	{
 		if (tMap.active)
 		{
-			glm::vec2 cullVals = tMap.CullMap(camAABB);
+			glm::vec2 cullVals = tMap.CullMap(camAABB, render_settings.pixelsPerUnit);
 			if (cullVals.x < downSprite)
 			{
 				downSprite = cullVals.x;
@@ -259,8 +259,8 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 			throw;
 		}
 		Texture2D tex = ResourceManager::GetTexture(spr->image);
-		SpriteRenderer::DrawSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), spr->frame,
-			spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
+		SpriteRenderer::DrawSprite(tex, spr->getRenderLocation() * (float)render_settings.pixelsPerUnit, spr->getRenderValue(), spr->frame,
+			spr->RenderSize() * spr->getRenderScale() * (float)render_settings.pixelsPerUnit, spr->getRenderRotation());
 	}
 
 	for (auto & tMap: tile_maps)
@@ -279,7 +279,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 				}
 				Texture2D tex = ResourceManager::GetTexture(img);
 				SpriteRenderer::DrawSprite(tex, t.worldPos, t.zVal, frm,
-					renderSize, 0);
+					renderSize * (float)render_settings.pixelsPerUnit, 0);
 			}
 		}
 	}

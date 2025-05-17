@@ -1,16 +1,17 @@
-Object 0 -200 0 Ground NONE
-Sprite Player2 1 400 40
-RigidBody Box Static 0 1 0.2 0 0 400 40
+Object 0 -5 0 Ground NONE
+Sprite Player2 1 10 1
+RigidBody Box Static 0 1 0.2 0 0 10 1
 ;
-Object 0 50 0 ThingOne NONE
-Sprite WinFlag 1 40 40
-RigidBody Box Dynamic 10 1 0.4 0.4 0.6 40 40
+Object 0 1.25 0 ThingOne NONE
+Sprite WinFlag 1 1 1
+RigidBody Box Dynamic 10 1 0.4 0.4 0.6 1 1
 ;
-Object 20 100 0 ThingTwo NONE
-Sprite WinFlag 1 40 40
-RigidBody Box Dynamic 10 1 0.4 0.4 0.6 40 40
+Object 0.5 2.5 0 ThingTwo NONE
+Sprite WinFlag 1 1 1
+RigidBody Box Dynamic 10 1 0.4 0.4 0.6 1 1
 ;
-Object -30 100 0 ThingThree NONE
-Sprite Calm 1 40 40
-RigidBody Circle Dynamic 10 1 0.4 0.4 0.6 20
+Object -0.75 2.5 0 ThingThree NONE
+Sprite Calm 1 1 1
+RigidBody Circle Dynamic 1 1 0.4 0.4 0.6 0.5
+Behavior PlayerController )
 ;
