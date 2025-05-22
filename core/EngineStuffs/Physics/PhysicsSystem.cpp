@@ -83,12 +83,10 @@ void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &phy
         {
             if (physObjects[i]->GetActive() && physObjects[i]->bodyType != RigidBodyType::RB_STATIC)
             {
-                if (physObjects[i]->isSleeping)
+                if (!physObjects[i]->isSleeping)
                 {
-                    physObjects[i]->UpdateVertices();
-                    continue;
+                    physObjects[i]->Integrate((float)deltaTime, gravity);
                 }
-                physObjects[i]->Integrate((float)deltaTime, gravity);
                 physObjects[i]->UpdateVertices();
                 if (renderPhysics)
                 {
@@ -167,6 +165,20 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects)
             glm::vec2 contact1, contact2;
             CollisionChecker::FindContactPoints(bodyA, bodyB, contact1, contact2, contactCount);
             ColManifold cm = ColManifold(bodyA, bodyB, normal, depth, contactCount, contact1, contact2);
+
+            if (renderPhysics)
+            {
+                ProcGen* p = ProcGen::getInstance();
+                if (contactCount > 0)
+                {
+                    p->DrawPoint(contact1, {231, 250, 17});
+                    if (contactCount > 1)
+                    {
+                        p->DrawPoint(contact1, {231, 250, 17});
+                    }
+                }
+            }
+
             //ResolveCollisionBasic(cm);
             ResolveCollisionComplex(cm);
         }

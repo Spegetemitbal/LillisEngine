@@ -59,6 +59,11 @@ public:
 		return {mainCamera.WIDTH, mainCamera.HEIGHT};
 	}
 
+	unsigned int GetPixelsPerUnit() const
+	{
+		return render_settings.pixelsPerUnit;
+	}
+
 	void SetCameraPosition(const glm::vec2& pos)
 	{
 		mainCamera.position = pos;

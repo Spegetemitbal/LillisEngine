@@ -44,6 +44,8 @@ void ProcGen::destroyInstance()
 
 void ProcGen::DrawLine(glm::vec2 from, glm::vec2 to, Color color)
 {
+    from *= (float)PPU;
+    to *= (float)PPU;
     lines.insert(lines.end(), {from.x, from.y, to.x, to.y});
     lineColor.insert(lineColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
     lineColor.insert(lineColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
@@ -52,6 +54,7 @@ void ProcGen::DrawLine(glm::vec2 from, glm::vec2 to, Color color)
 
 void ProcGen::DrawPoint(glm::vec2 point, Color color)
 {
+    point *= (float)PPU;
     points.insert(points.end(), {point.x, point.y});
     pointColor.insert(pointColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
     numPoints++;
@@ -89,8 +92,21 @@ void ProcGen::SetPointSize(float diameter)
     glPointSize(diameter);
 }
 
-void ProcGen::Render(glm::mat4 camera)
+void ProcGen::Render(glm::mat4 camera, unsigned int pixelsPerUnit)
 {
+    if (pixelsPerUnit != PPU)
+    {
+        PPU = pixelsPerUnit;
+        for (float & line : lines)
+        {
+            line *= (float)PPU;
+        }
+        for (float & point : points)
+        {
+            point *= (float)PPU;
+        }
+    }
+
     //Draw points
     if (!points.empty())
     {

@@ -21,7 +21,7 @@ public:
     void DrawPoint(glm::vec2 point, Color color);
     void DrawLine(glm::vec2 from, glm::vec2 to, Color color);
 
-    void Render(glm::mat4 camera);
+    void Render(glm::mat4 camera, unsigned int pixelsPerUnit);
 
     void ClearObjects()
     {
@@ -39,6 +39,8 @@ public:
 private:
     static ProcGen* instance;
     ProcGen(unsigned int numObjects);
+
+    unsigned int PPU = 40;
 
     std::vector<float> points;
     std::vector<float> pointColor;

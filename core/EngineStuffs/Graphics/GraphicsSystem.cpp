@@ -285,7 +285,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	}
 
 	glDisable(GL_DEPTH_TEST);
-	ProcGen::getInstance()->Render(mainCamera.projectionMatrix());
+	ProcGen::getInstance()->Render(mainCamera.projectionMatrix(), render_settings.pixelsPerUnit);
 
 	RunPostProcessing();
 }
