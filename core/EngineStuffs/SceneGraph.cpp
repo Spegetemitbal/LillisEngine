@@ -228,6 +228,14 @@ void SceneGraph::DoForwardKinematics()
         {
             if (obj->toUpdate)
             {
+                if (parentMap.contains(obj->GetID()))
+                {
+                    auto range = parentMap.equal_range(obj->GetID());
+                    for (auto it = range.first; it != range.second; ++it) {
+                        mObjPool->GetObjByID<Transform>(it->second)->toUpdate = true;
+                    }
+                }
+
                 if (childMap.contains(obj->GetID()))
                 {
                     auto* parentObj = mObjPool->GetObjByID<Transform>(childMap[obj->GetID()]);

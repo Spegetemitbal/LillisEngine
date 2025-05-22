@@ -286,6 +286,38 @@ void SceneLoader::LoadData(const std::string& fileName)
 					map->setTile({x,y}, input);
 				}
 			}
+		} else if (word == "PhysicsSettings")
+		{
+			PhysicsSettings settings = PhysicsSettings::PhysicsSettings();
+			float gravX, gravY;
+			unsigned int iters;
+			stream >> gravX;
+			stream >> gravY;
+			stream >> iters;
+
+			settings.gravity = {gravX, gravY};
+			settings.physicsIterations = iters;
+
+			PhysicsSystem::getInstance()->SetPhysicsSettings(settings);
+		} else if (word == "RenderSettings")
+		{
+			//TODO implement data driven render settings
+			unsigned int resolutionWidth, resolutionHeight, windowWidth, windowHeight, pixelsPerUnit;
+			std::string fullScreen;
+			stream >> resolutionWidth;
+			stream >> resolutionHeight;
+			stream >> windowWidth;
+			stream >> windowHeight;
+			stream >> pixelsPerUnit;
+			stream >> fullScreen;
+			if (fullScreen == "fullscreen")
+			{
+				RenderSettings settings = RenderSettings(resolutionWidth, resolutionHeight, windowWidth, windowHeight, pixelsPerUnit, true);
+				//GraphicsSystem::getInstance()->
+			} else
+			{
+				RenderSettings settings = RenderSettings(resolutionWidth, resolutionHeight, windowWidth, windowHeight, pixelsPerUnit, false);
+			}
 		}
 	}
 
