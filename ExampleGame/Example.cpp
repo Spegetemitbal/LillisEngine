@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 	phys->DoRenderPhysics(true);
 	BehaviorSystem::RegisterBehavior("PlayerController", sizeof(PlayerController), PlayerController::CreatePlayerController);
 	BehaviorSystem::RegisterBehavior("Rotator", sizeof(Rotator), Rotator::CreateRotator);
-	wm->MakeWorld("Level");
+	wm->MakeWorld("PhysLevel");
 	e->Run();
 
 	Engine::DestroyGameInstance();

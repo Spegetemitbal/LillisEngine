@@ -81,9 +81,13 @@ void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &phy
         //Movement Step
         for (int i = 0; i < numActive; i++)
         {
-            if (physObjects[i]->GetActive() && physObjects[i]->bodyType != RigidBodyType::RB_STATIC
-                && !physObjects[i]->isSleeping)
+            if (physObjects[i]->GetActive() && physObjects[i]->bodyType != RigidBodyType::RB_STATIC)
             {
+                if (physObjects[i]->isSleeping)
+                {
+                    physObjects[i]->UpdateVertices();
+                    continue;
+                }
                 physObjects[i]->Integrate((float)deltaTime, gravity);
                 physObjects[i]->UpdateVertices();
                 if (renderPhysics)

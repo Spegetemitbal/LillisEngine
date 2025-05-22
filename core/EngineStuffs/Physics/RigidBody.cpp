@@ -124,10 +124,13 @@ glm::vec2 RigidBody::transformVertex(glm::vec2 v, glm::vec2 tr, float r)
 
 void RigidBody::UpdateVertices()
 {
-    boxData.transformedVertices[0] = transformVertex(boxData.vertices[0], transform->GlobalPosition(), transform->GlobalRotation());
-    boxData.transformedVertices[1] = transformVertex(boxData.vertices[1], transform->GlobalPosition(), transform->GlobalRotation());
-    boxData.transformedVertices[2] = transformVertex(boxData.vertices[2], transform->GlobalPosition(), transform->GlobalRotation());
-    boxData.transformedVertices[3] = transformVertex(boxData.vertices[3], transform->GlobalPosition(), transform->GlobalRotation());
+    if (transform->getToUpdate())
+    {
+        boxData.transformedVertices[0] = transformVertex(boxData.vertices[0], transform->GlobalPosition(), transform->GlobalRotation());
+        boxData.transformedVertices[1] = transformVertex(boxData.vertices[1], transform->GlobalPosition(), transform->GlobalRotation());
+        boxData.transformedVertices[2] = transformVertex(boxData.vertices[2], transform->GlobalPosition(), transform->GlobalRotation());
+        boxData.transformedVertices[3] = transformVertex(boxData.vertices[3], transform->GlobalPosition(), transform->GlobalRotation());
+    }
     //GetAABB();
 }
 
@@ -186,10 +189,7 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
    // accumulatedForce = {0,0};
     if (bodyShape == RigidBodyShape::RB_BOX)
     {
-        if (transform->getToUpdate())
-        {
-            UpdateVertices();
-        }
+        UpdateVertices();
     }
 }
 
