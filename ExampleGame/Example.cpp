@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 
 	AudioSystem::getInstance()->Init();
 	PhysicsSettings physics_settings = PhysicsSettings();
-	physics_settings.gravity = {};
+	//physics_settings.gravity = {};
 	PhysicsSystem* phys = PhysicsSystem::createInstance(physics_settings);
 	ProcGen* procGen = ProcGen::createInstance(30);
 	procGen->SetPointSize(3.0f);

@@ -123,7 +123,7 @@ public:
 private:
 
     friend class PhysicsSystem;
-    static inline float EPSILON = 0.005f;
+    static inline float EPSILON = 0.08f;
 
     bool isSleeping = false;
     float linearDamping = 0.98f;

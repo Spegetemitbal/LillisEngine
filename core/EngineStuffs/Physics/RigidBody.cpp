@@ -111,7 +111,7 @@ glm::vec2 RigidBody::transformVertex(glm::vec2 v, glm::vec2 tr, float r)
 {
     //You know this is gonna be your own transform-
 
-    r = glm::radians(r);
+    //r = glm::radians(r);
 
     float Sin = glm::sin(r);
     float Cos = glm::cos(r);
@@ -174,8 +174,9 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
     transform->Translate(deltaPosition);
 
     linearVelocity *= linearDamping;
-    angularVelocity *= angularDamping;
+    //angularVelocity *= angularDamping;
 
+    //TODO: Make this work with pseudophysics
     if (glm::length(linearVelocity) <= EPSILON && std::abs(angularVelocity) <= EPSILON)
     {
         linearVelocity = {};
@@ -274,6 +275,11 @@ void RigidBody::AddForce(glm::vec2 force)
 
 void RigidBody::AddImpulse(glm::vec2 impulse, float torque)
 {
+    if (glm::length(impulse) <= 0.0f && std::abs(torque) <= 0.0f)
+    {
+        return;
+    }
+
     linearVelocity += impulse;
     angularVelocity += torque;
     if (glm::length(impulse) > EPSILON || std::abs(torque) > EPSILON)

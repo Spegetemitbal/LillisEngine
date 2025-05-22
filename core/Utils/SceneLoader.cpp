@@ -57,7 +57,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 
 			//Intake texture ID here
 			LilObj<GameObject> G = WORLD->addObject(x, y, name);
-			G->transform->Rotate(r, true);
+			G->transform->SetLocalRotation(r, true);
 			if (parent != "NONE")
 			{
 				WORLD->SetObjectParent(parent, G);
