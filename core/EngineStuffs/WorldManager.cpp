@@ -26,6 +26,7 @@ void WorldManager::SetWorld()
     {
         currentWorldName = nextLevel;
         current_world = loadedWorlds[nextLevel];
+        isChangingWorlds = false;
     }
 
     if (generateWorldData)
@@ -34,6 +35,7 @@ void WorldManager::SetWorld()
         current_world->clearAll();
         //return true;
         LoadWorld();
+        isChangingWorlds = false;
     }
     //return false;
 }

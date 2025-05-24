@@ -27,6 +27,7 @@ public:
         if (loadedWorlds.contains(name))
         {
             nextLevel = name;
+            isChangingWorlds = true;
         } else
         {
             std::cout << "No world named: " << name << " Is currently loaded." << std::endl;
@@ -46,6 +47,7 @@ public:
             nextLevel = name;
             loadedWorlds[name]->clearAll();
             generateWorldData = true;
+            isChangingWorlds = true;
         }
     }
 
@@ -78,6 +80,7 @@ public:
             current_world = newWorld;
             currentWorldName = name;
             nextLevel = name;
+            isChangingWorlds = true;
         }
     }
 
@@ -86,7 +89,13 @@ public:
         if (current_world != nullptr)
         {
             generateWorldData = true;
+            isChangingWorlds = true;
         }
+    }
+
+    bool IsChangingWorldsNextFrame() const
+    {
+        return isChangingWorlds;
     }
 
     void DelAllWorlds()
@@ -120,6 +129,7 @@ private:
 
     std::string nextLevel;
     bool generateWorldData = true;
+    bool isChangingWorlds = false;
 
     //TODO Make this a singleton
     WorldManager() = default;

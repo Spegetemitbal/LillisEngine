@@ -64,7 +64,8 @@ void Engine::Run()
 #else
     while (!timeToQuit)
     {
-        WorldManager::getInstance()->SetWorld();
+        WorldManager* wm = WorldManager::getInstance();
+        wm->SetWorld();
 
         Timing::Tick();
 
@@ -74,7 +75,10 @@ void Engine::Run()
             Timing::frameLag -= Timing::fixedUpdateTime;
         }
 
-        renderStep();
+        if (!wm->IsChangingWorldsNextFrame())
+        {
+            renderStep();
+        }
 
         timeToQuit = GraphicsSystem::getInstance()->isWindowOpen();
     }
