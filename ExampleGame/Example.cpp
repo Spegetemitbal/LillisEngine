@@ -9,11 +9,11 @@ WorldManager* wm;
 
 void handleEvent(const Event& theEvent)
 {
-	if (theEvent.getType() == COLLISION_EVENT)
+	if (theEvent.getType() == TRIGGER_ENTER_EVENT)
 	{
-		const CollisionEvent& colEvent = static_cast<const CollisionEvent&>(theEvent);
-		int id1 = colEvent.getThisCollider();
-		int id2 = colEvent.getThatCollider();
+		const TriggerColliderEvent& colEvent = static_cast<const TriggerColliderEvent&>(theEvent);
+		int id1 = colEvent.getThisTag();
+		int id2 = colEvent.getThatTag();
 
 		if (id1 == 0 && id2 == 2 || id1 == 1 && id2 == 3)
 		{
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 	wm = WorldManager::getInstance();
 
 	EventSystem* events = EventSystem::getInstance();
-	events->addCallback((EventType)COLLISION_EVENT ,handleEvent);
+	events->addCallback((EventType)TRIGGER_ENTER_EVENT ,handleEvent);
 
 	ResourceLoader::LoadProjectInfo("assets/StaticData.lil");
 	ResourceLoader::LoadDataRecursive("assets");

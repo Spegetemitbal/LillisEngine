@@ -43,6 +43,7 @@ void PhysicsSystem::destroyInstance()
 PhysicsSystem::PhysicsSystem(PhysicsSettings settings)
 {
     SetPhysicsSettings(settings);
+    eventHandler = DBG_NEW PhysicsEventHandler();
 }
 
 void PhysicsSystem::SetPhysicsSettings(PhysicsSettings settings)
@@ -83,7 +84,7 @@ void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &phy
         {
             if (physObjects[i]->GetActive() && physObjects[i]->bodyType != RigidBodyType::RB_STATIC)
             {
-                if (!physObjects[i]->isSleeping)
+                if (!physObjects[i]->isSleeping && !physObjects[i]->isTrigger)
                 {
                     physObjects[i]->Integrate((float)deltaTime, gravity);
                 }
@@ -107,6 +108,7 @@ void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &phy
         BroadPhase(physObjects, numActive);
         NarrowPhase(physObjects);
     }
+    eventHandler->TickFireEvent();
 }
 
 void PhysicsSystem::BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive)
@@ -132,6 +134,7 @@ void PhysicsSystem::BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned 
 
             if (!CollisionChecker::IntersectAABBs(bodyA_aabb, bodyB_aabb))
             {
+                eventHandler->NotColliding(std::make_pair(bodyA, bodyB));
                 continue;
             }
 
@@ -148,6 +151,12 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects)
         RigidBody* bodyA = physObjects[possibleContact.first];
         RigidBody* bodyB = physObjects[possibleContact.second];
 
+        bool isTriggerCollision = false;
+        if (bodyA->isTrigger || bodyB->isTrigger)
+        {
+            isTriggerCollision = true;
+        }
+
         //In the event of an object touching the other, default to popping upwards?
         if (bodyA->transform->GlobalPosition() == bodyB->transform->GlobalPosition())
         {
@@ -159,12 +168,17 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects)
 
         if (CollisionChecker::CollideCheck(*bodyA, *bodyB, normal, depth))
         {
-            SeparateBodies(bodyA, bodyB, normal * depth);
+            if (!isTriggerCollision)
+            {
+                SeparateBodies(bodyA, bodyB, normal * depth);
+            }
 
             int contactCount;
             glm::vec2 contact1, contact2;
             CollisionChecker::FindContactPoints(bodyA, bodyB, contact1, contact2, contactCount);
             ColManifold cm = ColManifold(bodyA, bodyB, normal, depth, contactCount, contact1, contact2);
+
+            eventHandler->IsColliding(std::make_pair(bodyA, bodyB), cm);
 
             if (renderPhysics)
             {
@@ -180,11 +194,16 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects)
             }
 
             //ResolveCollisionBasic(cm);
-            ResolveCollisionComplex(cm);
+            if (!isTriggerCollision)
+            {
+                ResolveCollisionComplex(cm);
+            }
+        } else
+        {
+            eventHandler->NotColliding(std::make_pair(bodyA, bodyB));
         }
     }
 }
-
 
 void PhysicsSystem::SeparateBodies(RigidBody *bodyA, RigidBody *bodyB, const glm::vec2 &mtv)
 {

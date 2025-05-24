@@ -100,6 +100,15 @@ public:
         return 1.0f - angularDamping;
     }
 
+    int GetColTag() const
+    {
+        return collisionTag;
+    }
+    void SetColTag(int tag)
+    {
+        collisionTag = tag;
+    }
+
     AABB GetAABB();
 
     inline static const int triangles[6] = {0,1,2,0,2,3};
@@ -118,12 +127,15 @@ public:
     //Make sure this sucker is assigned
     LilObj<Transform> transform;
 
-
+    bool isTrigger = false;
 
 private:
 
     friend class PhysicsSystem;
+    friend class PhysicsEventHandler;
     static inline float EPSILON = 0.08f;
+
+    int collisionTag = 0;
 
     bool isSleeping = false;
     float linearDamping = 0.98f;

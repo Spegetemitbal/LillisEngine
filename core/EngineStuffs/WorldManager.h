@@ -85,7 +85,6 @@ public:
     {
         if (current_world != nullptr)
         {
-            current_world->clearAll();
             generateWorldData = true;
         }
     }

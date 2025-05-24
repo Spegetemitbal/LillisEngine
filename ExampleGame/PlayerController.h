@@ -20,5 +20,5 @@ public:
 
 	bool w = false, s = false, a = false, d = false;
 private:
-	const float moveSpeed = 2.0f;
+	const float moveSpeed = 5.0f;
 };

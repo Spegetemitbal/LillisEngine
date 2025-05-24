@@ -102,20 +102,6 @@ void Engine::frameStep()
         }
     }
 
-    ActiveTracker<RectangleCollider*> col = WORLD->getCollidersRaw();
-
-    unsigned int lastCol = WORLD->getColActive();
-    for (int i = 0; i < lastCol; i++)
-    {
-        for (int j = i + 1; j < lastCol; j++)
-        {
-            if (col[j]->GetActive() && col[i]->GetActive())
-            {
-                col[i]->CheckCollision(*col[j]);
-            }
-        }
-    }
-
     ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
     unsigned int numRB = WORLD->getRBActive();
     PhysicsSystem::getInstance()->PhysicsStep(Timing::fixedUpdateTime, rb, numRB);
@@ -127,7 +113,6 @@ void Engine::frameStep()
 
     //TODO: Find a place to put this.
     //WORLD->compactObjects(.GetNumActive());
-    WORLD->compactColliders(col.GetNumInactive());
     WORLD->compactAnimators(anims.GetNumInactive());
     WORLD->compactRigidBodies(rb.GetNumInactive());
 

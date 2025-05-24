@@ -5,13 +5,12 @@
 #include "Animator.h"
 #include "../GameObject.h"
 #include "Sprite.h"
-#include "../Physics/RectangleCollider.h"
 #include "Utils/Events/StateChangeEvent.h"
 
 void Animator::ConnectComponents()
 {
     sprt = thisObject->getSprite();
-    rectCollider = thisObject->getCollider();
+    rectCollider = thisObject->getRigidBody();
     transform = thisObject->transform;
 }
 
@@ -186,8 +185,9 @@ void Animator::SwapKeyFrame()
     {
         if (rectCollider.Exists())
         {
-            rectCollider->setWidth(kf.fcd.colSize.x);
-            rectCollider->setHeight(kf.fcd.colSize.y);
+            //TODO Make this more effective.
+            rectCollider->SetSize({kf.fcd.colSize.x, kf.fcd.colSize.y});
+            rectCollider->SetRadius(std::max(kf.fcd.colSize.x, kf.fcd.colSize.y) / 2);
         } else
         {
             std::cerr << "Animation requires a functional collider!" << '\n';

@@ -27,7 +27,7 @@ public:
     void RemoveParent(LilObj<Transform> child, ObjectRemovalFlag removalFlag);
     LilObj<Transform> GetParent(LilObj<Transform> child);
     std::vector<LilObj<Transform>> GetImmediateChildren(LilObj<Transform> child);
-    void DoForwardKinematics();
+    void DoForwardKinematics(bool noFlagUpdate = false);
     void ClearHierarchy();
 
 private:

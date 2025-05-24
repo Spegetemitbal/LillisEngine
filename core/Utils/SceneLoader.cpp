@@ -71,27 +71,22 @@ void SceneLoader::LoadData(const std::string& fileName)
 				stream >> component;
 				if (component != ";")
 				{
-					if (component == "Collider")
-					{
-						float width, height;
-						int tag;
-						stream >> width;
-						stream >> height;
-						stream >> tag;
-						G->CreateCollider(width, height, tag);
-					}
 					if (component == "RigidBody")
 					{
-						std::string shape, bodyType;
+						int tag = 0;
+						std::string shape, bodyType, trigger;
 						RigidBodyType rbType;
 						RigidBodyShape rbShape;
 						float mass, density;
 						PhysicsMaterial physMaterial;
 						BoxData boxData;
 						CircleData circleData;
+						bool isTrigger = false;
 
+						stream >> tag;
 						stream >> shape;
 						stream >> bodyType;
+						stream >> trigger;
 						stream >> mass;
 						stream >> density;
 						stream >> physMaterial.restitution;
@@ -122,7 +117,12 @@ void SceneLoader::LoadData(const std::string& fileName)
 							rbType = RigidBodyType::RB_DYNAMIC;
 						}
 
-						G->CreateRigidBody(rbShape, rbType, mass, density, physMaterial, boxData, circleData);
+						if (trigger == "Trigger")
+						{
+							isTrigger = true;
+						}
+
+						G->CreateRigidBody(tag, rbShape, rbType, isTrigger, mass, density, physMaterial, boxData, circleData);
 					}
 					if (component == "Sprite")
 					{

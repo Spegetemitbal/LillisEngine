@@ -32,18 +32,14 @@ public:
 	LilObj<GameObject> addObject(float x, float y, const std::string& name);
 	bool SetObjectParent(const std::string& parent, LilObj<GameObject> child);
 	void RemoveObjectParent(LilObj<GameObject> child, bool inactive = false);
-	void RunTransformHierarchy();
+	void RunTransformHierarchy(bool noFlagUpdate = false);
 	LilObj<GameObject> getObjectByName(const std::string& name);
 	ActiveTracker<GameObject*> getObjectsRaw() const;
 	unsigned int getObjActive() const;
 	void compactObjects(int active) const;
 
-	LilObj<RectangleCollider> addCollider(float w, float h, int id);
-	ActiveTracker<RectangleCollider*> getCollidersRaw() const { return colliderPool->getPool(); };
-	unsigned int getColActive() { return colliderPool->GetActiveLine(); };
-	void compactColliders(int active) {colliderPool->CompactPool(active);}
-
-	LilObj<RigidBody> addRigidbody(RigidBodyShape shape, RigidBodyType rbtype, float mass, float density, PhysicsMaterial material,
+	LilObj<RigidBody> addRigidbody(int tag, RigidBodyShape shape, RigidBodyType rbtype,
+		bool trigger, float mass, float density, PhysicsMaterial material,
 		BoxData boxData, CircleData circleData);
 	ActiveTracker<RigidBody*> getRBsRaw() const { return rigidBodyPool->getPool(); };
 	unsigned int getRBActive() { return rigidBodyPool->GetActiveLine(); };
@@ -86,7 +82,6 @@ private:
 	ComponentPool<Sprite>* spritePool;
 	ComponentPool<Animator>* animatorPool;
 	RenderOrder* renderOrder;
-	ComponentPool<RectangleCollider>* colliderPool;
 	ComponentPool<RigidBody>* rigidBodyPool;
 	BehaviorHandler* behaviors;
 };

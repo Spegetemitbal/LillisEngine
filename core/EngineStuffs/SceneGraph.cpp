@@ -216,7 +216,7 @@ std::vector<LilObj<Transform>> SceneGraph::GetImmediateChildren(LilObj<Transform
 
 
 //Parents are always to the left of children!
-void SceneGraph::DoForwardKinematics()
+void SceneGraph::DoForwardKinematics(bool noFlagUpdate)
 {
     //Do active check here
     int numInactive = 0;
@@ -249,7 +249,10 @@ void SceneGraph::DoForwardKinematics()
                     obj->globalScale = obj->localScale;
                 }
 
-                obj->toUpdate = false;
+                if (!noFlagUpdate)
+                {
+                    obj->toUpdate = false;
+                }
             }
         } else
         {

@@ -11,19 +11,17 @@ D 0 0 0 0 0 0 A 0 0
 0 0 B 0 0 0 B 0 0 0
 C 0 0 0 0 0 D 0 0 A
 Object -8 6 0 Player1 NONE
-Collider 1 1 0
 Sprite UniformTest 1 1 1
 Animator Multiple Player1
 Behavior PlayerController )
-RigidBody Box Dynamic 10 1 0.4 0.4 0.6 1 1
+RigidBody 0 Box Dynamic Trigger 10 1 0.4 0.4 0.6 1 1
 ;
 Object 0 -2.5 0 Player2 Player1
-Collider 1 1 1
 Sprite Player2 1 1 1
 ;
 Object 8 0 0 WinFlag NONE
 Sprite WinFlag 1 1 1
-Collider 1 1 2
+RigidBody 2 Box Dynamic Trigger 10 1 0.4 0.4 0.6 1 1
 ;
 Object 0 0 0 FlippyBoy NONE
 Sprite Angry 1 1 1

@@ -31,6 +31,7 @@ void WorldManager::SetWorld()
     if (generateWorldData)
     {
         generateWorldData = false;
+        current_world->clearAll();
         //return true;
         LoadWorld();
     }
@@ -40,7 +41,7 @@ void WorldManager::SetWorld()
 void WorldManager::LoadWorld()
 {
     SceneLoader::LoadData(currentWorldName);
-    current_world->RunTransformHierarchy();
+    current_world->RunTransformHierarchy(true);
     ActiveTracker<RigidBody*> rb = current_world->getRBsRaw();
     unsigned int numRB = current_world->getRBActive();
     PhysicsSystem::getInstance()->InitRigidBodies(rb, numRB);

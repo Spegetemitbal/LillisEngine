@@ -39,8 +39,8 @@ public:
 
 	void SetSpriteImage(const std::string &name);
 	LilObj<Sprite> CreateSprite(const std::string &image, unsigned int layer = 0);
-	LilObj<RectangleCollider> CreateCollider(float w, float h, int id);
-	LilObj<RigidBody> CreateRigidBody(RigidBodyShape shape, RigidBodyType rbType, float mass, float density, PhysicsMaterial material,
+	LilObj<RigidBody> CreateRigidBody(int tag, RigidBodyShape shape,
+		RigidBodyType rbType, bool trigger, float mass, float density, PhysicsMaterial material,
 		BoxData boxData, CircleData circleData);
 	LilObj<Animator> CreateSingleAnimator(Animation* anim);
 	LilObj<Animator> CreateAnimator(StateObject* stateObj);
@@ -56,7 +56,6 @@ public:
 
 	//Behavior* getBehavior(LILLIS::string name);
 
-	LilObj<RectangleCollider> getCollider() {return collider;};
 	LilObj<RigidBody> getRigidBody() {return rigidbody;};
 	LilObj<Sprite> getSprite() { return sprite; }
 
@@ -88,7 +87,6 @@ protected:
 	std::string objName;
 	LilObj<Sprite> sprite;
 	LilObj<Animator> animator;
-	LilObj<RectangleCollider> collider;
 	LilObj<RigidBody> rigidbody;
 	unordered_map<std::string, LilObj<Behavior>> behaviorMap;
 

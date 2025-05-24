@@ -28,10 +28,6 @@ void GameObject::SetActive(bool active)
 		}
 		//transform = Transform();
 		//sprite = nullptr;
-		if (collider.Exists())
-		{
-			collider->SetActive(false);
-		}
 		if (sprite.Exists())
 		{
 			sprite->transform = {};
@@ -48,7 +44,6 @@ void GameObject::SetActive(bool active)
 				b.second->SetActive(false);
 			}
 		}
-		collider = LilObj<RectangleCollider>();
 		sprite = LilObj<Sprite>();
 		animator = LilObj<Animator>();
 		behaviorMap.clear();
@@ -58,17 +53,8 @@ void GameObject::SetActive(bool active)
 	}
 }
 
-LilObj<RectangleCollider> GameObject::CreateCollider(float w, float h, int id)
-{
-	if (!collider.Exists())
-	{
-		collider = WORLD->addCollider(w, h, id);
-		collider->setControlledObject(thisObject);
-	}
-	return collider;
-}
-
-LilObj<RigidBody> GameObject::CreateRigidBody(RigidBodyShape shape, RigidBodyType rbType, float mass, float density, PhysicsMaterial material, BoxData boxData, CircleData circleData)
+LilObj<RigidBody> GameObject::CreateRigidBody(int tag,
+	RigidBodyShape shape, RigidBodyType rbType, bool trigger, float mass, float density, PhysicsMaterial material, BoxData boxData, CircleData circleData)
 {
 	if (transform->getIsChild())
 	{
@@ -78,7 +64,7 @@ LilObj<RigidBody> GameObject::CreateRigidBody(RigidBodyShape shape, RigidBodyTyp
 
 	if (!rigidbody.Exists())
 	{
-		rigidbody = WORLD->addRigidbody(shape, rbType, mass, density, material, boxData, circleData);
+		rigidbody = WORLD->addRigidbody(tag, shape, rbType, trigger, mass, density, material, boxData, circleData);
 		rigidbody->transform = this->transform;
 		rigidbody->setControlledObject(thisObject);
 	}

@@ -2,9 +2,9 @@
 
 #include <glm/vec2.hpp>
 
-#include "RectangleCollider.h"
 #include "RigidBody.h"
 #include "ColManifold.h"
+#include "PhysicsEventHandler.h"
 
 struct PhysicsSettings
 {
@@ -38,10 +38,13 @@ public:
     }
 
 private:
-
     static PhysicsSystem* instance;
+    PhysicsEventHandler* eventHandler = nullptr;
     PhysicsSystem(PhysicsSettings settings);
-    ~PhysicsSystem() = default;
+    ~PhysicsSystem()
+    {
+        delete eventHandler;
+    };
 
     bool renderPhysics = false;
 

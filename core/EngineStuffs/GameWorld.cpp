@@ -12,7 +12,6 @@ GameWorld::GameWorld()
 
 	sceneGraph = DBG_NEW SceneGraph(transformPool);
 	rigidBodyPool = DBG_NEW ComponentPool<RigidBody>(50);
-	colliderPool = DBG_NEW ComponentPool<RectangleCollider>(50);
 	spritePool = DBG_NEW ComponentPool<Sprite>(50);
 	animatorPool = DBG_NEW ComponentPool<Animator>(50);
 	renderOrder = DBG_NEW RenderOrder(spritePool);
@@ -29,7 +28,6 @@ GameWorld::~GameWorld()
 	delete animatorPool;
 	delete renderOrder;
 	delete rigidBodyPool;
-	delete colliderPool;
 	delete behaviors;
 	if (worldGrid != nullptr)
 	{
@@ -68,17 +66,8 @@ LilObj<GameObject> GameWorld::getObjectByName(const std::string &name)
 	return objects->GetObjectByName(name);
 }
 
-
-LilObj<RectangleCollider> GameWorld::addCollider(float w, float h, int id)
-{
-	RectangleCollider* r = colliderPool->AddComponent();
-	r->setHeight(h);
-	r->setWidth(w);
-	r->setTag(id);
-	return {colliderPool, r->GetID()};
-}
-
-LilObj<RigidBody> GameWorld::addRigidbody(RigidBodyShape shape, RigidBodyType rbType, float mass, float density, PhysicsMaterial material,
+LilObj<RigidBody> GameWorld::addRigidbody(int tag,
+	RigidBodyShape shape, RigidBodyType rbType, bool trigger, float mass, float density, PhysicsMaterial material,
 		BoxData boxData, CircleData circleData)
 {
 	RigidBody* r = rigidBodyPool->AddComponent();
@@ -86,11 +75,13 @@ LilObj<RigidBody> GameWorld::addRigidbody(RigidBodyShape shape, RigidBodyType rb
 	r->bodyType = rbType;
 	r->SetMass(mass);
 	r->SetDensity(density);
+	r->SetColTag(tag);
 
 	//Physics material stuff
 	r->SetRestitution(material.restitution);
 	r->SetDynamicFriction(material.dynamicFriction);
 	r->SetStaticFriction(material.staticFriction);
+	r->isTrigger = trigger;
 
 	//Specifics
 	if (shape == RigidBodyShape::RB_BOX)
@@ -140,12 +131,17 @@ void GameWorld::clearAll()
 		sceneGraph->ClearHierarchy();
 		objects->ClearPool();
 		transformPool->ClearPool();
-		colliderPool->ClearPool();
 		spritePool->ClearPool();
 		animatorPool->ClearPool();
 		behaviors->ClearPool();
 		UISystem::getInstance()->clearUIObjects();
 		numObjects = 0;
+	}
+	if (worldGrid != nullptr)
+	{
+		delete worldGrid;
+		worldGrid = nullptr;
+		tileMaps.clear();
 	}
 	//sprites.clear();
 }
@@ -194,9 +190,9 @@ void GameWorld::RemoveObjectParent(LilObj<GameObject> child, bool inactive)
 	}
 }
 
-void GameWorld::RunTransformHierarchy()
+void GameWorld::RunTransformHierarchy(bool noFlagUpdate)
 {
-	return sceneGraph->DoForwardKinematics();
+	return sceneGraph->DoForwardKinematics(noFlagUpdate);
 }
 
 

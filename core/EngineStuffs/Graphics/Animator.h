@@ -9,7 +9,7 @@
 #include "../StateObject.h"
 #include "EngineStuffs/Transform.h"
 
-class RectangleCollider;
+class RigidBody;
 class Sprite;
 
 class Animator : public Component
@@ -54,7 +54,7 @@ private:
     bool isGoing = true;
     bool goingForward = true;
 
-    LilObj<RectangleCollider> rectCollider;
+    LilObj<RigidBody> rectCollider;
     LilObj<Sprite> sprt;
     LilObj<Transform> transform;
 

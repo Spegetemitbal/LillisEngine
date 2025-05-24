@@ -84,14 +84,58 @@ LilObj<GameObject> Prototype::CreatePrototype(const std::string &name, glm::vec2
 				stream >> component;
 				if (component != ";")
 				{
-					if (component == "Collider")
+					if (component == "RigidBody")
 					{
-						float width, height;
-						int tag;
-						stream >> width;
-						stream >> height;
+						int tag = 0;
+						std::string shape, bodyType, trigger;
+						RigidBodyType rbType;
+						RigidBodyShape rbShape;
+						float mass, density;
+						PhysicsMaterial physMaterial;
+						BoxData boxData;
+						CircleData circleData;
+						bool isTrigger = false;
+
 						stream >> tag;
-						G->CreateCollider(width, height, tag);
+						stream >> shape;
+						stream >> bodyType;
+						stream >> trigger;
+						stream >> mass;
+						stream >> density;
+						stream >> physMaterial.restitution;
+						stream >> physMaterial.staticFriction;
+						stream >> physMaterial.dynamicFriction;
+						if (shape == "Box")
+						{
+							stream >> boxData.boxSize.x;
+							stream >> boxData.boxSize.y;
+							rbShape = RigidBodyShape::RB_BOX;
+						} else if (shape == "Circle")
+						{
+							stream >> circleData.radius;
+							rbShape = RigidBodyShape::RB_CIRCLE;
+						} else
+						{
+							std::cout << "Other shapes not implemented yet" << std::endl;
+						}
+
+						if (bodyType == "Static")
+						{
+							rbType = RigidBodyType::RB_STATIC;
+						} else if (bodyType == "Kinematic")
+						{
+							rbType = RigidBodyType::RB_KINEMATIC;
+						} else
+						{
+							rbType = RigidBodyType::RB_DYNAMIC;
+						}
+
+						if (trigger == "Trigger")
+						{
+							isTrigger = true;
+						}
+
+						G->CreateRigidBody(tag, rbShape, rbType, isTrigger, mass, density, physMaterial, boxData, circleData);
 					}
 					if (component == "Sprite")
 					{

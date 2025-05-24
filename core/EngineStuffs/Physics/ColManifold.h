@@ -9,13 +9,13 @@
 
 struct ColManifold {
     //Perhaps change this for safety later.
-    RigidBody* BodyA;
-    RigidBody* BodyB;
+    RigidBody* BodyA = nullptr;
+    RigidBody* BodyB = nullptr;
     glm::vec2 Normal = {};
-    float Depth;
+    float Depth = 0.0f;
 
     glm::vec2 Contact1 = {}, Contact2 = {};
-    int ContactCount;
+    int ContactCount = 0;
 
     ColManifold(RigidBody* bodyA, RigidBody* bodyB, glm::vec2 normal, float depth,
         int numContacts, glm::vec2 contact1, glm::vec2 contact2 = {})
@@ -28,6 +28,9 @@ struct ColManifold {
         Contact1 = contact1;
         Contact2 = contact2;
     };
+
+    ColManifold() = default;
+    ~ColManifold() = default;
 };
 
 
