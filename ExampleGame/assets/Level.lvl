@@ -18,6 +18,7 @@ RigidBody 0 Box Dynamic Trigger 10 1 0.4 0.4 0.6 1 1
 ;
 Object 0 -2.5 0 Player2 Player1
 Sprite Player2 1 1 1
+RigidBody 1 Box Dynamic Trigger 10 1 0.4 0.4 0.6 1 1
 ;
 Object 8 0 0 WinFlag NONE
 Sprite WinFlag 1 1 1

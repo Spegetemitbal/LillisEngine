@@ -63,6 +63,7 @@ void PhysicsSystem::InitRigidBodies(ActiveTracker<RigidBody *> &physObjects, uns
 }
 
 
+
 void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive)
 {
     if (numActive == 0)
@@ -84,11 +85,11 @@ void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &phy
         {
             if (physObjects[i]->GetActive() && physObjects[i]->bodyType != RigidBodyType::RB_STATIC)
             {
+                physObjects[i]->UpdateVertices();
                 if (!physObjects[i]->isSleeping && !physObjects[i]->isTrigger)
                 {
                     physObjects[i]->Integrate((float)deltaTime, gravity);
                 }
-                physObjects[i]->UpdateVertices();
                 if (renderPhysics)
                 {
                     if (physObjects[i]->bodyShape == RigidBodyShape::RB_BOX)
@@ -359,7 +360,7 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
             (bodyB->linearVelocity + angularLinearVelocityB) -
             (bodyA->linearVelocity + angularLinearVelocityA);
 
-        glm::vec2 tangent = relativeVelocity - (glm::dot(relativeVelocity, normal) * normal);
+        glm::vec2 tangent = relativeVelocity - glm::dot(relativeVelocity, normal) * normal;
 
         if (CollisionChecker::GetNearlyEqual(tangent, {}))
         {
@@ -379,10 +380,10 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
         jt /= (float)contactCount;
 
         //No tiny stuff.
-        if (jt < RigidBody::EPSILON)
-        {
-            continue;
-        }
+        //if (jt < RigidBody::EPSILON)
+        //{
+        //    continue;
+        //}
 
         glm::vec2 impulseFric;
         float j = jList[i];
@@ -407,10 +408,10 @@ void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
 
         //TODO: Make a cross product function-
         // cz = ax * by − ay * bx
-        //bodyA->AddImpulse(-frictionImpulse * bodyA->invMass
-        //    , -((ra.x * frictionImpulse.y) - (frictionImpulse.x * ra.y)) * bodyA->invInertia);
-        //bodyB->AddImpulse(frictionImpulse * bodyB->invMass
-        //    , ((rb.x * frictionImpulse.y) - (frictionImpulse.x * rb.y)) * bodyB->invInertia);
+        bodyA->AddImpulse(-frictionImpulse * bodyA->invMass
+            , -((ra.x * frictionImpulse.y) - (frictionImpulse.x * ra.y)) * bodyA->invInertia);
+        bodyB->AddImpulse(frictionImpulse * bodyB->invMass
+            , ((rb.x * frictionImpulse.y) - (frictionImpulse.x * rb.y)) * bodyB->invInertia);
     }
 }
 

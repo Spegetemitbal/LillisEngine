@@ -124,7 +124,7 @@ glm::vec2 RigidBody::transformVertex(glm::vec2 v, glm::vec2 tr, float r)
 
 void RigidBody::UpdateVertices()
 {
-    if (transform->getToUpdate())
+    if (transform->getToUpdate() || transform->getIsChild())
     {
         boxData.transformedVertices[0] = transformVertex(boxData.vertices[0], transform->GlobalPosition(), transform->GlobalRotation());
         boxData.transformedVertices[1] = transformVertex(boxData.vertices[1], transform->GlobalPosition(), transform->GlobalRotation());
@@ -181,7 +181,7 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
     {
         linearVelocity = {};
         angularVelocity = 0.0f;
-        isSleeping = true;
+       isSleeping = true;
         return;
     }
 
@@ -207,7 +207,7 @@ void RigidBody::CalcInvMass()
 
 AABB RigidBody::GetAABB()
 {
-    if (!transform->getToUpdate())
+    if (!transform->getToUpdate() && !transform->getIsChild())
     {
         //TODO: ignore this loop if you change shape.
         //Ignores invalid initialization.

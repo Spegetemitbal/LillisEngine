@@ -58,14 +58,18 @@ LilObj<RigidBody> GameObject::CreateRigidBody(int tag,
 {
 	if (transform->getIsChild())
 	{
-		std::cout << "Physics objects cannot be children! " << std::endl;
-		return {};
+		if (!trigger)
+		{
+			std::cout << "Non-Trigger Physics objects cannot be children! " << std::endl;
+			return {};
+		}
 	}
 
 	if (!rigidbody.Exists())
 	{
-		rigidbody = WORLD->addRigidbody(tag, shape, rbType, trigger, mass, density, material, boxData, circleData);
+		rigidbody = WORLD->addRigidbody(tag, shape, rbType, mass, density, material, boxData, circleData);
 		rigidbody->transform = this->transform;
+		rigidbody->SetIsTrigger(trigger);
 		rigidbody->setControlledObject(thisObject);
 	}
 	return rigidbody;

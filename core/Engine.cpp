@@ -108,7 +108,8 @@ void Engine::frameStep()
 
     ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
     unsigned int numRB = WORLD->getRBActive();
-    PhysicsSystem::getInstance()->PhysicsStep(Timing::fixedUpdateTime, rb, numRB);
+    PhysicsSystem* phys = PhysicsSystem::getInstance();
+    phys->PhysicsStep(Timing::fixedUpdateTime, rb, numRB);
 
     //First run all possible changes, then run hierarchy.
     WORLD->RunTransformHierarchy();

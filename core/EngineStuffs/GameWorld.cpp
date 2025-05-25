@@ -66,9 +66,8 @@ LilObj<GameObject> GameWorld::getObjectByName(const std::string &name)
 	return objects->GetObjectByName(name);
 }
 
-LilObj<RigidBody> GameWorld::addRigidbody(int tag,
-	RigidBodyShape shape, RigidBodyType rbType, bool trigger, float mass, float density, PhysicsMaterial material,
-		BoxData boxData, CircleData circleData)
+LilObj<RigidBody> GameWorld::addRigidbody(int tag, RigidBodyShape shape, RigidBodyType rbType, float mass, float density, PhysicsMaterial material,
+                                          BoxData boxData, CircleData circleData)
 {
 	RigidBody* r = rigidBodyPool->AddComponent();
 	r->bodyShape = shape;
@@ -81,7 +80,6 @@ LilObj<RigidBody> GameWorld::addRigidbody(int tag,
 	r->SetRestitution(material.restitution);
 	r->SetDynamicFriction(material.dynamicFriction);
 	r->SetStaticFriction(material.staticFriction);
-	r->isTrigger = trigger;
 
 	//Specifics
 	if (shape == RigidBodyShape::RB_BOX)
@@ -155,8 +153,11 @@ bool GameWorld::SetObjectParent(const std::string& parent, LilObj<GameObject> ch
 {
 	if (child->getRigidBody().Exists())
 	{
-		std::cout << "Physics objects cannot be children!" << std::endl;
-		return false;
+		if (!child->getRigidBody()->IsTrigger())
+		{
+			std::cout << "Non Trigger physics objects cannot be children!" << std::endl;
+			return false;
+		}
 	}
 
 	if (child.Exists())

@@ -39,8 +39,8 @@ public:
 	void compactObjects(int active) const;
 
 	LilObj<RigidBody> addRigidbody(int tag, RigidBodyShape shape, RigidBodyType rbtype,
-		bool trigger, float mass, float density, PhysicsMaterial material,
-		BoxData boxData, CircleData circleData);
+	                               float mass, float density, PhysicsMaterial material,
+	                               BoxData boxData, CircleData circleData);
 	ActiveTracker<RigidBody*> getRBsRaw() const { return rigidBodyPool->getPool(); };
 	unsigned int getRBActive() { return rigidBodyPool->GetActiveLine(); };
 	void compactRigidBodies(int active)

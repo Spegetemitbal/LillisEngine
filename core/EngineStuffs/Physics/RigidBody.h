@@ -127,7 +127,26 @@ public:
     //Make sure this sucker is assigned
     LilObj<Transform> transform;
 
-    bool isTrigger = false;
+    bool IsTrigger() const
+    {
+        return isTrigger;
+    }
+
+    void SetIsTrigger(bool isTrigger)
+    {
+        if (transform.Exists())
+        {
+            if (!isTrigger)
+            {
+                if (transform->getIsChild())
+                {
+                    std::cout << "Child objects cannot have non-trigger RigidBodies." << std::endl;
+                    return;
+                }
+            }
+            this->isTrigger = isTrigger;
+        }
+    }
 
 private:
 
@@ -136,6 +155,8 @@ private:
     static inline float EPSILON = 0.08f;
 
     int collisionTag = 0;
+
+    bool isTrigger = false;
 
     bool isSleeping = false;
     float linearDamping = 0.98f;
