@@ -113,6 +113,7 @@ void Engine::frameStep()
 
     //First run all possible changes, then run hierarchy.
     WORLD->RunTransformHierarchy();
+    phys->ChildTriggerUpdate(rb, numRB);
 
     //WORLD->doRenderOrder(toUpdate);
 

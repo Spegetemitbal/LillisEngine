@@ -30,6 +30,7 @@ public:
     void SetPhysicsSettings(PhysicsSettings settings);
 
     void InitRigidBodies(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
+    void ChildTriggerUpdate(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
     void PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
 
     void DoRenderPhysics(bool rndr)

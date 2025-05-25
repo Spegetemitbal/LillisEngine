@@ -62,6 +62,29 @@ void PhysicsSystem::InitRigidBodies(ActiveTracker<RigidBody *> &physObjects, uns
     }
 }
 
+void PhysicsSystem::ChildTriggerUpdate(ActiveTracker<RigidBody *> &physObjects, unsigned int numActive)
+{
+    for (int i = 0; i < numActive; i++)
+    {
+        if (physObjects[i]->transform->getIsChild())
+        {
+            physObjects[i]->UpdateVertices();
+            physObjects[i]->GetAABB();
+        }
+        if (renderPhysics)
+        {
+            if (physObjects[i]->bodyShape == RigidBodyShape::RB_BOX)
+            {
+                BoxData b = physObjects[i]->GetBoxData();
+                ProcGen* p = ProcGen::getInstance();
+                for (int j = 0; j < 4; j++)
+                {
+                    p->DrawPoint(b.transformedVertices[j], {255,0,0});
+                }
+            }
+        }
+    }
+}
 
 
 void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive)
@@ -89,18 +112,6 @@ void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &phy
                 if (!physObjects[i]->isSleeping && !physObjects[i]->isTrigger)
                 {
                     physObjects[i]->Integrate((float)deltaTime, gravity);
-                }
-                if (renderPhysics)
-                {
-                    if (physObjects[i]->bodyShape == RigidBodyShape::RB_BOX)
-                    {
-                        BoxData b = physObjects[i]->GetBoxData();
-                        ProcGen* p = ProcGen::getInstance();
-                        for (int j = 0; j < 4; j++)
-                        {
-                            p->DrawPoint(b.transformedVertices[j], {255,0,0});
-                        }
-                    }
                 }
             }
         }
