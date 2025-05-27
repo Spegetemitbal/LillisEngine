@@ -16,7 +16,7 @@ EventSystem::~EventSystem()
 }
 
 //Inserts a pair (eventtype/listener) into the event system
-void EventSystem::addListener(EventType type, EventListener* pListener)
+void EventSystem::addListener(EventType type, EventListener* pListener, unsigned int IDreq)
 {
 	if (IsInitted)
 	{

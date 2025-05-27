@@ -42,8 +42,8 @@ public:
 	LilObj<RigidBody> CreateRigidBody(int tag, RigidBodyShape shape,
 		RigidBodyType rbType, bool trigger, float mass, float density, PhysicsMaterial material,
 		BoxData boxData, CircleData circleData);
-	LilObj<Animator> CreateSingleAnimator(Animation* anim);
-	LilObj<Animator> CreateAnimator(StateObject* stateObj);
+	LilObj<Animator> CreateSingleAnimator(Animation* anim, bool initImmediately = true);
+	LilObj<Animator> CreateAnimator(StateObject* stateObj, bool initImmediately = true);
 
 	unsigned int GetID() const {return entityID;};
 	std::string GetName() const {return objName;};
@@ -74,12 +74,12 @@ public:
 	}
 
 	//For use by Sceneloader, technically won't break if a user uses it?
-	LilObj<Behavior> CreateBehaviorGeneric(const std::string& name);
+	LilObj<Behavior> CreateBehaviorGeneric(const std::string& name, bool initializeImmediately = true);
 
 	template<typename Beh>
-	LilObj<Beh> CreateBehavior(const std::string& name)
+	LilObj<Beh> CreateBehavior(const std::string& name, bool initializeImmediately = true)
 	{
-		LilObj<Behavior> b = CreateBehaviorGeneric(name);
+		LilObj<Behavior> b = CreateBehaviorGeneric(name, initializeImmediately);
 		return {b.GetPool(), b.GetID()};
 	}
 

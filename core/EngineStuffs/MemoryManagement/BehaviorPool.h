@@ -67,7 +67,6 @@ public:
             Behavior* b = B.generator(mHead);
             poolDir.push_back(b);
             poolDir.back()->SetActive(true);
-            poolDir.back()->LoadListeners();
             objMap[poolDir.back()->GetID()] = poolDir.back();
             mCount++;
             mHead += sizeToAllocate;

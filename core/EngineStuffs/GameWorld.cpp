@@ -149,6 +149,33 @@ LilObj<Behavior> GameWorld::addBehavior(const std::string &name) const
 	return behaviors->CreateBehavior(name);
 }
 
+void GameWorld::initializeAllComponents()
+{
+	auto b = behaviors->getPool();
+	for (int i = 0; i < b.size(); i++)
+	{
+		b[i]->ConnectComponents();
+		b[i]->LoadListeners();
+	}
+	auto anims = animatorPool->getPool();
+	unsigned int numAnims = animatorPool->GetActiveLine();
+	for (int i = 0; i < numAnims; i++)
+	{
+		anims[i]->ConnectComponents();
+		unsigned int id = anims[i]->GetID();
+		if (multiAnimCache.contains(id))
+		{
+			anims[i]->SetMultiAnimation(multiAnimCache[id]);
+		} else if (singleAnimCache.contains(id))
+		{
+			anims[i]->SetSingleAnimation(singleAnimCache[id]);
+		}
+	}
+	multiAnimCache.clear();
+	singleAnimCache.clear();
+}
+
+
 bool GameWorld::SetObjectParent(const std::string& parent, LilObj<GameObject> child)
 {
 	if (child->getRigidBody().Exists())

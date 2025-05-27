@@ -56,10 +56,19 @@ public:
 	ActiveTracker<Animator*> getAnimatorsRaw() const { return animatorPool->getPool(); };
 	unsigned int getAnimActive() {return animatorPool->GetActiveLine(); };
 	void compactAnimators(int active) {animatorPool->CompactPool(active);}
+	void cacheSingleAnim(unsigned int ID, Animation* anim)
+	{
+		singleAnimCache.emplace(ID, anim);
+	}
+	void cacheMultiAnim(unsigned int ID, StateObject* obj)
+	{
+		multiAnimCache.emplace(ID, obj);
+	}
 
 	LilObj<Behavior> addBehavior(const std::string &name) const;
 	ActiveTracker<Behavior*> getBehaviorsRaw() const { return behaviors->getPool();}
 	void compactBehaviors(int active) {behaviors->CompactPool(active);}
+	void initializeAllComponents();
 	//No getActive needed here, only active pointers are shown
 
 	//A flyweight should be implemented here soon.
@@ -74,6 +83,9 @@ private:
 	TileGrid* worldGrid = nullptr;
 	std::vector<TileMap> tileMaps;
 
+	std::unordered_map<unsigned int, Animation*> singleAnimCache = std::unordered_map<unsigned int, Animation*>();
+	std::unordered_map<unsigned int, StateObject*> multiAnimCache = std::unordered_map<unsigned int, StateObject*>();
+
 	//For now these are tightly bound.
 	GameObjPool* objects;
 	ComponentPool<Transform>* transformPool;
@@ -84,6 +96,8 @@ private:
 	RenderOrder* renderOrder;
 	ComponentPool<RigidBody>* rigidBodyPool;
 	BehaviorHandler* behaviors;
+
+
 };
 
 //Note that INTS in C++ can hold 4 characters instead of a number, pretty sweet.

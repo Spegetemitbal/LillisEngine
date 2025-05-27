@@ -166,13 +166,13 @@ LilObj<GameObject> Prototype::CreatePrototype(const std::string &name, glm::vec2
 						{
 							std::string animName;
 							stream >> animName;
-							G->CreateSingleAnimator(&StaticDataManager::Animations[animName]);
+							G->CreateSingleAnimator(&StaticDataManager::Animations[animName], false);
 						} else if (animType == "Multiple")
 						{
 							//Assume multiple
 							std::string stateObjName;
 							stream >> stateObjName;
-							G->CreateAnimator(&StaticDataManager::StateObjects[stateObjName]);
+							G->CreateAnimator(&StaticDataManager::StateObjects[stateObjName], false);
 							//std::cout << "State based animation not implemented" << '\n';
 						}
 					}
@@ -183,7 +183,7 @@ LilObj<GameObject> Prototype::CreatePrototype(const std::string &name, glm::vec2
 						std::string behvName;
 						stream >> behvName;
 
-						LilObj<Behavior> behv = G->CreateBehaviorGeneric(behvName);
+						LilObj<Behavior> behv = G->CreateBehaviorGeneric(behvName, false);
 
 						stream >> currentParam;
 						while (currentParam != ")")

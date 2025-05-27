@@ -26,7 +26,7 @@ public:
 	virtual void Update(float deltaTime) {};
 	virtual void Serialize(Serializer& ser) {};
 	virtual void Deserialize(Serializer& ser) {};
-
+	virtual void ConnectComponents() {};
 	virtual void LoadListeners() {}
 	virtual void DeallocateBehavior()
 	{

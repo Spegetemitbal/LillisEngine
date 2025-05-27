@@ -86,32 +86,44 @@ LilObj<Sprite> GameObject::CreateSprite(const std::string &image, unsigned int l
 	return sprite;
 }
 
-LilObj<Animator> GameObject::CreateSingleAnimator(Animation *anim)
+LilObj<Animator> GameObject::CreateSingleAnimator(Animation *anim, bool initImmediately)
 {
 	if (!animator.Exists())
 	{
 		animator = WORLD->addAnimator();
 		animator->setControlledObject(thisObject);
-		animator->ConnectComponents();
-		animator->SetSingleAnimation(anim);
+		if (initImmediately)
+		{
+			animator->ConnectComponents();
+			animator->SetSingleAnimation(anim);
+		} else
+		{
+			WORLD->cacheSingleAnim(animator->GetID(), anim);
+		}
 	}
 	return animator;
 }
 
-LilObj<Animator> GameObject::CreateAnimator(StateObject *stateObj)
+LilObj<Animator> GameObject::CreateAnimator(StateObject *stateObj, bool initImmediately)
 {
 	if (!animator.Exists())
 	{
 		animator = WORLD->addAnimator();
 		animator->setControlledObject(thisObject);
-		animator->ConnectComponents();
-		animator->SetMultiAnimation(stateObj);
+		if (initImmediately)
+		{
+			animator->ConnectComponents();
+			animator->SetMultiAnimation(stateObj);
+		} else
+		{
+			WORLD->cacheMultiAnim(animator->GetID(), stateObj);
+		}
 	}
 	return animator;
 }
 
 
-LilObj<Behavior> GameObject::CreateBehaviorGeneric(const std::string& name)
+LilObj<Behavior> GameObject::CreateBehaviorGeneric(const std::string& name, bool initializeImmediately)
 {
 	if (behaviorMap.find(name) != behaviorMap.end())
 	{
@@ -121,6 +133,11 @@ LilObj<Behavior> GameObject::CreateBehaviorGeneric(const std::string& name)
 		LilObj<Behavior> behv = WORLD->addBehavior(name);
 		behaviorMap[name] = behv;
 		behaviorMap[name]->setControlledObject(thisObject);
+		if (initializeImmediately)
+		{
+			behv->ConnectComponents();
+			behv->LoadListeners();
+		}
 		return behv;
 	}
 }

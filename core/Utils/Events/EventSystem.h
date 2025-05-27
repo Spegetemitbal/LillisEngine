@@ -21,7 +21,7 @@ public:
 	void init();
 	void cleanup();
 	void fireEvent(const Event& theEvent);
-	void addListener(EventType type, EventListener* pListener);
+	void addListener(EventType type, EventListener* pListener, unsigned int IDreq = 0);
 	void addCallback(EventType type, EventCallback pCallback);
 	void removeListener(EventType type, EventListener* pListener);
 	void removeCallback(EventType type, EventCallback pCallback);
