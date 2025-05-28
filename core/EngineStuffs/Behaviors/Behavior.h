@@ -37,5 +37,5 @@ private:
 	std::string BehaviorName;
 
 protected:
-	void addListener(GameEventType type);
+	void addListener(GameEventType type, unsigned int IDreq = 0);
 };

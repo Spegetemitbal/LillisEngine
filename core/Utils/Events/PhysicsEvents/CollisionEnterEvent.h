@@ -24,6 +24,10 @@ public:
     glm::vec2 getContact2() const {return Contact2; };
     int getThisTag() const { return mFirstColTag; };
     int getThatTag() const { return mSecondColTag; };
+    bool containsID(unsigned int ID) const override
+    {
+        return ID == mFirst || ID == mSecond;
+    };
 private:
     int mFirst = -1;
     int mSecond = -1;

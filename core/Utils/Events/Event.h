@@ -12,6 +12,7 @@ public:
 	Event(EventType type);
 	virtual ~Event();
 	EventType getType() const { return mType; };
+	virtual bool containsID(unsigned int ID) const {return true;}
 private:
 	EventType mType;
 };

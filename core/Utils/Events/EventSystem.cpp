@@ -20,15 +20,15 @@ void EventSystem::addListener(EventType type, EventListener* pListener, unsigned
 {
 	if (IsInitted)
 	{
-		Listeners.insert(std::pair(type, pListener));
+		Listeners.insert(std::pair(type, ListenerStruct(pListener,IDreq)));
 	}
 }
 
-void EventSystem::addCallback(EventType type, EventCallback pCallback)
+void EventSystem::addCallback(EventType type, EventCallback pCallback, unsigned int IDreq)
 {
 	if (IsInitted)
 	{
-		Callbacks.insert(std::pair(type, pCallback));
+		Callbacks.insert(std::pair(type, CallbackStruct(pCallback,IDreq)));
 	}
 }
 
@@ -37,12 +37,12 @@ void EventSystem::removeListener(EventType type, EventListener* pListener)
 {
 	if (IsInitted)
 	{
-		std::pair<std::multimap<EventType, EventListener*>::iterator, std::multimap<EventType, EventListener*>::iterator> ret;
+		std::pair<std::multimap<EventType, ListenerStruct>::iterator, std::multimap<EventType, ListenerStruct>::iterator> ret;
 		ret = Listeners.equal_range(type);
-		std::multimap<EventType, EventListener*>::iterator iter;
+		std::multimap<EventType, ListenerStruct>::iterator iter;
 		for (iter = ret.first; iter != ret.second; ++iter)
 		{
-			if (iter->second == pListener)
+			if (iter->second.listener == pListener)
 			{
 				Listeners.erase(iter);
 				break;//to prevent using invalidated iterator
@@ -55,12 +55,12 @@ void EventSystem::removeCallback(EventType type, EventCallback pCallback)
 {
 	if (IsInitted)
 	{
-		std::pair<std::multimap<EventType, EventCallback>::iterator, std::multimap<EventType, EventCallback>::iterator> ret;
+		std::pair<std::multimap<EventType, CallbackStruct>::iterator, std::multimap<EventType, CallbackStruct>::iterator> ret;
 		ret = Callbacks.equal_range(type);
-		std::multimap<EventType, EventCallback>::iterator iter;
+		std::multimap<EventType, CallbackStruct>::iterator iter;
 		for (iter = ret.first; iter != ret.second; ++iter)
 		{
-			if (iter->second == pCallback)
+			if (iter->second.callback == pCallback)
 			{
 				Callbacks.erase(iter);
 				break;//to prevent using invalidated iterator
@@ -69,19 +69,56 @@ void EventSystem::removeCallback(EventType type, EventCallback pCallback)
 	}
 }
 
+void EventSystem::clearIDreqFromCallback(EventType type, EventCallback pCallback)
+{
+	if (IsInitted)
+	{
+		std::pair<std::multimap<EventType, CallbackStruct>::iterator, std::multimap<EventType, CallbackStruct>::iterator> ret;
+		ret = Callbacks.equal_range(type);
+		std::multimap<EventType, CallbackStruct>::iterator iter;
+		for (iter = ret.first; iter != ret.second; ++iter)
+		{
+			if (iter->second.callback == pCallback)
+			{
+				iter->second.IDreq = 0;
+				break;//to prevent using invalidated iterator
+			}
+		}
+	}
+}
+
+void EventSystem::clearIDreqFromListener(EventType type, EventListener *pListener)
+{
+	if (IsInitted)
+	{
+		std::pair<std::multimap<EventType, ListenerStruct>::iterator, std::multimap<EventType, ListenerStruct>::iterator> ret;
+		ret = Listeners.equal_range(type);
+		std::multimap<EventType, ListenerStruct>::iterator iter;
+		for (iter = ret.first; iter != ret.second; ++iter)
+		{
+			if (iter->second.listener == pListener)
+			{
+				iter->second.IDreq = 0;
+				break;//to prevent using invalidated iterator
+			}
+		}
+	}
+}
+
+
 //iterates through the multimap and removes the listener from every eventtype
 void EventSystem::removeListenerFromAllEvents(EventListener* pListener)
 {
 	if (IsInitted)
 	{
-		std::multimap<EventType, EventListener*>::iterator iter;
+		std::multimap<EventType, ListenerStruct>::iterator iter;
 		bool allTheWayThrough = false;
 		while (!allTheWayThrough)
 		{
 			allTheWayThrough = true;
 			for (iter = Listeners.begin(); iter != Listeners.end(); ++iter)
 			{
-				if (iter->second == pListener)
+				if (iter->second.listener == pListener)
 				{
 					Listeners.erase(iter);
 					allTheWayThrough = false; //didn't make it the whole way through
@@ -96,14 +133,14 @@ void EventSystem::removeCallbackFromAllEvents(EventCallback pCallback)
 {
 	if (IsInitted)
 	{
-		std::multimap<EventType, EventCallback>::iterator iter;
+		std::multimap<EventType, CallbackStruct>::iterator iter;
 		bool allTheWayThrough = false;
 		while (!allTheWayThrough)
 		{
 			allTheWayThrough = true;
 			for (iter = Callbacks.begin(); iter != Callbacks.end(); ++iter)
 			{
-				if (iter->second == pCallback)
+				if (iter->second.callback == pCallback)
 				{
 					Callbacks.erase(iter);
 					allTheWayThrough = false; //didn't make it the whole way through
@@ -177,28 +214,46 @@ void EventSystem::fireEvent(const Event& theEvent)
 }
 
 
-
 //Iterates through all listeners of the specific type and sends them the event.
 void EventSystem::dispatchAllEvents(const Event& theEvent)
 {
 	if (IsInitted)
 	{
+
 		//This whole first shenanigan is to make sure you're iterating through the part of the map with the correct type!
-		std::pair<std::multimap<EventType, EventListener*>::iterator, std::multimap<EventType, EventListener*>::iterator> ret;
+		std::pair<std::multimap<EventType, ListenerStruct>::iterator, std::multimap<EventType, ListenerStruct>::iterator> ret;
 		ret = Listeners.equal_range(theEvent.getType());
-		std::multimap<EventType, EventListener*>::iterator iter = ret.first;
+		std::multimap<EventType, ListenerStruct>::iterator iter = ret.first;
 		for (; iter != ret.second; ++iter)
 		{
-			iter->second->handleEvent(theEvent);
+			if (iter->second.IDreq > 0)
+			{
+				if (theEvent.containsID(iter->second.IDreq))
+				{
+					iter->second.listener->handleEvent(theEvent);
+				}
+			} else
+			{
+				iter->second.listener->handleEvent(theEvent);
+			}
 		}
 
 		//then for callbacks
-		std::pair<std::multimap<EventType, EventCallback>::iterator, std::multimap<EventType, EventCallback>::iterator> ret3;
-		ret3 = Callbacks.equal_range(theEvent.getType());
-		auto iter3 = ret3.first;
-		for (; iter3 != ret3.second; ++iter3)
+		std::pair<std::multimap<EventType, CallbackStruct>::iterator, std::multimap<EventType, CallbackStruct>::iterator> ret2;
+		ret2 = Callbacks.equal_range(theEvent.getType());
+		auto iter2 = ret2.first;
+		for (; iter2 != ret2.second; ++iter2)
 		{
-			iter3->second(theEvent);
+			if (iter2->second.IDreq > 0)
+			{
+				if (theEvent.containsID(iter2->second.IDreq))
+				{
+					iter2->second.callback(theEvent);
+				}
+			} else
+			{
+				iter2->second.callback(theEvent);
+			}
 		}
 	}
 }
