@@ -1,16 +1,16 @@
-Object 0 -5 20 Ground NONE
+Object 0 -5 20 Ground NONE NONE
 Sprite Player2 1 10 1
 RigidBody 0 Box Static Not 0 1 0.4 0.4 0.6 10 1
 ;
-Object 0 3 0 ThingOne NONE
+Object 0 3 0 ThingOne NONE NONE
 Sprite WinFlag 1 1 1
 RigidBody 0 Box Dynamic Not 10 1 0.4 0.4 0.6 1 1
 ;
-Object 0.6 4 0 ThingTwo NONE
+Object 0.6 4 0 ThingTwo NONE NONE
 Sprite WinFlag 1 1 1
 RigidBody 0 Box Dynamic Not 10 1 0.4 0.4 0.6 1 1
 ;
-Object 1.5 4 60 ThingThree NONE
+Object 1.5 4 60 ThingThree NONE NONE
 Sprite Calm 1 1 1
 RigidBody 0 Circle Dynamic Not 1 1 0.4 0.4 0.6 0.5
 Behavior PlayerController )

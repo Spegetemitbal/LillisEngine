@@ -4,12 +4,13 @@
 #include "SceneGraph.h"
 #include "Graphics/RenderOrder.h"
 #include "UI/UISystem.h"
+#include "ObjectGrouping.h"
 
 GameWorld::GameWorld()
 {
 	objects = DBG_NEW GameObjPool(50);
 	transformPool = DBG_NEW ComponentPool<Transform>(50);
-
+	objectGroup = DBG_NEW ObjectGrouping();
 	sceneGraph = DBG_NEW SceneGraph(transformPool);
 	rigidBodyPool = DBG_NEW ComponentPool<RigidBody>(50);
 	spritePool = DBG_NEW ComponentPool<Sprite>(50);
@@ -29,6 +30,7 @@ GameWorld::~GameWorld()
 	delete renderOrder;
 	delete rigidBodyPool;
 	delete behaviors;
+	delete objectGroup;
 	if (worldGrid != nullptr)
 	{
 		delete worldGrid;
@@ -128,6 +130,7 @@ void GameWorld::clearAll()
 	if (numObjects > 0)
 	{
 		sceneGraph->ClearHierarchy();
+		objectGrouping()->ClearHierarchy();
 		objects->ClearPool();
 		transformPool->ClearPool();
 		spritePool->ClearPool();
@@ -177,7 +180,7 @@ void GameWorld::initializeAllComponents()
 }
 
 
-bool GameWorld::SetObjectParent(const std::string& parent, LilObj<GameObject> child)
+bool GameWorld::SetTransformParent(const std::string& parent, LilObj<GameObject> child)
 {
 	if (child->getRigidBody().Exists())
 	{

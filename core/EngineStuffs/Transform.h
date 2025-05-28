@@ -3,6 +3,13 @@
 #include <glm/vec2.hpp>
 #include "Component.h"
 
+enum ObjectRemovalFlag
+{
+	OBJECTREMOVAL_NONE,
+	OBJECTREMOVAL_DESTROY,
+	OBJECTREMOVAL_DISABLE
+};
+
 class Transform : public Component
 {
 public:

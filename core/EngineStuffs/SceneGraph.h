@@ -9,13 +9,6 @@
 #include "Transform.h"
 #include <unordered_set>
 
-enum ObjectRemovalFlag
-{
-    OBJECTREMOVAL_NONE,
-    OBJECTREMOVAL_DESTROY,
-    OBJECTREMOVAL_DISABLE
-};
-
 class SceneGraph
 {
 public:
@@ -26,7 +19,7 @@ public:
     void SetParent(LilObj<Transform> parent, LilObj<Transform> child);
     void RemoveParent(LilObj<Transform> child, ObjectRemovalFlag removalFlag);
     LilObj<Transform> GetParent(LilObj<Transform> child);
-    std::vector<LilObj<Transform>> GetImmediateChildren(LilObj<Transform> child);
+    std::vector<LilObj<Transform>> GetImmediateChildren(LilObj<Transform> parent);
     void DoForwardKinematics(bool noFlagUpdate = false);
     void ClearHierarchy();
 

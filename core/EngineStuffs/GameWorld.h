@@ -13,6 +13,7 @@ class GameObject;
 class GameObjPool;
 class SceneGraph;
 class RenderOrder;
+class ObjectGrouping;
 
 class GameWorld
 {
@@ -30,7 +31,7 @@ public:
 
 	LilObj<GameObject> addObject(const std::string &name);
 	LilObj<GameObject> addObject(float x, float y, const std::string& name);
-	bool SetObjectParent(const std::string& parent, LilObj<GameObject> child);
+	bool SetTransformParent(const std::string& parent, LilObj<GameObject> child);
 	void RemoveObjectParent(LilObj<GameObject> child, bool inactive = false);
 	void RunTransformHierarchy(bool noFlagUpdate = false);
 	LilObj<GameObject> getObjectByName(const std::string& name);
@@ -78,6 +79,8 @@ public:
 	std::vector<TileMap>& getTileMaps() { return tileMaps; }
 	TileGrid* getTileGrid() const {return worldGrid;};
 
+	ObjectGrouping* const objectGrouping() const {return objectGroup;}
+
 private:
 
 	TileGrid* worldGrid = nullptr;
@@ -90,6 +93,7 @@ private:
 	GameObjPool* objects;
 	ComponentPool<Transform>* transformPool;
 
+	ObjectGrouping* objectGroup;
 	SceneGraph* sceneGraph;
 	ComponentPool<Sprite>* spritePool;
 	ComponentPool<Animator>* animatorPool;

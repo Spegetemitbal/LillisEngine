@@ -6,6 +6,7 @@
 
 #include "StaticDataManager.h"
 #include "EngineStuffs/GameObject.h"
+#include "EngineStuffs/ObjectGrouping.h"
 #include "EngineStuffs/WorldManager.h"
 
 std::unordered_map<std::string, unsigned int> Prototype::numExisting = std::unordered_map<std::string, unsigned int>();
@@ -50,12 +51,13 @@ LilObj<GameObject> Prototype::CreatePrototype(const std::string &name, glm::vec2
 		if (word == "Object")
 		{
 			float x, y, r;
-			std::string name, parent;
+			std::string name, parent, transformparent;
 			stream >> x;
 			stream >> y;
 			stream >> r;
 			stream >> name;
 			stream >> parent;
+			stream >> transformparent;
 
 			if (numExisting[name] > 0)
 			{
@@ -64,14 +66,22 @@ LilObj<GameObject> Prototype::CreatePrototype(const std::string &name, glm::vec2
 
 			LilObj<GameObject> G = WORLD->addObject(x + pos.x, y + pos.y, name);
 			G->transform->Rotate(r);
+			if (transformparent != "NONE")
+			{
+				WORLD->SetTransformParent(transformparent, G);
+			}
 			if (parent != "NONE")
 			{
-				WORLD->SetObjectParent(parent, G);
+				LilObj<GameObject> par = WORLD->getObjectByName(parent);
+				if (par.Exists())
+				{
+					WORLD->objectGrouping()->SetParent(par, G);
+				}
 			} else if (root.Exists())
 			{
 				std::cout << "Only one root object per prototype!" << '\n';
 				break;
-			} else
+			} else if (!root.Exists())
 			{
 				root = G;
 			}

@@ -152,10 +152,6 @@ void SceneGraph::RemoveParent(LilObj<Transform> child, ObjectRemovalFlag removal
             parentMap.erase(nextScan.front());
         }
         childMap.erase(nextScan.front());
-        if (removalFlag == OBJECTREMOVAL_DESTROY)
-        {
-            mObjPool->GetObjByID<Transform>(nextScan.front())->SetActive(false);
-        }
         nextScan.pop();
     }
 
@@ -200,12 +196,12 @@ LilObj<Transform> SceneGraph::GetParent(LilObj<Transform> child)
     return {};
 }
 
-std::vector<LilObj<Transform>> SceneGraph::GetImmediateChildren(LilObj<Transform> child)
+std::vector<LilObj<Transform>> SceneGraph::GetImmediateChildren(LilObj<Transform> parent)
 {
-    if (parentMap.count(child.GetID()) > 0)
+    if (parentMap.count(parent.GetID()) > 0)
     {
-        std::vector<LilObj<Transform>> v = std::vector<LilObj<Transform>>(parentMap.count(child.GetID()));
-        auto range = parentMap.equal_range(child.GetID());
+        std::vector<LilObj<Transform>> v = std::vector<LilObj<Transform>>(parentMap.count(parent.GetID()));
+        auto range = parentMap.equal_range(parent.GetID());
         for (auto it = range.first; it != range.second; ++it) {
             v.emplace_back(mObjPool, it->second);
         }

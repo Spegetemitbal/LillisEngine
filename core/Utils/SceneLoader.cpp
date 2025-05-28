@@ -9,6 +9,7 @@
 
 #include "Prototype.h"
 #include "StaticDataManager.h"
+#include "EngineStuffs/ObjectGrouping.h"
 #include "EngineStuffs/UI/UISystem.h"
 #include "EngineStuffs/Tilemaps/TileMap.h"
 
@@ -48,19 +49,31 @@ void SceneLoader::LoadData(const std::string& fileName)
 		if (word == "Object")
 		{
 			float x, y, r;
-			std::string name, parent;
+			std::string name, transformparent, parent;
 			stream >> x;
 			stream >> y;
 			stream >> r;
 			stream >> name;
 			stream >> parent;
+			stream >> transformparent;
 
 			//Intake texture ID here
 			LilObj<GameObject> G = WORLD->addObject(x, y, name);
 			G->transform->SetLocalRotation(r, true);
+			if (transformparent != "NONE")
+			{
+				WORLD->SetTransformParent(transformparent, G);
+			}
 			if (parent != "NONE")
 			{
-				WORLD->SetObjectParent(parent, G);
+				LilObj<GameObject> par = WORLD->getObjectByName(parent);
+				if (par.Exists())
+				{
+					WORLD->objectGrouping()->SetParent(par, G);
+				} else
+				{
+					std::cout << "Object " << parent << " does not exist" << std::endl;
+				}
 			}
 
 			std::string component;

@@ -56,8 +56,9 @@ public:
 
 	//Behavior* getBehavior(LILLIS::string name);
 
-	LilObj<RigidBody> getRigidBody() {return rigidbody;};
-	LilObj<Sprite> getSprite() { return sprite; }
+	LilObj<RigidBody> getRigidBody() const {return rigidbody;};
+	LilObj<Sprite> getSprite() const { return sprite; }
+	LilObj<Animator> getAnimator() const { return animator; }
 
 	LilObj<GameObject> thisObject;
 
@@ -73,7 +74,7 @@ public:
 		}
 	}
 
-	//For use by Sceneloader, technically won't break if a user uses it?
+	//For use by Sceneloader + Prototype, technically won't break if a user uses it?
 	LilObj<Behavior> CreateBehaviorGeneric(const std::string& name, bool initializeImmediately = true);
 
 	template<typename Beh>

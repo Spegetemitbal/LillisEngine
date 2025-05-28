@@ -1,4 +1,6 @@
 #include "GameObject.h"
+
+#include "ObjectGrouping.h"
 #include "WorldManager.h"
 
 #define WORLD WorldManager::getInstance()->GetCurrentWorld()
@@ -14,10 +16,10 @@ void GameObject::SetSpriteImage(const std::string &name)
 //Sets object for deletion.
 void GameObject::SetActive(bool active)
 {
-	isActive = active;
-	if (!isActive)
+	if (!active)
 	{
 		WORLD->RemoveObjectParent(thisObject, true);
+		WORLD->objectGrouping()->RemoveParent(thisObject, OBJECTREMOVAL_DESTROY);
 		if (transform.Exists())
 		{
 			transform->SetLocalPosition({});
@@ -51,6 +53,7 @@ void GameObject::SetActive(bool active)
 	{
 		isEnabled = true;
 	}
+	isActive = active;
 }
 
 LilObj<RigidBody> GameObject::CreateRigidBody(int tag,
