@@ -6,17 +6,19 @@
 #define COLLISIONSTAYEVENT_H
 #include <glm/vec2.hpp>
 
+#include "EngineStuffs/MemoryManagement/LilObj.h"
+#include "EngineStuffs/Physics/RigidBody.h"
 #include "Utils/Events/GameEvent.h"
 
 
 class CollisionStayEvent : public GameEvent
 {
 public:
-    CollisionStayEvent(int thisID, int otherID, int thisTag, int otherTag, glm::vec2 normal, float depth, int contactCount,
+    CollisionStayEvent(LilObj<RigidBody> thisID, LilObj<RigidBody> otherID, int thisTag, int otherTag, glm::vec2 normal, float depth, int contactCount,
         glm::vec2 contact1, glm::vec2 contact2);
     ~CollisionStayEvent() {};
-    int getThisCollider() const { return mFirst; };
-    int getThatCollider() const { return mSecond; };
+    LilObj<RigidBody> getThisCollider() const { return mFirst; };
+    LilObj<RigidBody> getThatCollider() const { return mSecond; };
     glm::vec2 getNormal() const {return Normal; };
     float getDepth() const {return Depth; };
     int getContactCount() const {return ContactCount; };
@@ -26,11 +28,11 @@ public:
     int getThatTag() const { return mSecondColTag; };
     bool containsID(unsigned int ID) const override
     {
-        return ID == mFirst || ID == mSecond;
+        return ID == mFirst.GetID() || ID == mSecond.GetID();
     };
 private:
-    int mFirst = -1;
-    int mSecond = -1;
+    LilObj<RigidBody> mFirst{};
+    LilObj<RigidBody> mSecond{};
     glm::vec2 Normal = {};
     float Depth;
     glm::vec2 Contact1 = {}, Contact2 = {};

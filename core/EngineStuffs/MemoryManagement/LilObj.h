@@ -39,7 +39,7 @@ class LilObj
     }
   }
 
-  bool Exists()
+  bool Exists() const
   {
     if (itemID == 0 || pool == nullptr)
     {
@@ -53,8 +53,8 @@ class LilObj
     return true;
   }
 
-  MemoryPool* GetPool() {return pool;}
-  unsigned int GetID() {return itemID;}
+  MemoryPool* GetPool() const {return pool;}
+  unsigned int GetID() const {return itemID;}
 
   bool operator<(const LilObj& obj)
   {

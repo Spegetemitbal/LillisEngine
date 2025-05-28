@@ -118,6 +118,7 @@ void GameWorld::setSpriteLayer(Sprite* spr)
 LilObj<Animator> GameWorld::addAnimator()
 {
 	Animator* a = animatorPool->AddComponent();
+	a->SetSelfID({animatorPool, a->GetID()});
 	return {animatorPool, a->GetID()};
 }
 

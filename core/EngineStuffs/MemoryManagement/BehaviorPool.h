@@ -140,7 +140,7 @@ public:
         }
     }
 
-    ActiveTracker<Behavior*> getPool() {return {poolDir, (unsigned int)poolDir.size()};}
+    ActiveTracker<Behavior*> getPool() {return {poolDir, (unsigned int)poolDir.size(), this};}
 
 protected:
 

@@ -120,7 +120,7 @@ void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &phy
         BroadPhase(physObjects, numActive);
         NarrowPhase(physObjects);
     }
-    eventHandler->TickFireEvent();
+    eventHandler->TickFireEvent(physObjects.getMPool());
 }
 
 void PhysicsSystem::BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive)

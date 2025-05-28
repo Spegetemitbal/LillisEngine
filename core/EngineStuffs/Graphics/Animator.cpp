@@ -142,7 +142,7 @@ void Animator::Update(double deltaTime)
 
 void Animator::SwapState(const std::string &newState)
 {
-    EventSystem::getInstance()->fireEvent(StateChangeEvent(entityID, stateObject->GetName(), mCurrentState->name, newState));
+    EventSystem::getInstance()->fireEvent(StateChangeEvent(selfRef, stateObject->GetName(), mCurrentState->name, newState));
     animTime = 0;
     totalTime = 0;
     currentKeyFrame = 0;

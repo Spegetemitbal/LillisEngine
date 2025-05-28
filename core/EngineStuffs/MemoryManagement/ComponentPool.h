@@ -162,7 +162,7 @@ public:
 		*obj2 = temp;
 	}
 
-	ActiveTracker<Comp*> getPool() {return {poolDir, activeLine};}
+	ActiveTracker<Comp*> getPool() {return {poolDir, activeLine, this};}
 
 	protected:
 

@@ -4,7 +4,7 @@
 
 #include "TriggerColliderEvent.h"
 
-TriggerColliderEvent::TriggerColliderEvent(int thisID, int otherID, int thisTag, int otherTag, TriggerColliderEventType type) : GameEvent((GameEventType)type)
+TriggerColliderEvent::TriggerColliderEvent(LilObj<RigidBody> thisID, LilObj<RigidBody> otherID, int thisTag, int otherTag, TriggerColliderEventType type) : GameEvent((GameEventType)type)
 {
     mFirst = thisID;
     mSecond = otherID;

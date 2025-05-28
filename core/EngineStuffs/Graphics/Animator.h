@@ -11,6 +11,7 @@
 
 class RigidBody;
 class Sprite;
+//class MemoryPool;
 
 class Animator : public Component
 {
@@ -32,6 +33,12 @@ public:
     void ResetAnim();
     void Update(double deltaTime);
     void ConnectComponents();
+
+    void SetSelfID(LilObj<Animator> id)
+    {
+        selfRef = id;
+    }
+
 private:
 
     //No interpolation yet.
@@ -57,6 +64,7 @@ private:
     LilObj<RigidBody> rectCollider;
     LilObj<Sprite> sprt;
     LilObj<Transform> transform;
+    LilObj<Animator> selfRef;
 
     glm::vec2 startPos;
     float startRot;

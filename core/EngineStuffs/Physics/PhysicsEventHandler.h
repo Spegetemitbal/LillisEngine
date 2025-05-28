@@ -21,7 +21,7 @@ struct IDHolder
 class PhysicsEventHandler {
 public:
 
-    void TickFireEvent();
+    void TickFireEvent(MemoryPool* memPool);
 
     void IsColliding(std::pair<RigidBody*, RigidBody*> identifiers, ColManifold cm)
     {

@@ -4,7 +4,7 @@
 
 #include "CollisionEnterEvent.h"
 
-CollisionEnterEvent::CollisionEnterEvent(int thisID, int otherID, int thisTag, int otherTag, glm::vec2 normal,
+CollisionEnterEvent::CollisionEnterEvent(LilObj<RigidBody> thisID, LilObj<RigidBody> otherID, int thisTag, int otherTag, glm::vec2 normal,
     float depth, int contactCount, glm::vec2 contact1, glm::vec2 contact2) : GameEvent(COLLISION_ENTER_EVENT)
 {
     mFirst = thisID;

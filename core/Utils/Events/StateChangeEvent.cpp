@@ -4,7 +4,7 @@
 
 #include "StateChangeEvent.h"
 
-StateChangeEvent::StateChangeEvent(unsigned int compID, const std::string& objID, const std::string& frmState, const std::string& newState) : GameEvent(STATE_CHANGE_EVENT)
+StateChangeEvent::StateChangeEvent(LilObj<Animator> compID, const std::string& objID, const std::string& frmState, const std::string& newState) : GameEvent(STATE_CHANGE_EVENT)
 {
     stateComponentID = compID;
     stateObjectID = objID;

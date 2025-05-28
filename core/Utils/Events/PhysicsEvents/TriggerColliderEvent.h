@@ -6,6 +6,8 @@
 #define TRIGGERCOLLIDEREVENT_H
 
 #include "../GameEvent.h"
+#include "EngineStuffs/MemoryManagement/LilObj.h"
+#include "EngineStuffs/Physics/RigidBody.h"
 
 enum TriggerColliderEventType
 {
@@ -17,19 +19,19 @@ enum TriggerColliderEventType
 class TriggerColliderEvent : public GameEvent
 {
 public:
-    TriggerColliderEvent(int thisID, int otherID, int thisTag, int otherTag, TriggerColliderEventType type);
+    TriggerColliderEvent(LilObj<RigidBody> thisID, LilObj<RigidBody> otherID, int thisTag, int otherTag, TriggerColliderEventType type);
     ~TriggerColliderEvent() {};
-    int getThisTrigger() const { return mFirst; };
-    int getThatTrigger() const { return mSecond; };
+    LilObj<RigidBody> getThisTrigger() const { return mFirst; };
+    LilObj<RigidBody> getThatTrigger() const { return mSecond; };
     int getThisTag() const { return mFirstColTag; };
     int getThatTag() const { return mSecondColTag; };
     bool containsID(unsigned int ID) const override
     {
-        return ID == mFirst || ID == mSecond;
+        return ID == mFirst.GetID() || ID == mSecond.GetID();
     };
 private:
-    int mFirst = -1;
-    int mSecond = -1;
+    LilObj<RigidBody> mFirst{};
+    LilObj<RigidBody> mSecond{};
     int mFirstColTag = 0;
     int mSecondColTag = 0;
 };
