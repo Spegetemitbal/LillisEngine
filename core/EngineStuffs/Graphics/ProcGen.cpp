@@ -42,34 +42,32 @@ void ProcGen::destroyInstance()
     }
 }
 
-void ProcGen::DrawLine(glm::vec2 from, glm::vec2 to, Color color)
+void ProcGen::DrawDebugLine(glm::vec2 from, glm::vec2 to, Color color)
 {
     from *= (float)PPU;
     to *= (float)PPU;
-    lines.insert(lines.end(), {from.x, from.y, to.x, to.y});
-    lineColor.insert(lineColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
-    lineColor.insert(lineColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
-    numLines++;
+    debugLines.insert(debugLines.end(), {from.x, from.y, to.x, to.y});
+    debugLineColor.insert(debugLineColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
+    debugLineColor.insert(debugLineColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
 }
 
-void ProcGen::DrawPoint(glm::vec2 point, Color color)
+void ProcGen::DrawDebugPoint(glm::vec2 point, Color color)
 {
     point *= (float)PPU;
-    points.insert(points.end(), {point.x, point.y});
-    pointColor.insert(pointColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
-    numPoints++;
+    debugPoints.insert(debugPoints.end(), {point.x, point.y});
+    debugPointColor.insert(debugPointColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
 }
 
 ProcGen::ProcGen(unsigned int numObjects)
 {
-    points = std::vector<float>();
-    points.reserve(2 * numObjects);
-    lines = std::vector<float>();
-    lines.reserve(4 * numObjects);
-    pointColor = std::vector<float>();
-    pointColor.reserve(4 * numObjects);
-    lineColor = std::vector<float>();
-    lineColor.reserve(4 * numObjects);
+    debugPoints = std::vector<float>();
+    debugPoints.reserve(2 * numObjects);
+    debugLines = std::vector<float>();
+    debugLines.reserve(4 * numObjects);
+    debugPointColor = std::vector<float>();
+    debugPointColor.reserve(4 * numObjects);
+    debugLineColor = std::vector<float>();
+    debugLineColor.reserve(4 * numObjects);
 }
 
 
@@ -97,25 +95,30 @@ void ProcGen::Render(glm::mat4 camera, unsigned int pixelsPerUnit)
     if (pixelsPerUnit != PPU)
     {
         PPU = pixelsPerUnit;
-        for (float & line : lines)
+        for (float & line : debugLines)
         {
             line *= (float)PPU;
         }
-        for (float & point : points)
+        for (float & point : debugPoints)
         {
             point *= (float)PPU;
         }
     }
 
     //Draw points
-    if (!points.empty())
+    if (!debugPoints.empty())
     {
-        SpriteRenderer::DrawProcGen(points, pointColor,numPoints, false, camera);
+        SpriteRenderer::DrawProcGen(debugPoints, debugPointColor,(int)debugPoints.size() / 2, PRIMITIVE_POINT, camera);
     }
     //Draw lines
-    if (!lines.empty())
+    if (!debugLines.empty())
     {
-        SpriteRenderer::DrawProcGen(lines, lineColor,numLines, true,camera);
+        SpriteRenderer::DrawProcGen(debugLines, debugLineColor,(int)debugLines.size() / 2, PRIMITIVE_LINE,camera);
+    }
+    //Draw batches
+    for (int i = 0; i < batches.size(); i++)
+    {
+        SpriteRenderer::DrawProcGen(batches[i]->vertices, batches[i]->colors, (int)batches[i]->vertices.size() / 2, PRIMITIVE_TRIANGLE, camera);
     }
 }
 

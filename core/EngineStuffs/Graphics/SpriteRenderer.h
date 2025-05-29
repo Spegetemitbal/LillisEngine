@@ -2,6 +2,7 @@
 
 #include "Texture.h"
 #include "Shader.h"
+#include "ProcGenData.h"
 
 class SpriteRenderer
 {
@@ -33,7 +34,7 @@ public:
         glm::vec2 size = glm::vec2(10.0f, 10.0f), float rotate = 0.0f,
         glm::vec3 color = glm::vec3(1.0f));
 
-    static void DrawProcGen(std::vector<float>& verts, std::vector<float>& colors, int numObjects, bool isLine, glm::mat4 camera);
+    static void DrawProcGen(std::vector<float>& verts, std::vector<float>& colors, int numObjects, RenderPrimitive prim, glm::mat4 camera);
 
 private:
     static inline LILLIS::Shader procGenShader{};

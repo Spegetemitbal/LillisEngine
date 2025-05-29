@@ -92,7 +92,7 @@ void Engine::frameStep()
 {
     InputSystem::UpdateControllers();
     //TODO: Move this elsewhere.
-    ProcGen::getInstance()->ClearObjects();
+    ProcGen::getInstance()->ClearDebugObjects();
 
     updateScripts();
 

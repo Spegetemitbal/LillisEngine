@@ -140,8 +140,25 @@ void SpriteRenderer::DrawUI(const Texture2D &texture, glm::vec2 position, int fr
     glBindVertexArray(0);
 }
 
-void SpriteRenderer::DrawProcGen(std::vector<float>& verts, std::vector<float>& colors, int numObjects, bool isLine, glm::mat4 camera)
+void SpriteRenderer::DrawProcGen(std::vector<float>& verts, std::vector<float>& colors, int numObjects, RenderPrimitive prim, glm::mat4 camera)
 {
+    switch (prim)
+    {
+        case PRIMITIVE_POINT:
+            //Wheeee
+                break;
+        case PRIMITIVE_LINE:
+            numObjects /= 2;
+                break;
+        case PRIMITIVE_TRIANGLE:
+            numObjects /= 3;
+                break;
+        default:
+            std::cout << "Unsupported primitive type" << std::endl;
+            return;
+    }
+
+
     procGenShader.Use();
     procGenShader.SetMatrix4("_projection", camera);
     glBindVertexArray(ProcGenVAO);
@@ -159,12 +176,15 @@ void SpriteRenderer::DrawProcGen(std::vector<float>& verts, std::vector<float>& 
     glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(float), colors.data(), GL_DYNAMIC_DRAW);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE,  4 * sizeof(float), (void*)0);
 
-    if (isLine)
+    if (prim == RenderPrimitive::PRIMITIVE_LINE)
     {
-        glDrawArrays(GL_LINES, 0, 2 * numObjects);
-    } else
+        glDrawArrays(GL_LINES, 0, numObjects);
+    } else if (prim == RenderPrimitive::PRIMITIVE_POINT)
     {
         glDrawArrays(GL_POINTS, 0, numObjects);
+    } else
+    {
+        glDrawArrays(GL_TRIANGLES, 0, numObjects);
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);

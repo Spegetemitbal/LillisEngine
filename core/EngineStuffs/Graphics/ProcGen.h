@@ -6,7 +6,7 @@
 #define PROCGEN_H
 
 #include <glm/fwd.hpp>
-#include <glm/vec2.hpp>
+#include "ProcGenData.h"
 
 #include "Color.h"
 
@@ -18,19 +18,38 @@ public:
     //TODO: Set safety params on this for GLFW not initialized.
     void SetLineWidth(float width);
     void SetPointSize(float diameter);
-    void DrawPoint(glm::vec2 point, Color color);
-    void DrawLine(glm::vec2 from, glm::vec2 to, Color color);
+    void DrawDebugPoint(glm::vec2 point, Color color);
+    void DrawDebugLine(glm::vec2 from, glm::vec2 to, Color color);
 
     void Render(glm::mat4 camera, unsigned int pixelsPerUnit);
 
-    void ClearObjects()
+    void InsertBatch(ProcGenBatch* batch)
     {
-        points.clear();
-        lines.clear();
-        lineColor.clear();
-        pointColor.clear();
-        numPoints = 0;
-        numLines = 0;
+        if (batch != nullptr)
+        {
+            batches.push_back(batch);
+        }
+    }
+
+    void RemoveBatch(ProcGenBatch* batch)
+    {
+        if (batch != nullptr)
+        {
+            batches.erase(std::remove(batches.begin(), batches.end(), batch));
+        }
+    }
+
+    void ClearDebugObjects()
+    {
+        debugPoints.clear();
+        debugLines.clear();
+        debugLineColor.clear();
+        debugPointColor.clear();
+    }
+
+    void ClearBatches()
+    {
+        batches.clear();
     }
 
     static ProcGen* createInstance(unsigned int numObjects);
@@ -42,12 +61,12 @@ private:
 
     unsigned int PPU = 40;
 
-    std::vector<float> points;
-    std::vector<float> pointColor;
-    std::vector<float> lines;
-    std::vector<float> lineColor;
-    int numPoints = 0;
-    int numLines = 0;
+    std::vector<float> debugPoints;
+    std::vector<float> debugPointColor;
+    std::vector<float> debugLines;
+    std::vector<float> debugLineColor;
+
+    std::vector<ProcGenBatch*> batches;
 
     ~ProcGen() = default;
 };

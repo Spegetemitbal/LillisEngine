@@ -79,7 +79,7 @@ void PhysicsSystem::ChildTriggerUpdate(ActiveTracker<RigidBody *> &physObjects, 
                 ProcGen* p = ProcGen::getInstance();
                 for (int j = 0; j < 4; j++)
                 {
-                    p->DrawPoint(b.transformedVertices[j], {255,0,0});
+                    p->DrawDebugPoint(b.transformedVertices[j], {255,0,0});
                 }
             }
         }
@@ -197,10 +197,10 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects)
                 ProcGen* p = ProcGen::getInstance();
                 if (contactCount > 0)
                 {
-                    p->DrawPoint(contact1, {231, 250, 17});
+                    p->DrawDebugPoint(contact1, {231, 250, 17});
                     if (contactCount > 1)
                     {
-                        p->DrawPoint(contact1, {231, 250, 17});
+                        p->DrawDebugPoint(contact1, {231, 250, 17});
                     }
                 }
             }
