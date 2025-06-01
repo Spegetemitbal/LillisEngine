@@ -144,12 +144,12 @@ void InputSystem::UpdateControllers()
             {
                 if (pastState.buttons[j] != _gamepadStates[i].buttons[j])
                 {
-                    EventSystem::getInstance()->fireEvent(ControllerButtonEvent(j, _gamepadStates[i].buttons[j] != GLFW_RELEASE));
+                    EventSystem::getInstance()->fireEvent(ControllerButtonEvent(j, _gamepadStates[i].buttons[j] != GLFW_RELEASE, i));
                 }
             }
             for (int j = 0; j < GLFW_GAMEPAD_AXIS_LAST; j++)
             {
-                EventSystem::getInstance()->fireEvent(ControllerAxisEvent(j, _gamepadStates[i].axes[j]));
+                EventSystem::getInstance()->fireEvent(ControllerAxisEvent(j, _gamepadStates[i].axes[j], i));
             }
         }
     }

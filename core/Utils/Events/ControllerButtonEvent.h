@@ -31,13 +31,16 @@ namespace LILLIS
 
 class ControllerButtonEvent : public GameEvent {
 public:
-    ControllerButtonEvent(const int& inputCode, const bool& down);
+    ControllerButtonEvent(const int& inputCode, const bool& down, int id);
     ~ControllerButtonEvent() {};
     int getInput() const { return mInputCode; };
     bool getPressed() const { return mDown; };
+    int GetControllerID() const {return controllerID;}
+    bool containsID(unsigned int ID) const override {return ID == controllerID;}
 private:
     int mInputCode;
     bool mDown;
+    int controllerID = 0;
 };
 
 

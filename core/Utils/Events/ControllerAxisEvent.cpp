@@ -4,8 +4,9 @@
 
 #include "ControllerAxisEvent.h"
 
-ControllerAxisEvent::ControllerAxisEvent(int &axis, float &value) : GameEvent(CONTROLLER_AXIS_EVENT)
+ControllerAxisEvent::ControllerAxisEvent(int &axis, float &value, int id) : GameEvent(CONTROLLER_AXIS_EVENT)
 {
     mAxis = axis;
     mValue = value;
+    this->controllerID = id;
 }

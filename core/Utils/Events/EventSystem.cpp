@@ -105,6 +105,44 @@ void EventSystem::clearIDreqFromListener(EventType type, EventListener *pListene
 	}
 }
 
+void EventSystem::addIDreqToCallback(EventType type, EventCallback pCallback, unsigned int IDreq)
+{
+	if (IsInitted)
+	{
+		std::pair<std::multimap<EventType, CallbackStruct>::iterator, std::multimap<EventType, CallbackStruct>::iterator> ret;
+		ret = Callbacks.equal_range(type);
+		std::multimap<EventType, CallbackStruct>::iterator iter;
+		for (iter = ret.first; iter != ret.second; ++iter)
+		{
+			if (iter->second.callback == pCallback)
+			{
+				iter->second.IDreq = IDreq;
+				break;//to prevent using invalidated iterator
+			}
+		}
+	}
+}
+
+void EventSystem::addIDreqToListener(EventType type, EventListener *pListener, unsigned int IDreq)
+{
+	if (IsInitted)
+	{
+		std::pair<std::multimap<EventType, ListenerStruct>::iterator, std::multimap<EventType, ListenerStruct>::iterator> ret;
+		ret = Listeners.equal_range(type);
+		std::multimap<EventType, ListenerStruct>::iterator iter;
+		for (iter = ret.first; iter != ret.second; ++iter)
+		{
+			if (iter->second.listener == pListener)
+			{
+				iter->second.IDreq = IDreq;
+				break;//to prevent using invalidated iterator
+			}
+		}
+	}
+}
+
+
+
 
 //iterates through the multimap and removes the listener from every eventtype
 void EventSystem::removeListenerFromAllEvents(EventListener* pListener)

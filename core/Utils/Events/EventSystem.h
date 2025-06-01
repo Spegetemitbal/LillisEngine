@@ -47,6 +47,8 @@ public:
 	void addCallback(EventType type, EventCallback pCallback, unsigned int IDreq = 0);
 	void clearIDreqFromListener(EventType type, EventListener* pListener);
 	void clearIDreqFromCallback(EventType type, EventCallback pCallback);
+	void addIDreqToListener(EventType type, EventListener* pListener, unsigned int IDreq);
+	void addIDreqToCallback(EventType type, EventCallback pCallback, unsigned int IDreq);
 	void removeListener(EventType type, EventListener* pListener);
 	void removeCallback(EventType type, EventCallback pCallback);
 	void removeListenerFromAllEvents(EventListener* pListener);

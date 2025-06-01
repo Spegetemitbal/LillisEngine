@@ -23,13 +23,16 @@ namespace LILLIS
 class ControllerAxisEvent : public GameEvent
 {
 public:
-    ControllerAxisEvent(int& axis, float& value);
+    ControllerAxisEvent(int& axis, float& value, int id);
     ~ControllerAxisEvent() {};
     int GetAxis() const {return mAxis;}
     float GetValue() const {return mValue;}
+    int GetControllerID() const {return controllerID;}
+    bool containsID(unsigned int ID) const override {return ID == controllerID;}
 private:
     int mAxis;
     float mValue;
+    int controllerID = 0;
 };
 
 
