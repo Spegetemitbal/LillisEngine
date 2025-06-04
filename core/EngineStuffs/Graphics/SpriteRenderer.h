@@ -4,6 +4,8 @@
 #include "Shader.h"
 #include "ProcGenData.h"
 
+class ParticleEmitter;
+
 class SpriteRenderer
 {
 public:
@@ -23,6 +25,16 @@ public:
         procGenShader = shader;
     }
 
+    static void setDefaultParticleShader(LILLIS::Shader shader)
+    {
+        particleShader = shader;
+    }
+
+    static void setPixelsPerUnit(unsigned int ppu)
+    {
+        pixelsPerUnit = ppu;
+    }
+
     static void initRenderData();
     static void shutdownRenderData();
 
@@ -36,10 +48,14 @@ public:
 
     static void DrawProcGen(std::vector<float>& verts, std::vector<float>& colors, int numObjects, RenderPrimitive prim, glm::mat4 camera);
 
+    static void DrawParticles(ParticleEmitter& emitter, glm::mat4 camera);
+
 private:
+    static inline unsigned int pixelsPerUnit = 32;
     static inline LILLIS::Shader procGenShader{};
     static inline LILLIS::Shader spriteShader{};
     static inline LILLIS::Shader uiShader{};
+    static inline LILLIS::Shader particleShader{};
     static inline unsigned int quadVAO{}, ProcGenVBO[2]{}, ProcGenVAO{};;
     static inline unsigned int VBO[2]{};
 };

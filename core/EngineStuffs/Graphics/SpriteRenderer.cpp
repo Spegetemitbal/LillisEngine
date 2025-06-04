@@ -67,6 +67,8 @@ void SpriteRenderer::shutdownRenderData()
 void SpriteRenderer::DrawSprite(const Texture2D& texture, glm::vec2 position, float renderVal, int frame,
     glm::vec2 size, float rotate, glm::vec3 color)
 {
+    size *= (float)pixelsPerUnit;
+    position *= (float)pixelsPerUnit;
     // prepare transformations
     spriteShader.Use();
     glm::mat4 model = glm::mat4(1.0f);
@@ -161,6 +163,7 @@ void SpriteRenderer::DrawProcGen(std::vector<float>& verts, std::vector<float>& 
 
     procGenShader.Use();
     procGenShader.SetMatrix4("_projection", camera);
+    procGenShader.SetFloat("_ppu", (float)pixelsPerUnit);
     glBindVertexArray(ProcGenVAO);
 
     glEnableVertexAttribArray(0);

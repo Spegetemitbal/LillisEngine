@@ -116,7 +116,7 @@ glm::vec2 TileMap::CullMap(AABB camAABB, unsigned int pixelsPerUnit)
                     tileAABB.max = (tileWorldPositions[index] + tileSize) * (float)pixelsPerUnit;
                     if (AABB::Intersect(camAABB, tileAABB))
                     {
-                        tilesToRender.emplace_back(tileWorldPositions[index] * (float)pixelsPerUnit, tiles[index], 0);
+                        tilesToRender.emplace_back(tileWorldPositions[index], tiles[index], 0);
                         if (tileWorldPositions[index].y < minTileY)
                         {
                             minTileY = tileWorldPositions[index].y;

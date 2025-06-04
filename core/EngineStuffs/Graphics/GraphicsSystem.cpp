@@ -41,6 +41,7 @@ GraphicsSystem::GraphicsSystem(const RenderSettings &render_settings, const std:
 {
 	_windowName = name;
 	this->render_settings = render_settings;
+	SpriteRenderer::setPixelsPerUnit(render_settings.pixelsPerUnit);
 }
 
 GraphicsSystem::~GraphicsSystem()
@@ -259,8 +260,8 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 			throw;
 		}
 		Texture2D tex = ResourceManager::GetTexture(spr->image);
-		SpriteRenderer::DrawSprite(tex, spr->getRenderLocation() * (float)render_settings.pixelsPerUnit, spr->getRenderValue(), spr->frame,
-			spr->RenderSize() * spr->getRenderScale() * (float)render_settings.pixelsPerUnit, spr->getRenderRotation());
+		SpriteRenderer::DrawSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), spr->frame,
+			spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
 	}
 
 	for (auto & tMap: tile_maps)
@@ -279,13 +280,13 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 				}
 				Texture2D tex = ResourceManager::GetTexture(img);
 				SpriteRenderer::DrawSprite(tex, t.worldPos, t.zVal, frm,
-					renderSize * (float)render_settings.pixelsPerUnit, 0);
+					renderSize, 0);
 			}
 		}
 	}
 
 	glDisable(GL_DEPTH_TEST);
-	ProcGen::getInstance()->Render(mainCamera.projectionMatrix(), render_settings.pixelsPerUnit);
+	ProcGen::getInstance()->Render(mainCamera.projectionMatrix());
 
 	RunPostProcessing();
 }

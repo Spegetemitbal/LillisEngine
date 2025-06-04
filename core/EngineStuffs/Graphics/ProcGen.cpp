@@ -44,8 +44,6 @@ void ProcGen::destroyInstance()
 
 void ProcGen::DrawDebugLine(glm::vec2 from, glm::vec2 to, Color color)
 {
-    from *= (float)PPU;
-    to *= (float)PPU;
     debugLines.insert(debugLines.end(), {from.x, from.y, to.x, to.y});
     debugLineColor.insert(debugLineColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
     debugLineColor.insert(debugLineColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
@@ -53,7 +51,6 @@ void ProcGen::DrawDebugLine(glm::vec2 from, glm::vec2 to, Color color)
 
 void ProcGen::DrawDebugPoint(glm::vec2 point, Color color)
 {
-    point *= (float)PPU;
     debugPoints.insert(debugPoints.end(), {point.x, point.y});
     debugPointColor.insert(debugPointColor.end(), {color.getRf(), color.getGf(), color.getBf(), color.getAf()});
 }
@@ -90,21 +87,8 @@ void ProcGen::SetPointSize(float diameter)
     glPointSize(diameter);
 }
 
-void ProcGen::Render(glm::mat4 camera, unsigned int pixelsPerUnit)
+void ProcGen::Render(glm::mat4 camera)
 {
-    if (pixelsPerUnit != PPU)
-    {
-        PPU = pixelsPerUnit;
-        for (float & line : debugLines)
-        {
-            line *= (float)PPU;
-        }
-        for (float & point : debugPoints)
-        {
-            point *= (float)PPU;
-        }
-    }
-
     //Draw points
     if (!debugPoints.empty())
     {

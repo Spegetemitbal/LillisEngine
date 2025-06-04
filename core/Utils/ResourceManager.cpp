@@ -131,6 +131,9 @@ Shader ResourceManager::loadDefaultPipeline()
     const char* procGenVertexCode = pipeline.procGenVertex.c_str();
     const char* procGenFragmentCode = pipeline.procGenFragment.c_str();
 
+    const char* particleVertexCode = pipeline.particleVertex.c_str();
+    const char* particleGeometryCode = pipeline.particleGeometry.c_str();
+
     Shader shader;
     shader.Compile(vShaderCode, fShaderCode, nullptr);
     Shaders["Default"] = shader;
@@ -146,6 +149,10 @@ Shader ResourceManager::loadDefaultPipeline()
     Shader procGenShader;
     procGenShader.Compile(procGenVertexCode, procGenFragmentCode, nullptr);
     Shaders["DefaultProcGen"] = procGenShader;
+
+    Shader particleShader;
+    particleShader.Compile(particleVertexCode, fShaderCode, particleGeometryCode);
+    Shaders["DefaultParticle"] = particleShader;
 
     return Shaders["Default"];
 }

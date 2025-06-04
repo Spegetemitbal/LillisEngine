@@ -18,4 +18,6 @@ public:
 	float getGf() const { return (float)mGreen / 255.0f; };
 	float getBf() const { return (float)mBlue / 255.0f; };
 	float getAf() const { return (float)mAlpha / 255.0f; };
+
+	glm::vec4 toVec4() const {return {getRf(), getGf(), getBf(), getAf()};};
 };

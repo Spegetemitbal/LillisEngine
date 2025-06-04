@@ -13,6 +13,7 @@ struct RenderSettings
     unsigned int windowWidth = 640, windowHeight = 360;
     unsigned int pixelsPerUnit = 40;
     bool fullScreen = false;
+    bool ppuIsPercentage = false;
 
     RenderSettings()
     = default;
@@ -72,6 +73,23 @@ struct RenderSettings
     {
         unsigned int GCD = std::gcd(resolutionWidth, resolutionHeight);
         return { resolutionWidth / GCD, resolutionHeight / GCD };
+    }
+
+    void SetPPUasPercentage(unsigned int percentage, bool byWidth = true)
+    {
+        if (percentage > 100 || percentage < 1)
+        {
+            std::cout << "Invalid percentage: " << percentage << std::endl;
+            return;
+        }
+        ppuIsPercentage = true;
+        if (byWidth)
+        {
+            pixelsPerUnit = resolutionWidth * (percentage / 100);
+        } else
+        {
+            pixelsPerUnit = resolutionHeight * (percentage / 100);
+        }
     }
 };
 

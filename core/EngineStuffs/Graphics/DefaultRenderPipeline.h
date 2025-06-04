@@ -26,6 +26,38 @@ public:
 			"void main(){ TexCoords = texCoord;"
 			"gl_Position = projection * model * vec4(vertex.xy, -renderValue, 1.0);}");
 
+		particleVertex = std::string(
+		"#version 450\n"
+			"layout(location = 0) in vec2 vertex;" // <vec2 position, vec2 texCoords>
+			"layout(location = 1) in vec2 texCoord;"
+			"layout(location = 2) in vec2 halfsize;"
+			"out vec2 TexCoord;"
+			"out vec2 halfSize;"
+			"uniform mat4 model;"
+			"uniform float renderValue;"
+			"uniform mat4 projection;"
+			"void main(){ TexCoord = texCoord;" "halfSize = halfsize;"
+			"gl_Position = projection * model * vec4(vertex.xy, -renderValue, 1.0);}");
+
+		particleGeometry = std::string(
+			"#version 450\n"
+			"layout(points) in;"
+			"in vec2 halfSize[];"
+			"in vec2 TexCoord[];"
+			"out vec2 TexCoords;"
+			"layout (triangle_strip, max_vertices = 4) out;"
+			"void build_quad(vec4 position) {"
+			"gl_Position = position + vec4(-halfSize[0].x, -halfSize[0].y, 0.0, 0.0);"    // 1:bottom-left
+			"EmitVertex();"
+			"gl_Position = position + vec4( halfSize[0].x, -halfSize[0].y, 0.0, 0.0);"    // 2:bottom-right
+			"EmitVertex();"
+			"gl_Position = position + vec4(-halfSize[0].x,  halfSize[0].y, 0.0, 0.0);"    // 3:top-left
+			"EmitVertex();"
+			"gl_Position = position + vec4( halfSize[0].x,  halfSize[0].y, 0.0, 0.0);"    // 4:top-right
+			"EmitVertex();"
+			"EndPrimitive();}"
+			"void main() { build_quad(gl_in[0].gl_Position); TexCoords = TexCoord[0];}");
+
 		uiVertex = std::string(
 			"#version 450\n"
 			"layout(location = 0) in vec2 vertex;" // <vec2 position, vec2 texCoords>
@@ -54,7 +86,8 @@ public:
 			"layout(location = 1) in vec4 vertexColor;"
 			"out vec4 color;"
 			"uniform mat4 _projection;"
-			"void main(){ color = vertexColor; gl_Position = _projection * vec4(vertex1.xy, -15.0, 1.0);}");
+			"uniform float _ppu;"
+			"void main(){ color = vertexColor; gl_Position = _projection * vec4(vertex1.x * _ppu, vertex1.y * _ppu,-15.0, 1.0);}");
 
 		procGenFragment = std::string(
 			"#version 450\n"
@@ -67,6 +100,9 @@ public:
 	std::string fragment;
 	std::string vertex;
 	std::string geometry;
+
+	std::string particleVertex;
+	std::string particleGeometry;
 
 	std::string uiVertex;
 

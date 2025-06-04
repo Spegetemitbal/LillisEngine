@@ -15,7 +15,7 @@ float LilRandom::randFloat(float minInclusive, float maxExclusive)
 
     if (maxExclusive <= minInclusive)
     {
-        return 0;
+        return minInclusive;
     }
 
     std::uniform_real_distribution<float> distrib(minInclusive, maxExclusive);
@@ -31,7 +31,7 @@ int LilRandom::randInt(int minInclusive, int maxExclusive)
 
     if (maxExclusive <= minInclusive + 1)
     {
-        return 0;
+        return minInclusive;
     }
 
     std::uniform_int_distribution distrib(minInclusive, maxExclusive);

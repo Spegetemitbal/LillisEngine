@@ -21,7 +21,7 @@ public:
     void DrawDebugPoint(glm::vec2 point, Color color);
     void DrawDebugLine(glm::vec2 from, glm::vec2 to, Color color);
 
-    void Render(glm::mat4 camera, unsigned int pixelsPerUnit);
+    void Render(glm::mat4 camera);
 
     void InsertBatch(ProcGenBatch* batch)
     {
@@ -58,8 +58,6 @@ public:
 private:
     static ProcGen* instance;
     ProcGen(unsigned int numObjects);
-
-    unsigned int PPU = 40;
 
     std::vector<float> debugPoints;
     std::vector<float> debugPointColor;
