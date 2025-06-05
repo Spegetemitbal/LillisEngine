@@ -5,6 +5,7 @@
 #include <glm/vec4.hpp>
 
 #include "ProcGen.h"
+#include "EngineStuffs/Particles/ParticleEmitter.h"
 #include "Utils/InputSystem.h"
 
 GraphicsSystem* GraphicsSystem::instance = nullptr;
@@ -137,6 +138,7 @@ bool GraphicsSystem::Init()
 	SpriteRenderer::setDefaultShader(ResourceManager::GetShader("Default"));
 	SpriteRenderer::setDefaultUIShader(ResourceManager::GetShader("DefaultUI"));
 	SpriteRenderer::setDefaultProcGenShader(ResourceManager::GetShader("DefaultProcGen"));
+	SpriteRenderer::setDefaultParticleShader(ResourceManager::GetShader("DefaultParticle"));
 	SpriteRenderer::initRenderData();
 	// load textures
 
@@ -183,7 +185,7 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 	for (int i = 0; i < lastSprite; i++)
 	{
 		Sprite* spr = sprites[i];
-		if (spr->GetActive())
+		if (spr->GetActive() && spr->GetEnabled())
 		{
 			if (spr->image.empty())
 			{
@@ -207,7 +209,8 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 	return culledSprites;
 }
 
-void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite, std::vector<TileMap>& tile_maps)
+void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite,
+	ActiveTracker<ParticleEmitter*>& emitters, unsigned int lastEmitter, std::vector<TileMap>& tile_maps)
 {
 	if (!isInitted)
 	{
@@ -260,7 +263,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 			throw;
 		}
 		Texture2D tex = ResourceManager::GetTexture(spr->image);
-		SpriteRenderer::DrawSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), spr->frame,
+		SpriteRenderer::DrawSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), (int)spr->frame,
 			spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
 	}
 
@@ -279,13 +282,22 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 					throw;
 				}
 				Texture2D tex = ResourceManager::GetTexture(img);
-				SpriteRenderer::DrawSprite(tex, t.worldPos, t.zVal, frm,
+				SpriteRenderer::DrawSprite(tex, t.worldPos, t.zVal, (int)frm,
 					renderSize, 0);
 			}
 		}
 	}
 
 	glDisable(GL_DEPTH_TEST);
+
+	//TODO move this
+	for (int i = 0; i < lastEmitter; i++)
+	{
+		if (emitters[i]->GetActive())
+		{
+			SpriteRenderer::DrawParticles(*emitters[i], mainCamera.projectionMatrix());
+		}
+	}
 	ProcGen::getInstance()->Render(mainCamera.projectionMatrix());
 
 	RunPostProcessing();
@@ -300,7 +312,7 @@ void GraphicsSystem::PreDraw()
 	}
 	glfwPollEvents();
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glViewport(0, 0, render_settings.resolutionWidth, render_settings.resolutionHeight);
+	glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -348,7 +360,7 @@ void GraphicsSystem::RunPostProcessing()
 			{
 				glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 			}
-			glViewport(0, 0, render_settings.resolutionWidth, render_settings.resolutionHeight);
+			glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			//DRAW FULLSCREEN TRIANGLE
@@ -358,7 +370,7 @@ void GraphicsSystem::RunPostProcessing()
 		} else
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glViewport(0, 0, render_settings.windowWidth, render_settings.windowHeight);
+			glViewport(0, 0, (GLsizei)render_settings.windowWidth, (GLsizei)render_settings.windowHeight);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			//DRAW FULLSCREEN TRIANGLE
@@ -369,7 +381,7 @@ void GraphicsSystem::RunPostProcessing()
 	if (postProcessChain.empty())
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, render_settings.windowWidth, render_settings.windowHeight);
+		glViewport(0, 0, (GLsizei)render_settings.windowWidth, (GLsizei)render_settings.windowHeight);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		LILLIS:Shader defaultPostProcess = ResourceManager::GetShader("DefaultPostProcess");
@@ -399,7 +411,7 @@ void GraphicsSystem::AddPostProcess(LILLIS::Shader shader)
 		//8 bit RGBA color buffer
 		glGenTextures(1, &postProcessColorBuffer);
 		glBindTexture(GL_TEXTURE_2D, postProcessColorBuffer);
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, render_settings.resolutionWidth, render_settings.resolutionHeight);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, postProcessColorBuffer, 0);
 
@@ -436,10 +448,10 @@ void GraphicsSystem::SetCursor(const std::string &imageName, unsigned int xHot, 
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
 	GLFWimage image;
-	image.width = tex.Width;
-	image.height = tex.Height;
+	image.width = (int)tex.Width;
+	image.height = (int)tex.Height;
 	image.pixels = pixels;
-	_cursors.try_emplace(imageName,glfwCreateCursor(&image, xHot, yHot));
+	_cursors.try_emplace(imageName,glfwCreateCursor(&image, (int)xHot, (int)yHot));
 	glfwSetCursor(_win.window, _cursors[imageName]);
 	delete pixels;
 }

@@ -8,6 +8,7 @@
 
 
 class ParticleEffect {
+public:
     std::string image;
     unsigned int frame = 0;
     glm::vec2 startSize = glm::vec2(1);

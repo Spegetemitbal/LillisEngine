@@ -20,6 +20,21 @@ enum ParticleChangeOverLifetime
     QUADRATICFASTDECREASE
 };
 
+struct ParticleEmitterData
+{
+    glm::vec2 startPos = {};
+    glm::vec2 spawnBounds = {};
+    glm::vec2 minInitVelocity = {};
+    glm::vec2 maxInitVelocity = {};
+    glm::vec2 startAcceleration = {};
+    glm::vec2 minStartScale = {1,1};
+    glm::vec2 maxStartScale = {1,1};
+    glm::vec4 startColor = {1,1,1,1};
+    glm::vec4 endColor = {1,1,1,1};
+    float lifetime = 0.5f;
+    float spawnSpeed = 1.0f;
+};
+
 class ParticleEmitter : public Component
 {
 public:
@@ -36,6 +51,7 @@ public:
     glm::vec2 minStartScale = {1,1};
     glm::vec2 maxStartScale = {1,1};
     glm::vec4 startColor = {1,1,1,1};
+    glm::vec4 endColor = {1,1,1,1};
     float lifetime = 0.5f;
     float spawnSpeed = 1.0f;
 

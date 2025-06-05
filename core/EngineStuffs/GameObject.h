@@ -5,6 +5,8 @@
 #include "Graphics/GraphicsSystem.h"
 #include "MemoryManagement/LilObj.h"
 
+struct ParticleEmitterData;
+
 class GameObject
 {
 public:
@@ -44,6 +46,7 @@ public:
 		BoxData boxData, CircleData circleData);
 	LilObj<Animator> CreateSingleAnimator(Animation* anim, bool initImmediately = true);
 	LilObj<Animator> CreateAnimator(StateObject* stateObj, bool initImmediately = true);
+	LilObj<ParticleEmitter> CreateParticleEmitter(ParticleEmitterData& particleData, bool inheritTransform = true);
 
 	unsigned int GetID() const {return entityID;};
 	std::string GetName() const {return objName;};
@@ -59,6 +62,7 @@ public:
 	LilObj<RigidBody> getRigidBody() const {return rigidbody;};
 	LilObj<Sprite> getSprite() const { return sprite; }
 	LilObj<Animator> getAnimator() const { return animator; }
+	LilObj<ParticleEmitter> getParticleEmitter() const { return emitter; }
 
 	LilObj<GameObject> thisObject;
 
@@ -89,6 +93,7 @@ protected:
 	LilObj<Sprite> sprite;
 	LilObj<Animator> animator;
 	LilObj<RigidBody> rigidbody;
+	LilObj<ParticleEmitter> emitter;
 	unordered_map<std::string, LilObj<Behavior>> behaviorMap;
 
 	friend class GameObjPool;

@@ -234,6 +234,56 @@ LilObj<GameObject> Prototype::CreatePrototype(const std::string &name, glm::vec2
 						}
 						behv->Deserialize(ser);
 					}
+					if (component == "ParticleEmitter")
+					{
+						std::string particleName, inheritsTransformStr;
+						bool inheritsTransform = true;
+
+						unsigned int maxParticles;
+						ParticleEmitterData particleData = ParticleEmitterData();
+						stream >> particleName;
+						if (!StaticDataManager::ParticleEffects.contains(particleName))
+						{
+							std::cout << "Particle: " << particleName << " Does not exist, terminating load." << std::endl;
+							break;
+						}
+						stream >> maxParticles;
+
+						stream >> inheritsTransformStr;
+						if (inheritsTransformStr != "INHERIT")
+						{
+							stream >> particleData.startPos.x;
+							stream >> particleData.startPos.y;
+							inheritsTransform = false;
+						}
+
+						stream >> particleData.spawnBounds.x;
+						stream >> particleData.spawnBounds.y;
+						stream >> particleData.minInitVelocity.x;
+						stream >> particleData.minInitVelocity.y;
+						stream >> particleData.maxInitVelocity.x;
+						stream >> particleData.maxInitVelocity.y;
+						stream >> particleData.startAcceleration.x;
+						stream >> particleData.startAcceleration.y;
+						stream >> particleData.minStartScale.x;
+						stream >> particleData.minStartScale.y;
+						stream >> particleData.maxStartScale.x;
+						stream >> particleData.maxStartScale.y;
+						stream >> particleData.startColor.r;
+						stream >> particleData.startColor.g;
+						stream >> particleData.startColor.b;
+						stream >> particleData.startColor.a;
+						stream >> particleData.endColor.r;
+						stream >> particleData.endColor.g;
+						stream >> particleData.endColor.b;
+						stream >> particleData.endColor.a;
+						stream >> particleData.lifetime;
+						stream >> particleData.spawnSpeed;
+
+						LilObj<ParticleEmitter> pe = G->CreateParticleEmitter(particleData, inheritsTransform);
+						pe->SetEffect(&StaticDataManager::ParticleEffects[particleName]);
+						pe->SetMaxParticles(maxParticles);
+					}
 				}
 			}
 			component.clear();

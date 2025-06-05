@@ -10,10 +10,10 @@ public:
 			"in vec2 TexCoords;"
 			"out vec4 color;"
 			"uniform sampler2D image;"
-			"uniform vec3 spriteColor;"
+			"uniform vec4 spriteColor;"
 			"void main() { vec4 texColor = texture(image, TexCoords);"
 			"if (texColor.a == 0.0) {discard;} "
-			"color = vec4(spriteColor, 1.0) * texColor; }");
+			"color = spriteColor * texColor; }");
 
 		vertex = std::string(
 			"#version 450\n"
@@ -26,37 +26,50 @@ public:
 			"void main(){ TexCoords = texCoord;"
 			"gl_Position = projection * model * vec4(vertex.xy, -renderValue, 1.0);}");
 
+		particleFragment = std::string(
+			"#version 450\n"
+			"in vec2 TexCoords;"
+			"out vec4 color;"
+			"uniform sampler2D image;"
+			"uniform vec4 spriteColor;"
+			"void main() { vec4 texColor = texture(image, TexCoords);"
+			"if (texColor.a == 0.0) {discard;} "
+			"color = spriteColor * texColor; }");
+
 		particleVertex = std::string(
 		"#version 450\n"
 			"layout(location = 0) in vec2 vertex;" // <vec2 position, vec2 texCoords>
-			"layout(location = 1) in vec2 texCoord;"
-			"layout(location = 2) in vec2 halfsize;"
-			"out vec2 TexCoord;"
+			"layout(location = 1) in vec2 halfsize;"
 			"out vec2 halfSize;"
-			"uniform mat4 model;"
 			"uniform float renderValue;"
+			"uniform float _ppu;"
 			"uniform mat4 projection;"
-			"void main(){ TexCoord = texCoord;" "halfSize = halfsize;"
-			"gl_Position = projection * model * vec4(vertex.xy, -renderValue, 1.0);}");
+			"void main(){halfSize = halfsize * _ppu;"
+			"gl_Position = projection * vec4(vertex.x * _ppu, vertex.y * _ppu, -renderValue, 1.0);}");
 
 		particleGeometry = std::string(
 			"#version 450\n"
 			"layout(points) in;"
 			"in vec2 halfSize[];"
-			"in vec2 TexCoord[];"
+			"uniform vec4 TexQuad;"
+			"uniform mat4 projection;"
 			"out vec2 TexCoords;"
 			"layout (triangle_strip, max_vertices = 4) out;"
 			"void build_quad(vec4 position) {"
-			"gl_Position = position + vec4(-halfSize[0].x, -halfSize[0].y, 0.0, 0.0);"    // 1:bottom-left
+			"gl_Position = position + projection * vec4(-halfSize[0].x, -halfSize[0].y, 0.0, 0.0);"    // 1:bottom-left
+			"TexCoords = vec2(TexQuad.x, TexQuad.z);"
 			"EmitVertex();"
-			"gl_Position = position + vec4( halfSize[0].x, -halfSize[0].y, 0.0, 0.0);"    // 2:bottom-right
+			"gl_Position = position + projection * vec4( halfSize[0].x, -halfSize[0].y, 0.0, 0.0);"    // 2:bottom-right
+			"TexCoords = vec2(TexQuad.y, TexQuad.z);"
 			"EmitVertex();"
-			"gl_Position = position + vec4(-halfSize[0].x,  halfSize[0].y, 0.0, 0.0);"    // 3:top-left
+			"gl_Position = position + projection * vec4(-halfSize[0].x,  halfSize[0].y, 0.0, 0.0);"    // 3:top-left
+			"TexCoords = vec2(TexQuad.x, TexQuad.w);"
 			"EmitVertex();"
-			"gl_Position = position + vec4( halfSize[0].x,  halfSize[0].y, 0.0, 0.0);"    // 4:top-right
+			"gl_Position = position + projection * vec4( halfSize[0].x,  halfSize[0].y, 0.0, 0.0);"    // 4:top-right
+			"TexCoords = vec2(TexQuad.y, TexQuad.w);"
 			"EmitVertex();"
 			"EndPrimitive();}"
-			"void main() { build_quad(gl_in[0].gl_Position); TexCoords = TexCoord[0];}");
+			"void main() { build_quad(gl_in[0].gl_Position);}");
 
 		uiVertex = std::string(
 			"#version 450\n"
@@ -101,6 +114,7 @@ public:
 	std::string vertex;
 	std::string geometry;
 
+	std::string particleFragment;
 	std::string particleVertex;
 	std::string particleGeometry;
 

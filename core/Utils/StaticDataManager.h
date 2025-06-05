@@ -11,6 +11,7 @@
 
 class Animation;
 class StateObject;
+class ParticleEffect;
 
 enum SpriteType
 {
@@ -35,12 +36,14 @@ public:
     static std::map<std::string, Animation> Animations;
     static std::map<std::string, TexImportData> SpriteInfo;
     static std::map<std::string, TileSet> TileSets;
+    static std::map<std::string, ParticleEffect> ParticleEffects;
     static std::string SettingsFileName;
 
     static void LoadStateObject(std::ifstream& file);
     static void LoadAnimation(std::ifstream& file);
     static void LoadSpriteInfo(std::ifstream& file);
     static void LoadTileSet(std::ifstream& file);
+    static void LoadParticleEffect(std::ifstream& file);
     //void LoadPrefab(std::ifstream& file);
 
 private:

@@ -4,6 +4,7 @@
 #include "EngineStuffs/UI/UISystem.h"
 //#include "Utils/ResourceLoader.h"
 #include "EngineStuffs/Graphics/ProcGen.h"
+#include "EngineStuffs/Particles/ParticleEmitter.h"
 #include "Utils/Timing.h"
 
 #define WORLD WorldManager::getInstance()->GetCurrentWorld()
@@ -116,9 +117,19 @@ void Engine::frameStep()
     phys->ChildTriggerUpdate(rb, numRB);
 
     //WORLD->doRenderOrder(toUpdate);
+    ActiveTracker<ParticleEmitter*> pe = WORLD->getEmittersRaw();
+    unsigned int numPE = WORLD->getEmittersActive();
+    for (int i = 0; i < numPE; i++)
+    {
+        if (pe[i]->GetActive())
+        {
+            pe[i]->ProcessParticles((float)Timing::fixedUpdateTime);
+        }
+    }
 
     //TODO: Find a place to put this.
     //WORLD->compactObjects(.GetNumActive());
+    WORLD->compactEmitters(pe.GetNumInactive());
     WORLD->compactAnimators(anims.GetNumInactive());
     WORLD->compactRigidBodies(rb.GetNumInactive());
 
@@ -139,11 +150,14 @@ void Engine::renderStep()
 
     ActiveTracker<Sprite*> sprites = WORLD->getSpritesRaw();
     unsigned int lastSpr = WORLD->getSprActive();
+    ActiveTracker<ParticleEmitter*> pe = WORLD->getEmittersRaw();
+    unsigned int numPE = WORLD->getEmittersActive();
 
-    graphics->RenderCall(sprites, lastSpr, WORLD->getTileMaps());
+    graphics->RenderCall(sprites, lastSpr, pe, numPE,WORLD->getTileMaps());
+
+
 
     UISystem::getInstance()->RenderUI();
-
     graphics->PostDraw();
 
     //End of Frame Garbage collection

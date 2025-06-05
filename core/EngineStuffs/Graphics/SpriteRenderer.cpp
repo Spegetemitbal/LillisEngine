@@ -2,6 +2,8 @@
 #include "glad/gl.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "EngineStuffs/Particles/ParticleEmitter.h"
+#include "Utils/ResourceManager.h"
 
 void SpriteRenderer::initRenderData()
 {
@@ -12,6 +14,8 @@ void SpriteRenderer::initRenderData()
     glGenBuffers(2, VBO);
     glCreateVertexArrays(1, &ProcGenVAO);
     glGenBuffers(2, ProcGenVBO);
+    glCreateVertexArrays(1, &ParticleVAO);
+    glGenBuffers(2, ParticleVBO);
 
     glBindVertexArray(quadVAO);
     glEnableVertexAttribArray(0);
@@ -61,6 +65,8 @@ void SpriteRenderer::shutdownRenderData()
     glDeleteBuffers(2, VBO);
     glDeleteVertexArrays(1, &ProcGenVAO);
     glDeleteBuffers(2, ProcGenVBO);
+    glDeleteVertexArrays(1, &ParticleVAO);
+    glDeleteBuffers(2, ParticleVBO);
 }
 
 
@@ -81,8 +87,10 @@ void SpriteRenderer::DrawSprite(const Texture2D& texture, glm::vec2 position, fl
 
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
+    glm::vec4 newColor = glm::vec4(color, 1.0f);
+
     spriteShader.SetMatrix4("model", model);
-    spriteShader.SetVector3f("spriteColor", color);
+    spriteShader.SetVector4f("spriteColor", newColor);
     spriteShader.SetFloat("renderValue", renderVal);
     spriteShader.SetInteger("image", 0);
 
@@ -192,4 +200,49 @@ void SpriteRenderer::DrawProcGen(std::vector<float>& verts, std::vector<float>& 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
+
+void SpriteRenderer::DrawParticles(ParticleEmitter &emitter, glm::mat4 camera)
+{
+    if (emitter.numActive == 0)
+    {
+        return;
+    }
+
+    particleShader.Use();
+    particleShader.SetMatrix4("projection", camera);
+    particleShader.SetFloat("_ppu", (float)pixelsPerUnit);
+    particleShader.SetFloat("renderValue", 15.0f);
+    particleShader.SetInteger("image", 0);
+    particleShader.SetVector4f("spriteColor", emitter.startColor);
+    Texture2D texture = ResourceManager::GetTexture(emitter.effect->image);
+    particleShader.SetVector4f("TexQuad", texture.spriteLocations[emitter.effect->frame]);
+
+    glActiveTexture(GL_TEXTURE0);
+    texture.Bind();
+
+    glBindVertexArray(ParticleVAO);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    //Set vertices
+    std::vector<glm::vec2> positions;
+    positions.assign(emitter.particlePositions.begin(), emitter.particlePositions.begin() + emitter.numActive);
+    glBindBuffer(GL_ARRAY_BUFFER, ParticleVBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)emitter.numActive * (GLsizeiptr)sizeof(glm::vec2), positions.data(), GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE,  2 * sizeof(float), (void*)0);
+
+    //Set halfwidths.
+    std::vector<glm::vec2> halfwidths;
+    halfwidths.assign(emitter.particleScale.begin(), emitter.particleScale.begin() + emitter.numActive);
+    glBindBuffer(GL_ARRAY_BUFFER, ParticleVBO[1]);
+    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)emitter.numActive * (GLsizeiptr)sizeof(glm::vec2), halfwidths.data(), GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,  2 * sizeof(float), (void*)0);
+
+    glDrawArrays(GL_POINTS, 0, (GLsizei)emitter.numActive);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
 

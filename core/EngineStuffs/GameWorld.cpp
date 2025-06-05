@@ -5,6 +5,7 @@
 #include "Graphics/RenderOrder.h"
 #include "UI/UISystem.h"
 #include "ObjectGrouping.h"
+#include "Particles/ParticleEmitter.h"
 
 GameWorld::GameWorld()
 {
@@ -14,9 +15,10 @@ GameWorld::GameWorld()
 	sceneGraph = DBG_NEW SceneGraph(transformPool);
 	rigidBodyPool = DBG_NEW ComponentPool<RigidBody>(50);
 	spritePool = DBG_NEW ComponentPool<Sprite>(50);
-	animatorPool = DBG_NEW ComponentPool<Animator>(50);
+	animatorPool = DBG_NEW ComponentPool<Animator>(30);
 	renderOrder = DBG_NEW RenderOrder(spritePool);
-	behaviors = DBG_NEW BehaviorHandler(50);
+	behaviors = DBG_NEW BehaviorHandler(40);
+	emitterPool = DBG_NEW ComponentPool<ParticleEmitter>(10);
 }
 
 GameWorld::~GameWorld() 
@@ -30,6 +32,7 @@ GameWorld::~GameWorld()
 	delete renderOrder;
 	delete rigidBodyPool;
 	delete behaviors;
+	delete emitterPool;
 	delete objectGroup;
 	if (worldGrid != nullptr)
 	{
@@ -136,6 +139,7 @@ void GameWorld::clearAll()
 		spritePool->ClearPool();
 		animatorPool->ClearPool();
 		behaviors->ClearPool();
+		emitterPool->ClearPool();
 		UISystem::getInstance()->clearUIObjects();
 		numObjects = 0;
 	}
@@ -178,6 +182,24 @@ void GameWorld::initializeAllComponents()
 	multiAnimCache.clear();
 	singleAnimCache.clear();
 }
+
+LilObj<ParticleEmitter> GameWorld::addParticleEmitter(ParticleEmitterData &data) const
+{
+	ParticleEmitter* pe = emitterPool->AddComponent();
+	pe->startPos = data.startPos;
+	pe->spawnBounds = data.spawnBounds;
+	pe->minInitVelocity = data.minInitVelocity;
+	pe->maxInitVelocity = data.maxInitVelocity;
+	pe->startAcceleration = data.startAcceleration;
+	pe->minStartScale = data.minStartScale;
+	pe->maxStartScale = data.maxStartScale;
+	pe->startColor = data.startColor;
+	pe->endColor = data.endColor;
+	pe->lifetime = data.lifetime;
+	pe->spawnSpeed = data.spawnSpeed;
+	return {emitterPool, pe->GetID()};
+}
+
 
 
 bool GameWorld::SetTransformParent(const std::string& parent, LilObj<GameObject> child)

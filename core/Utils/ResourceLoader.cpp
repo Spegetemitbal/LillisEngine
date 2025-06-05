@@ -33,6 +33,9 @@ void ResourceLoader::LoadProjectInfo(const char* path)
         } else if (word == "TILESET")
         {
             StaticDataManager::LoadTileSet(stream);
+        } else if (word == "PARTICLE")
+        {
+            StaticDataManager::LoadParticleEffect(stream);
         }
     }
     stream.close();

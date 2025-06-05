@@ -59,7 +59,7 @@ void ParticleEmitter::ProcessParticles(float deltaTime)
         }
     }
 
-    for (int i = 0; i < numActive; i++)
+    for (unsigned int i = 0; i < numActive; i++)
     {
         particleLifetimes[i] -= deltaTime;
         if (particleLifetimes[i] <= 0)
@@ -71,7 +71,7 @@ void ParticleEmitter::ProcessParticles(float deltaTime)
             i--;
             continue;
         }
-        particleVelocities[i] = particleAccelerations[i] * deltaTime;
+        particleVelocities[i] += particleAccelerations[i] * deltaTime;
         particlePositions[i] += particleVelocities[i] * deltaTime;
     }
 }
@@ -83,6 +83,10 @@ void ParticleEmitter::SetEffect(ParticleEffect *effect)
 
 void ParticleEmitter::SetMaxParticles(unsigned int maxParticles)
 {
+    if (maxParticles == 0)
+    {
+        return;
+    }
     this->maxParticles = maxParticles;
 
     particleActive.clear();

@@ -8,6 +8,7 @@
 #include "UI/UIObject.h"
 #include "Tilemaps/TileGrid.h"
 #include "Tilemaps/TileMap.h"
+#include "Particles/ParticleEmitter.h"
 
 class GameObject;
 class GameObjPool;
@@ -72,8 +73,11 @@ public:
 	void initializeAllComponents();
 	//No getActive needed here, only active pointers are shown
 
-	//A flyweight should be implemented here soon.
-	//std::vector<Texture2D> sprites = std::vector<Texture2D>();
+	LilObj<ParticleEmitter> addParticleEmitter(ParticleEmitterData& data) const;
+	ActiveTracker<ParticleEmitter*> getEmittersRaw() const { return emitterPool->getPool(); }
+	void compactEmitters(int active) {emitterPool->CompactPool(active);}
+	unsigned int getEmittersActive() {return emitterPool->GetActiveLine(); };
+
 	TileMap* createTileMap(const TileSet& tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions);
 	TileGrid* createTileGrid(GridShape tileShape, glm::vec2 tileSize);
 	std::vector<TileMap>& getTileMaps() { return tileMaps; }
@@ -100,7 +104,7 @@ private:
 	RenderOrder* renderOrder;
 	ComponentPool<RigidBody>* rigidBodyPool;
 	BehaviorHandler* behaviors;
-
+	ComponentPool<ParticleEmitter>* emitterPool;
 
 };
 

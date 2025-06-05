@@ -4,12 +4,36 @@
 
 #include "StaticDataManager.h"
 #include "../EngineStuffs/StateObject.h"
+#include "../EngineStuffs/Particles/ParticleEffect.h"
 
 std::map<std::string, TexImportData> StaticDataManager::SpriteInfo = std::map<std::string, TexImportData>();
 std::map<std::string, Animation> StaticDataManager::Animations = std::map<std::string, Animation>();
 std::map<std::string, StateObject> StaticDataManager::StateObjects = std::map<std::string, StateObject>();
 std::map<std::string, TileSet> StaticDataManager::TileSets = std::map<std::string, TileSet>();
+std::map<std::string, ParticleEffect> StaticDataManager::ParticleEffects = std::map<std::string, ParticleEffect>();
 std::string StaticDataManager::SettingsFileName;
+
+void StaticDataManager::LoadParticleEffect(std::ifstream &file)
+{
+    std::string name,image;
+    unsigned int frame;
+    float x, y;
+
+    file >> name;
+    file >> image;
+    file >> frame;
+    file >> x;
+    file >> y;
+
+    if (!SpriteInfo.contains(image))
+    {
+        std::cout << "Image: " << image << " does not exist, cannot load particle." << std::endl;
+        return;
+    }
+
+    ParticleEffects.emplace(name,ParticleEffect(image, frame, {x,y}));
+}
+
 
 void StaticDataManager::LoadStateObject(std::ifstream& file)
 {

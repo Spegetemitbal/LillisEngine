@@ -2,6 +2,7 @@
 
 #include "ObjectGrouping.h"
 #include "WorldManager.h"
+#include "Particles/ParticleEmitter.h"
 
 #define WORLD WorldManager::getInstance()->GetCurrentWorld()
 
@@ -39,6 +40,10 @@ void GameObject::SetActive(bool active)
 		{
 			animator->SetActive(false);
 		}
+		if (emitter.Exists())
+		{
+			emitter->SetActive(false);
+		}
 		for (auto b : behaviorMap)
 		{
 			if (b.second.Exists())
@@ -48,6 +53,8 @@ void GameObject::SetActive(bool active)
 		}
 		sprite = LilObj<Sprite>();
 		animator = LilObj<Animator>();
+		rigidbody = LilObj<RigidBody>();
+		emitter = LilObj<ParticleEmitter>();
 		behaviorMap.clear();
 	} else
 	{
@@ -124,6 +131,21 @@ LilObj<Animator> GameObject::CreateAnimator(StateObject *stateObj, bool initImme
 	}
 	return animator;
 }
+
+LilObj<ParticleEmitter> GameObject::CreateParticleEmitter(ParticleEmitterData &particleData, bool inheritTransform)
+{
+	if (!emitter.Exists())
+	{
+		emitter = WORLD->addParticleEmitter(particleData);
+		emitter->setControlledObject(thisObject);
+		if (inheritTransform)
+		{
+			emitter->transform = this->transform;
+		}
+	}
+	return emitter;
+}
+
 
 
 LilObj<Behavior> GameObject::CreateBehaviorGeneric(const std::string& name, bool initializeImmediately)

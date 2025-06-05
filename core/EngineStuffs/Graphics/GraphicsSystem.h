@@ -28,7 +28,8 @@ public:
 	//void Update();
 
 	void PreDraw();
-	void RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite, std::vector<TileMap>& tile_maps);
+	void RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite,
+		ActiveTracker<ParticleEmitter*>& emitters, unsigned int lastEmitter, std::vector<TileMap>& tile_maps);
 
 	void RunPostProcessing();
 	void AddPostProcess(LILLIS::Shader shader);
