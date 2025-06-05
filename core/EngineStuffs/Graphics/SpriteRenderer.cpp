@@ -15,7 +15,7 @@ void SpriteRenderer::initRenderData()
     glCreateVertexArrays(1, &ProcGenVAO);
     glGenBuffers(2, ProcGenVBO);
     glCreateVertexArrays(1, &ParticleVAO);
-    glGenBuffers(2, ParticleVBO);
+    glGenBuffers(3, ParticleVBO);
 
     glBindVertexArray(quadVAO);
     glEnableVertexAttribArray(0);
@@ -66,13 +66,14 @@ void SpriteRenderer::shutdownRenderData()
     glDeleteVertexArrays(1, &ProcGenVAO);
     glDeleteBuffers(2, ProcGenVBO);
     glDeleteVertexArrays(1, &ParticleVAO);
-    glDeleteBuffers(2, ParticleVBO);
+    glDeleteBuffers(3, ParticleVBO);
 }
 
 
 void SpriteRenderer::DrawSprite(const Texture2D& texture, glm::vec2 position, float renderVal, int frame,
     glm::vec2 size, float rotate, glm::vec3 color)
 {
+
     size *= (float)pixelsPerUnit;
     position *= (float)pixelsPerUnit;
     // prepare transformations
@@ -213,7 +214,9 @@ void SpriteRenderer::DrawParticles(ParticleEmitter &emitter, glm::mat4 camera)
     particleShader.SetFloat("_ppu", (float)pixelsPerUnit);
     particleShader.SetFloat("renderValue", 15.0f);
     particleShader.SetInteger("image", 0);
-    particleShader.SetVector4f("spriteColor", emitter.startColor);
+    particleShader.SetVector4f("startColor", emitter.startColor);
+    particleShader.SetVector4f("endColor", emitter.endColor);
+    particleShader.SetFloat("maxTime", emitter.lifetime);
     Texture2D texture = ResourceManager::GetTexture(emitter.effect->image);
     particleShader.SetVector4f("TexQuad", texture.spriteLocations[emitter.effect->frame]);
 
@@ -224,6 +227,7 @@ void SpriteRenderer::DrawParticles(ParticleEmitter &emitter, glm::mat4 camera)
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
 
     //Set vertices
     std::vector<glm::vec2> positions;
@@ -238,6 +242,13 @@ void SpriteRenderer::DrawParticles(ParticleEmitter &emitter, glm::mat4 camera)
     glBindBuffer(GL_ARRAY_BUFFER, ParticleVBO[1]);
     glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)emitter.numActive * (GLsizeiptr)sizeof(glm::vec2), halfwidths.data(), GL_DYNAMIC_DRAW);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,  2 * sizeof(float), (void*)0);
+
+    //Set durations.
+    std::vector<float> durations;
+    durations.assign(emitter.particleLifetimes.begin(), emitter.particleLifetimes.begin() + emitter.numActive);
+    glBindBuffer(GL_ARRAY_BUFFER, ParticleVBO[2]);
+    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)emitter.numActive * (GLsizeiptr)sizeof(float), durations.data(), GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE,  sizeof(float), (void*)0);
 
     glDrawArrays(GL_POINTS, 0, (GLsizei)emitter.numActive);
 

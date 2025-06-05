@@ -29,44 +29,55 @@ public:
 		particleFragment = std::string(
 			"#version 450\n"
 			"in vec2 TexCoords;"
+			"in float duration;"
 			"out vec4 color;"
 			"uniform sampler2D image;"
-			"uniform vec4 spriteColor;"
+			"uniform vec4 startColor;"
+			"uniform vec4 endColor;"
+			"uniform float maxTime;"
 			"void main() { vec4 texColor = texture(image, TexCoords);"
 			"if (texColor.a == 0.0) {discard;} "
-			"color = spriteColor * texColor; }");
+			"color = mix(startColor,endColor, 1.0 - (duration / maxTime)) * texColor; }");
 
 		particleVertex = std::string(
 		"#version 450\n"
 			"layout(location = 0) in vec2 vertex;" // <vec2 position, vec2 texCoords>
 			"layout(location = 1) in vec2 halfsize;"
+			"layout(location = 2) in float duration;"
 			"out vec2 halfSize;"
+			"out float dur;"
 			"uniform float renderValue;"
 			"uniform float _ppu;"
 			"uniform mat4 projection;"
-			"void main(){halfSize = halfsize * _ppu;"
+			"void main(){halfSize = halfsize * _ppu; dur = duration;"
 			"gl_Position = projection * vec4(vertex.x * _ppu, vertex.y * _ppu, -renderValue, 1.0);}");
 
 		particleGeometry = std::string(
 			"#version 450\n"
 			"layout(points) in;"
 			"in vec2 halfSize[];"
+			"in float dur[];"
 			"uniform vec4 TexQuad;"
 			"uniform mat4 projection;"
 			"out vec2 TexCoords;"
+			"out float duration;"
 			"layout (triangle_strip, max_vertices = 4) out;"
 			"void build_quad(vec4 position) {"
 			"gl_Position = position + projection * vec4(-halfSize[0].x, -halfSize[0].y, 0.0, 0.0);"    // 1:bottom-left
 			"TexCoords = vec2(TexQuad.x, TexQuad.z);"
+			"duration = dur[0];"
 			"EmitVertex();"
 			"gl_Position = position + projection * vec4( halfSize[0].x, -halfSize[0].y, 0.0, 0.0);"    // 2:bottom-right
 			"TexCoords = vec2(TexQuad.y, TexQuad.z);"
+			"duration = dur[0];"
 			"EmitVertex();"
 			"gl_Position = position + projection * vec4(-halfSize[0].x,  halfSize[0].y, 0.0, 0.0);"    // 3:top-left
 			"TexCoords = vec2(TexQuad.x, TexQuad.w);"
+			"duration = dur[0];"
 			"EmitVertex();"
 			"gl_Position = position + projection * vec4( halfSize[0].x,  halfSize[0].y, 0.0, 0.0);"    // 4:top-right
 			"TexCoords = vec2(TexQuad.y, TexQuad.w);"
+			"duration = dur[0];"
 			"EmitVertex();"
 			"EndPrimitive();}"
 			"void main() { build_quad(gl_in[0].gl_Position);}");

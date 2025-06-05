@@ -56,6 +56,6 @@ private:
     static inline LILLIS::Shader spriteShader{};
     static inline LILLIS::Shader uiShader{};
     static inline LILLIS::Shader particleShader{};
-    static inline unsigned int quadVAO{}, ProcGenVBO[2]{}, ProcGenVAO{}, ParticleVBO[2]{}, ParticleVAO{};
+    static inline unsigned int quadVAO{}, ProcGenVBO[2]{}, ProcGenVAO{}, ParticleVBO[3]{}, ParticleVAO{};
     static inline unsigned int VBO[2]{};
 };
