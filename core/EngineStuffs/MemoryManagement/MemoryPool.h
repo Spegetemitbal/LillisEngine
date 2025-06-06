@@ -102,6 +102,11 @@ public:
         return mPool;
     }
 
+    std::vector<T>& extractData()
+    {
+        return data;
+    }
+
 private:
     std::vector<T> data;
     unsigned int _activeLine;

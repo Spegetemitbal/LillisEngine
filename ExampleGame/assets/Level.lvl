@@ -23,7 +23,7 @@ RigidBody 1 Box Dynamic Trigger 10 1 0.4 0.4 0.6 1 1
 Object 6 0 0 WinFlag NONE NONE
 Sprite WinFlag 1 1 1
 RigidBody 2 Box Dynamic Trigger 10 1 0.4 0.4 0.6 1 1
-ParticleEmitter Smiley 10 INHERIT 0 0 -3 -3 3 3 0 0 0.25 0.25 0.25 0.25 1 1 1 1 0 0 0 1 3.0 1.0
+ParticleEmitter Smiley 0 10 INHERIT 0 0 -3 -3 3 3 0 0 0.25 0.25 0.25 0.25 1 1 1 1 0 0 0 1 3.0 1.0
 ;
 Object 0 0 0 FlippyBoy NONE NONE
 Sprite Angry 1 1 1

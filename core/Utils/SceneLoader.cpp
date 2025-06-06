@@ -228,8 +228,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 					{
 						std::string particleName, inheritsTransformStr;
 						bool inheritsTransform = true;
-
-						unsigned int maxParticles;
+						unsigned int maxParticles, layer;
 						ParticleEmitterData particleData = ParticleEmitterData();
 						stream >> particleName;
 						if (!StaticDataManager::ParticleEffects.contains(particleName))
@@ -237,6 +236,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 							std::cout << "Particle: " << particleName << " Does not exist, terminating load." << std::endl;
 							break;
 						}
+						stream >> layer;
 						stream >> maxParticles;
 
 						stream >> inheritsTransformStr;
@@ -271,6 +271,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 						stream >> particleData.spawnSpeed;
 
 						LilObj<ParticleEmitter> pe = G->CreateParticleEmitter(particleData, inheritsTransform);
+						pe->layer = layer;
 						pe->SetEffect(&StaticDataManager::ParticleEffects[particleName]);
 						pe->SetMaxParticles(maxParticles);
 					}

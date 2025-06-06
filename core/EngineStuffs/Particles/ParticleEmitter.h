@@ -54,6 +54,12 @@ public:
     glm::vec4 endColor = {1,1,1,1};
     float lifetime = 0.5f;
     float spawnSpeed = 1.0f;
+    unsigned int layer = 0;
+    void SetDepthData(float renderVal, float layerDif)
+    {
+        this->renderVal = renderVal;
+        this->layerDif = layerDif;
+    }
 
     void SetEffect(ParticleEffect* effect);
     void SetMaxParticles(unsigned int maxParticles);
@@ -73,6 +79,9 @@ private:
 
     friend class SpriteRenderer;
     friend class PhysicsSystem;
+
+    float renderVal = 0;
+    float layerDif = 0;
 
     ParticleEffect* effect = nullptr;
     unsigned int maxParticles = 0;

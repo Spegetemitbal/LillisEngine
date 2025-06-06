@@ -6,6 +6,7 @@
 #include "Sprite.h"
 #include "EngineStuffs/GameObject.h"
 #include "../Tilemaps/TileMap.h"
+#include "../Particles/ParticleEmitter.h"
 
 //Moves sprite to proper layer region!
 void RenderOrder::MoveSprite(LilObj<Sprite> spr)
@@ -86,7 +87,7 @@ void RenderOrder::MoveSprite(LilObj<Sprite> spr)
     int ly = -1;
     for (int i = 0; i < spritePool->activeLine; i++)
     {
-        int sprLayer = spritePool->poolDir[i]->getLayer();
+        int sprLayer = (int)spritePool->poolDir[i]->getLayer();
         if (sprLayer > ly)
         {
             ly++;
@@ -137,6 +138,34 @@ void RenderOrder::CalculateOrder(std::vector<Sprite*>& spritesOnScreen, const fl
         }
     }
 }
+
+void RenderOrder::CalculateOrder(std::vector<ParticleEmitter*> &emitters)
+{
+    const float planeDist = FAR_PLANE - NEAR_PLANE;
+
+    float layerDif;
+
+    if (highestLayer == -1)
+    {
+        return;
+    } else
+    {
+        layerDif = planeDist / ((float)highestLayer + 1);
+    }
+
+    for (auto emitter : emitters)
+    {
+        emitter->layer = std::clamp(emitter->layer, (unsigned int)0, highestLayer);
+        if (axis != glm::vec2(0))
+        {
+            emitter->SetDepthData(FAR_PLANE - (layerDif * (float)emitter->layer), layerDif);
+        } else
+        {
+            emitter->SetDepthData(FAR_PLANE - (layerDif * (float)emitter->layer), 0);
+        }
+    }
+}
+
 
 void RenderOrder::CalculateTileOrder(TileMap *tileMap, const float &up, const float &down)
 {

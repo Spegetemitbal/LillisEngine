@@ -252,6 +252,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 
 	//Set the relevant depth values
 	RenderOrder::CalculateOrder(spritesOnScreen, upSprite, downSprite);
+	RenderOrder::CalculateOrder(emitters.extractData());
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -288,9 +289,6 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 		}
 	}
 
-	glDisable(GL_DEPTH_TEST);
-
-	//TODO move this
 	for (int i = 0; i < lastEmitter; i++)
 	{
 		if (emitters[i]->GetActive())
@@ -298,6 +296,8 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 			SpriteRenderer::DrawParticles(*emitters[i], mainCamera.projectionMatrix());
 		}
 	}
+
+	glDisable(GL_DEPTH_TEST);
 	ProcGen::getInstance()->Render(mainCamera.projectionMatrix());
 
 	RunPostProcessing();

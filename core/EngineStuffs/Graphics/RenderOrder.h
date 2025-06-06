@@ -12,6 +12,7 @@
 #include "../MemoryManagement/ComponentPool.h"
 
 class Sprite;
+class ParticleEmitter;
 class TileMap;
 
 class RenderOrder {
@@ -21,6 +22,7 @@ public:
     explicit RenderOrder(ComponentPool<Sprite>* sprPool) {spritePool = sprPool;}
 
     static void CalculateOrder(std::vector<Sprite*>& spritesOnScreen, const float& up, const float& down);
+    static void CalculateOrder(std::vector<ParticleEmitter*>& emitters);
     static void CalculateTileOrder(TileMap* tileMap, const float& up, const float& down);
 
     //Currently only supporting upwards axis

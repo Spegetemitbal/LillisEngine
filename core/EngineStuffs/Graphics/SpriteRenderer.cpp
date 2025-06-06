@@ -212,7 +212,7 @@ void SpriteRenderer::DrawParticles(ParticleEmitter &emitter, glm::mat4 camera)
     particleShader.Use();
     particleShader.SetMatrix4("projection", camera);
     particleShader.SetFloat("_ppu", (float)pixelsPerUnit);
-    particleShader.SetFloat("renderValue", 15.0f);
+    particleShader.SetFloat("renderValue", emitter.renderVal);
     particleShader.SetInteger("image", 0);
     particleShader.SetVector4f("startColor", emitter.startColor);
     particleShader.SetVector4f("endColor", emitter.endColor);
