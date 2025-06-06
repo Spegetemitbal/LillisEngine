@@ -213,7 +213,7 @@ void SpriteRenderer::DrawParticles(ParticleEmitter &emitter, glm::mat4 camera, f
     particleShader.SetMatrix4("projection", camera);
     particleShader.SetFloat("_ppu", (float)pixelsPerUnit);
     particleShader.SetFloat("renderValue", emitter.renderVal);
-    if (doRenderAxis)
+    if (doRenderAxis && !emitter.ignoreRenderAxis)
     {
         particleShader.SetFloat("layerDif", emitter.layerDif);
     } else

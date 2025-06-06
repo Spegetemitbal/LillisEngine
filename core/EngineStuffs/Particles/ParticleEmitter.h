@@ -55,6 +55,7 @@ public:
     float lifetime = 0.5f;
     float spawnSpeed = 1.0f;
     unsigned int layer = 0;
+    bool ignoreRenderAxis = false;
     void SetDepthData(float renderVal, float layerDif)
     {
         this->renderVal = renderVal;
