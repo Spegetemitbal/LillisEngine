@@ -48,7 +48,7 @@ public:
 
     static void DrawProcGen(std::vector<float>& verts, std::vector<float>& colors, int numObjects, RenderPrimitive prim, glm::mat4 camera);
 
-    static void DrawParticles(ParticleEmitter& emitter, glm::mat4 camera);
+    static void DrawParticles(ParticleEmitter& emitter, glm::mat4 camera, float upSprite, float invDist, bool doRenderAxis);
 
 private:
     static inline unsigned int pixelsPerUnit = 32;

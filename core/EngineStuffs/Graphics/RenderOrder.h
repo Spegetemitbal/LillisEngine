@@ -37,6 +37,11 @@ public:
         }
     }
 
+    static glm::vec2 GetRenderAxis()
+    {
+        return axis;
+    }
+
     void MoveSprite(LilObj<Sprite> spr);
 private:
     int compareAxis(Sprite* const &spr1, Sprite* const &spr2);

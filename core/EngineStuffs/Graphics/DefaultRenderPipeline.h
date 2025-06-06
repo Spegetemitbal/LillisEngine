@@ -47,10 +47,14 @@ public:
 			"out vec2 halfSize;"
 			"out float dur;"
 			"uniform float renderValue;"
+			"uniform float upSprite;"
+			"uniform float invDist;"
+			"uniform float layerDif;"
 			"uniform float _ppu;"
 			"uniform mat4 projection;"
 			"void main(){halfSize = halfsize * _ppu; dur = duration;"
-			"gl_Position = projection * vec4(vertex.x * _ppu, vertex.y * _ppu, -renderValue, 1.0);}");
+			"gl_Position = projection * vec4(vertex.x * _ppu, vertex.y * _ppu,"
+			"-(renderValue - (((upSprite - vertex.y) * invDist) * layerDif)), 1.0);}");
 
 		particleGeometry = std::string(
 			"#version 450\n"

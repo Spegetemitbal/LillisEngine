@@ -202,7 +202,7 @@ void SpriteRenderer::DrawProcGen(std::vector<float>& verts, std::vector<float>& 
     glBindVertexArray(0);
 }
 
-void SpriteRenderer::DrawParticles(ParticleEmitter &emitter, glm::mat4 camera)
+void SpriteRenderer::DrawParticles(ParticleEmitter &emitter, glm::mat4 camera, float upSprite, float invDist, bool doRenderAxis)
 {
     if (emitter.numActive == 0)
     {
@@ -213,6 +213,15 @@ void SpriteRenderer::DrawParticles(ParticleEmitter &emitter, glm::mat4 camera)
     particleShader.SetMatrix4("projection", camera);
     particleShader.SetFloat("_ppu", (float)pixelsPerUnit);
     particleShader.SetFloat("renderValue", emitter.renderVal);
+    if (doRenderAxis)
+    {
+        particleShader.SetFloat("layerDif", emitter.layerDif);
+    } else
+    {
+        particleShader.SetFloat("layerDif", 0);
+    }
+    particleShader.SetFloat("upSprite", upSprite);
+    particleShader.SetFloat("invDist", invDist);
     particleShader.SetInteger("image", 0);
     particleShader.SetVector4f("startColor", emitter.startColor);
     particleShader.SetVector4f("endColor", emitter.endColor);

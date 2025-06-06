@@ -289,11 +289,13 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 		}
 	}
 
+	bool doRenderAxis = RenderOrder::GetRenderAxis() != glm::vec2(0);
+	float invDist = 1 / (upSprite - downSprite);
 	for (int i = 0; i < lastEmitter; i++)
 	{
 		if (emitters[i]->GetActive())
 		{
-			SpriteRenderer::DrawParticles(*emitters[i], mainCamera.projectionMatrix());
+			SpriteRenderer::DrawParticles(*emitters[i], mainCamera.projectionMatrix(), upSprite, invDist, doRenderAxis);
 		}
 	}
 
