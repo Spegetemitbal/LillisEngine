@@ -6,7 +6,7 @@
 
 #include <utility>
 
-void TileMap::setTile(std::pair<int, int> index, char tile)
+void TileMap::setTile(std::pair<int, int> index, char tile, bool reloadColliders)
 {
     if (!tileSet.tileSet.empty())
     {
@@ -15,6 +15,12 @@ void TileMap::setTile(std::pair<int, int> index, char tile)
         if (tileSet.inputConversion.contains(tile))
         {
             newTile = tileSet.inputConversion[tile];
+            bool changeCol = tileHasCollider[tileIndex];
+            tileHasCollider[tileIndex] = tileSet.tileSet[tileSet.inputConversion[tile]].hasCollider;
+            if (changeCol != tileHasCollider[tileIndex] && reloadColliders)
+            {
+                GenerateColliders();
+            }
             if (index.first >= dimensions.first || index.second >= dimensions.second || index.first < 0 || index.second < 0)
             {
                 std::cout << "Tile index out of bounds" << std::endl;
@@ -22,6 +28,7 @@ void TileMap::setTile(std::pair<int, int> index, char tile)
             }
         }
         tiles[tileIndex] = newTile;
+
     } else
     {
         throw;
@@ -49,11 +56,13 @@ TileMap::TileMap(TileGrid *grid, TileSet tileSet, std::pair<int, int> gridIndex,
 
     tiles.reserve(dimSize);
     tileWorldPositions.reserve(dimSize);
+    tileHasCollider.reserve(dimSize);
     for (int y = 0; y < dimensions.second; y ++)
     {
         for (int x = 0; x < dimensions.first; x++)
         {
             tileWorldPositions.emplace_back(tileGrid->GridToWorldSpace({x + gridIndex.first,y + gridIndex.second}));
+            tileHasCollider.emplace_back(false);
             tiles.push_back(-1);
         }
     }
@@ -133,6 +142,110 @@ glm::vec2 TileMap::CullMap(AABB camAABB, unsigned int pixelsPerUnit)
 
     return {minTileY, maxTileY};
 }
+
+void TileMap::GenerateColliders()
+{
+    tileColliderVertices.clear();
+    int xIndex = 0, yIndex = 0;
+    std::pair<int,int> currentMin = {0,0};
+    std::pair<int,int> currentMax = {0,0};
+    std::vector<bool> colliderCheck(tileHasCollider);
+    glm::vec2 tSize = tileGrid->GetTileSize();
+    glm::vec2 tHalfWidth = tSize * 0.5f;
+
+    for (; yIndex < dimensions.second; yIndex++)
+    {
+        for (; xIndex < dimensions.first; xIndex++)
+        {
+            int index = FindIndexOfTile(xIndex, yIndex);
+            if (colliderCheck[index])
+            {
+                //Begin chunk.
+                currentMin = {xIndex, yIndex};
+                currentMax = {xIndex, yIndex};
+
+                int xSize = xIndex + 1;
+                int ySize = yIndex;
+                //Find length of chunk
+                while (xSize < dimensions.first && colliderCheck[FindIndexOfTile(xSize, ySize)])
+                {
+                    currentMax = {xSize, ySize};
+                    xSize++;
+                }
+
+                //Find height of chunk
+                ySize++;
+                bool canExpand = true;
+                while (ySize < dimensions.second && canExpand)
+                {
+                    for (int x = currentMin.first; x <= currentMax.first; x++)
+                    {
+                        if (!colliderCheck[FindIndexOfTile(x, ySize)])
+                        {
+                            canExpand = false;
+                            break;
+                        }
+                    }
+                    if (canExpand)
+                    {
+                        currentMax.second++;
+                        ySize++;
+                    }
+                }
+
+                //Add points
+                if (currentMin.first == currentMax.first && currentMin.second == currentMax.second)
+                {
+                    glm::vec2 pos = tileWorldPositions[FindIndexOfTile(currentMin.first, currentMin.second)];
+                    //Top left, clockwise
+                    if (tileGrid->GetShape() == GridShape::GRID_RECTANGULAR)
+                    {
+                        tileColliderVertices.emplace_back(pos + glm::vec2(0, tSize.y));
+                        tileColliderVertices.emplace_back(pos + tSize);
+                        tileColliderVertices.emplace_back(pos + glm::vec2(tSize.x, 0));
+                        tileColliderVertices.emplace_back(pos);
+                    } else if (tileGrid->GetShape() == GridShape::GRID_ISOMETRIC)
+                    {
+                        //left clockwise
+                        tileColliderVertices.emplace_back(pos + glm::vec2(-tHalfWidth.x, 0));
+                        tileColliderVertices.emplace_back(pos + glm::vec2(0, tHalfWidth.y));
+                        tileColliderVertices.emplace_back(pos + glm::vec2(tHalfWidth.x, 0));
+                        tileColliderVertices.emplace_back(pos + glm::vec2(0, -tHalfWidth.y));
+                    }
+                } else
+                {
+                    glm::vec2 minPos = tileWorldPositions[FindIndexOfTile(currentMin.first, currentMin.second)];
+                    glm::vec2 maxPos = tileWorldPositions[FindIndexOfTile(currentMax.first, currentMax.second)];
+
+                    if (tileGrid->GetShape() == GridShape::GRID_RECTANGULAR)
+                    {
+                        tileColliderVertices.emplace_back(glm::vec2(minPos.x, maxPos.y) + glm::vec2(0, tSize.y));
+                        tileColliderVertices.emplace_back(maxPos + tSize);
+                        tileColliderVertices.emplace_back(glm::vec2(maxPos.x, minPos.y) + glm::vec2(tSize.x, 0));
+                        tileColliderVertices.emplace_back(minPos);
+                    } else if (tileGrid->GetShape() == GridShape::GRID_ISOMETRIC)
+                    {
+                        tileColliderVertices.emplace_back(glm::vec2(minPos.x, maxPos.y) + glm::vec2(-tHalfWidth.x, 0));
+                        tileColliderVertices.emplace_back(glm::vec2(maxPos.x, maxPos.y) + glm::vec2(0, tHalfWidth.y));
+                        tileColliderVertices.emplace_back(glm::vec2(maxPos.x, minPos.y) + glm::vec2(tHalfWidth.x, 0));
+                        tileColliderVertices.emplace_back(glm::vec2(minPos.x, minPos.y) + glm::vec2(0, -tHalfWidth.y));
+                    }
+                }
+
+                //Clear data from colliderCheck
+                for (int i = currentMin.first; i <= currentMax.first; i++)
+                {
+                    for (int j = currentMin.second; j <= currentMax.second; j++)
+                    {
+                        colliderCheck[FindIndexOfTile(i, j)] = false;
+                    }
+                }
+            }
+        }
+        xIndex = 0;
+    }
+}
+
 
 void TileMap::GeneratePartitions()
 {

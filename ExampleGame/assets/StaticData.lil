@@ -45,8 +45,8 @@ SplinePoint -1.25 -0.5
 KeyFrame 0 0
 SplinePoint 1.25 0.5
 TILESET rectTest 4
-A TileBackdrop 0 32
-B TileBackdrop 1 32
-C TileBackdrop 2 32
-D TileBackdrop 3 32
+A TileBackdrop 0 32 NONE
+B TileBackdrop 1 32 NONE
+C TileBackdrop 2 32 COLLIDER
+D TileBackdrop 3 32 NONE
 PARTICLE Smiley Calm 0 0.25 0.25

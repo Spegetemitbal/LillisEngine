@@ -15,6 +15,7 @@ struct TileData
     std::string image;
     float height;
     unsigned int frame;
+    bool hasCollider;
 };
 
 struct TileSet
@@ -38,7 +39,7 @@ public:
     //Has no data ownership.
     ~TileMap() = default;
 
-    void setTile(std::pair<int, int> index, char tile);
+    void setTile(std::pair<int, int> index, char tile, bool reloadColliders = true);
 
     glm::vec2 getTileSize() const
     {
@@ -83,8 +84,17 @@ public:
     glm::vec2 CullMap(AABB camAABB, unsigned int pixelsPerUnit);
 
     std::vector<TileLoc> tilesToRender;
+
+    const std::vector<glm::vec2>& getTileColliderVerts() const
+    {
+        return tileColliderVertices;
+    }
+
     unsigned int layer = 0;
     bool active = true;
+
+    void GenerateColliders();
+
 private:
 
     void GeneratePartitions();
@@ -103,6 +113,9 @@ private:
     //-1 is empty.
     std::vector<int> tiles;
     std::vector<glm::vec2> tileWorldPositions;
+    std::vector<bool> tileHasCollider;
+    //Every 4 is a chunk.
+    std::vector<glm::vec2> tileColliderVertices;
     TileSet tileSet;
     TileGrid* tileGrid;
 };

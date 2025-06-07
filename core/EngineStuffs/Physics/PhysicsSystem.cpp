@@ -8,6 +8,7 @@
 
 #include "CollisionChecker.h"
 #include "EngineStuffs/Graphics/ProcGen.h"
+#include "EngineStuffs/Tilemaps/TileMap.h"
 
 PhysicsSystem* PhysicsSystem::instance = nullptr;
 
@@ -87,13 +88,26 @@ void PhysicsSystem::ChildTriggerUpdate(ActiveTracker<RigidBody *> &physObjects, 
 }
 
 
-void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive)
+void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, const std::vector<TileMap>& tMaps)
 {
     if (numActive == 0)
     {
         return;
     }
 
+    //Draw Tilemap procgen stuff.
+    if (renderPhysics)
+    {
+        ProcGen* p = ProcGen::getInstance();
+        for (int i = 0; i < tMaps.size(); i++)
+        {
+            const std::vector<glm::vec2> toRender = tMaps[i].getTileColliderVerts();
+            for (int j = 0; j < toRender.size(); j++)
+            {
+                p->DrawDebugPoint(toRender[j], {255,0,0});
+            }
+        }
+    }
 
     iterations = std::clamp(iterations, MinIterations, MaxIterations);
     //iterations = 1;

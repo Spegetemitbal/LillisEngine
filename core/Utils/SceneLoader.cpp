@@ -347,9 +347,10 @@ void SceneLoader::LoadData(const std::string& fileName)
 				for (int x = 0; x < width; x++)
 				{
 					stream >> input;
-					map->setTile({x,y}, input);
+					map->setTile({x,(height - 1) - y}, input, false);
 				}
 			}
+			map->GenerateColliders();
 		} else if (word == "PhysicsSettings")
 		{
 			PhysicsSettings settings = PhysicsSettings::PhysicsSettings();

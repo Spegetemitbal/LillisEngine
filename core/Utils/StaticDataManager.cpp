@@ -232,7 +232,7 @@ void StaticDataManager::LoadTileSet(std::ifstream &file)
 {
     char symbol;
     int frame, numTiles;
-    std::string image, setName;
+    std::string image, setName, collide;
     float height;
 
     file >> setName;
@@ -247,8 +247,15 @@ void StaticDataManager::LoadTileSet(std::ifstream &file)
         file >> image;
         file >> frame;
         file >> height;
+        file >> collide;
 
         TileSets[setName].inputConversion.emplace(symbol, i);
-        TileSets[setName].tileSet.emplace_back(image, height, frame);
+        if (collide == "COLLIDER")
+        {
+            TileSets[setName].tileSet.emplace_back(image, height, frame, true);
+        } else
+        {
+            TileSets[setName].tileSet.emplace_back(image, height, frame, false);
+        }
     }
 }

@@ -6,6 +6,8 @@
 #include "ColManifold.h"
 #include "PhysicsEventHandler.h"
 
+class TileMap;
+
 struct PhysicsSettings
 {
     unsigned int physicsIterations = 2;
@@ -31,7 +33,7 @@ public:
 
     void InitRigidBodies(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
     void ChildTriggerUpdate(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
-    void PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
+    void PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, const std::vector<TileMap>& tMaps);
 
     void DoRenderPhysics(bool rndr)
     {
