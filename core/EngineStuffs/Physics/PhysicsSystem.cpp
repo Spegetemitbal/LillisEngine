@@ -181,13 +181,12 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects)
         if (bodyA->isTrigger || bodyB->isTrigger)
         {
             isTriggerCollision = true;
-        }
-
-        //In the event of an object touching the other, default to popping upwards?
-        if (bodyA->transform->GlobalPosition() == bodyB->transform->GlobalPosition())
+        } else if (bodyA->transform->GlobalPosition() == bodyB->transform->GlobalPosition())
         {
             bodyA->transform->Translate({0, 0.1f});
         }
+
+        //In the event of an object touching the other, default to popping upwards?
 
         glm::vec2 normal;
         float depth;

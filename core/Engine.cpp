@@ -137,10 +137,16 @@ void Engine::frameStep()
 #ifdef _DEBUG
     if (InputSystem::getIsKeyDown(LILLIS::ESC))
     {
-        GraphicsSystem::getInstance()->closeWindow();
+        CloseApplication();
     }
 #endif
 }
+
+void Engine::CloseApplication()
+{
+    GraphicsSystem::getInstance()->closeWindow();
+}
+
 
 void Engine::renderStep()
 {

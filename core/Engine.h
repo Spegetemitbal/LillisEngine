@@ -22,6 +22,7 @@ public:
     static void DestroyGameInstance();
 
     void Run();
+    void CloseApplication();
 private:
 
     bool timeToQuit = false;
