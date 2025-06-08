@@ -140,6 +140,7 @@ void GameWorld::clearAll()
 		animatorPool->ClearPool();
 		behaviors->ClearPool();
 		emitterPool->ClearPool();
+		rigidBodyPool->ClearPool();
 		UISystem::getInstance()->clearUIObjects();
 		numObjects = 0;
 	}
