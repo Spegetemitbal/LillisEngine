@@ -327,7 +327,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 				throw;
 			}
 
-			int width, height, gridX, gridY;
+			int width, height, gridX, gridY, collisionLayer;
 			char input;
 			std::string tileSetName;
 
@@ -336,12 +336,14 @@ void SceneLoader::LoadData(const std::string& fileName)
 			stream >> gridY;
 			stream >> width;
 			stream >> height;
+			stream >> collisionLayer;
+
 
 			TileSet set = StaticDataManager::TileSets[tileSetName];
 
 			TileMap* map = WORLD->createTileMap(set,
 				{gridX,gridY}, {width,height});
-
+			map->collisionTag = collisionLayer;
 			for (int y = 0; y < height; y++)
 			{
 				for (int x = 0; x < width; x++)

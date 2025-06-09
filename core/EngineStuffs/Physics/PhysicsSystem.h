@@ -5,6 +5,7 @@
 #include "RigidBody.h"
 #include "ColManifold.h"
 #include "PhysicsEventHandler.h"
+#include "EngineStuffs/Tilemaps/TileCollider.h"
 
 class TileMap;
 
@@ -12,6 +13,21 @@ struct PhysicsSettings
 {
     unsigned int physicsIterations = 2;
     glm::vec2 gravity = glm::vec2(0.0f, -9.81f);
+};
+
+struct CollisionPairing
+{
+    CollisionPairing(bool hasTile, std::pair<int, int> colliderIndices, std::pair<int,int> tileCollider = {-1,-1})
+    {
+        this->hasTile = hasTile;
+        this->colliderIndices = colliderIndices;
+        this->tileCollider = tileCollider;
+    }
+    CollisionPairing() = default;
+    ~CollisionPairing() = default;
+    bool hasTile = false;
+    std::pair<int, int> colliderIndices = {-1,-1};
+    std::pair<int, int> tileCollider = {-1, -1};
 };
 
 class PhysicsSystem
@@ -33,7 +49,7 @@ public:
 
     void InitRigidBodies(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
     void ChildTriggerUpdate(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
-    void PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, const std::vector<TileMap>& tMaps);
+    void PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, std::vector<TileMap>& tMaps);
 
     void DoRenderPhysics(bool rndr)
     {
@@ -51,8 +67,8 @@ private:
 
     bool renderPhysics = false;
 
-    void BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive);
-    void NarrowPhase(ActiveTracker<RigidBody*> &physObjects);
+    void BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, std::vector<TileMap>& tMaps);
+    void NarrowPhase(ActiveTracker<RigidBody*> &physObjects, std::vector<TileMap>& tMaps);
 
     glm::vec2 resContacts[2] = {};
     glm::vec2 impulseList[2] = {};
@@ -62,11 +78,12 @@ private:
     float jList[2] = {};
 
     //TODO: Make a framebuffer for this
-    std::vector<std::pair<int, int>> contactList = std::vector<std::pair<int, int>>(20);
+    std::vector<CollisionPairing> contactList = std::vector<CollisionPairing>(20);
 
     static void SeparateBodies(RigidBody* bodyA, RigidBody* bodyB, const glm::vec2& mtv);
-    static void ResolveCollisionBasic(ColManifold& contact);
     void ResolveCollisionComplex(ColManifold& contact);
+    void ResolveRBCollision(ColManifold& contact);
+    void ResolveTileCollision(ColManifold& contact);
 
     glm::vec2 gravity = glm::vec2(0.0f, -9.81f);
 };

@@ -145,7 +145,7 @@ glm::vec2 TileMap::CullMap(AABB camAABB, unsigned int pixelsPerUnit)
 
 void TileMap::GenerateColliders()
 {
-    tileColliderVertices.clear();
+    tileColliders.clear();
     int xIndex = 0, yIndex = 0;
     std::pair<int,int> currentMin = {0,0};
     std::pair<int,int> currentMax = {0,0};
@@ -194,23 +194,24 @@ void TileMap::GenerateColliders()
                 }
 
                 //Add points
+                tileColliders.emplace_back();
                 if (currentMin.first == currentMax.first && currentMin.second == currentMax.second)
                 {
                     glm::vec2 pos = tileWorldPositions[FindIndexOfTile(currentMin.first, currentMin.second)];
                     //Top left, clockwise
                     if (tileGrid->GetShape() == GridShape::GRID_RECTANGULAR)
                     {
-                        tileColliderVertices.emplace_back(pos + glm::vec2(0, tSize.y));
-                        tileColliderVertices.emplace_back(pos + tSize);
-                        tileColliderVertices.emplace_back(pos + glm::vec2(tSize.x, 0));
-                        tileColliderVertices.emplace_back(pos);
+                        tileColliders.back().vertices[0] = {pos + glm::vec2(0, tSize.y)};
+                        tileColliders.back().vertices[1] = {pos + tSize};
+                        tileColliders.back().vertices[2] = {pos + glm::vec2(tSize.x, 0)};
+                        tileColliders.back().vertices[3] = {pos};
                     } else if (tileGrid->GetShape() == GridShape::GRID_ISOMETRIC)
                     {
                         //left clockwise
-                        tileColliderVertices.emplace_back(pos + glm::vec2(-tHalfWidth.x, 0));
-                        tileColliderVertices.emplace_back(pos + glm::vec2(0, tHalfWidth.y));
-                        tileColliderVertices.emplace_back(pos + glm::vec2(tHalfWidth.x, 0));
-                        tileColliderVertices.emplace_back(pos + glm::vec2(0, -tHalfWidth.y));
+                        tileColliders.back().vertices[0] = {pos + glm::vec2(-tHalfWidth.x, 0)};
+                        tileColliders.back().vertices[1] = {pos + glm::vec2(0, tHalfWidth.y)};
+                        tileColliders.back().vertices[2] = {pos + glm::vec2(tHalfWidth.x, 0)};
+                        tileColliders.back().vertices[3] = {pos + glm::vec2(0, -tHalfWidth.y)};
                     }
                 } else
                 {
@@ -219,18 +220,20 @@ void TileMap::GenerateColliders()
 
                     if (tileGrid->GetShape() == GridShape::GRID_RECTANGULAR)
                     {
-                        tileColliderVertices.emplace_back(glm::vec2(minPos.x, maxPos.y) + glm::vec2(0, tSize.y));
-                        tileColliderVertices.emplace_back(maxPos + tSize);
-                        tileColliderVertices.emplace_back(glm::vec2(maxPos.x, minPos.y) + glm::vec2(tSize.x, 0));
-                        tileColliderVertices.emplace_back(minPos);
+                        tileColliders.back().vertices[0] = {glm::vec2(minPos.x, maxPos.y) + glm::vec2(0, tSize.y)};
+                        tileColliders.back().vertices[1] = {maxPos + tSize};
+                        tileColliders.back().vertices[2] = {glm::vec2(maxPos.x, minPos.y) + glm::vec2(tSize.x, 0)};
+                        tileColliders.back().vertices[3] = {minPos};
                     } else if (tileGrid->GetShape() == GridShape::GRID_ISOMETRIC)
                     {
-                        tileColliderVertices.emplace_back(glm::vec2(minPos.x, maxPos.y) + glm::vec2(-tHalfWidth.x, 0));
-                        tileColliderVertices.emplace_back(glm::vec2(maxPos.x, maxPos.y) + glm::vec2(0, tHalfWidth.y));
-                        tileColliderVertices.emplace_back(glm::vec2(maxPos.x, minPos.y) + glm::vec2(tHalfWidth.x, 0));
-                        tileColliderVertices.emplace_back(glm::vec2(minPos.x, minPos.y) + glm::vec2(0, -tHalfWidth.y));
+                        tileColliders.back().vertices[0] = {glm::vec2(minPos.x, maxPos.y) + glm::vec2(-tHalfWidth.x, 0)};
+                        tileColliders.back().vertices[1] = {glm::vec2(maxPos.x, maxPos.y) + glm::vec2(0, tHalfWidth.y)};
+                        tileColliders.back().vertices[2] = {glm::vec2(maxPos.x, minPos.y) + glm::vec2(tHalfWidth.x, 0)};
+                        tileColliders.back().vertices[3] = {glm::vec2(minPos.x, minPos.y) + glm::vec2(0, -tHalfWidth.y)};
                     }
                 }
+                tileColliders.back().InitAABB();
+                tileColliders.back().collisionTag = collisionTag;
 
                 //Clear data from colliderCheck
                 for (int i = currentMin.first; i <= currentMax.first; i++)

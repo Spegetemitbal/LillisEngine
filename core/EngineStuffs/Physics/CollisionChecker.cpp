@@ -9,6 +9,7 @@
 #include "RigidBody.h"
 #include "EngineStuffs/GameObject.h"
 #include "EngineStuffs/Transform.h"
+#include "EngineStuffs/Tilemaps/TileCollider.h"
 
 bool CollisionChecker::IntersectCirclePolygon(glm::vec2 circleCenter, float circleRad, glm::vec2 polyCenter, glm::vec2 *vertices, int len, glm::vec2 &normal, float &depth)
 {
@@ -270,6 +271,34 @@ void CollisionChecker::FindContactPoints(RigidBody *bodyA, RigidBody *bodyB, glm
     }
 }
 
+void CollisionChecker::FindContactPoints(RigidBody *bodyA, const TileCollider *bodyB, glm::vec2 &contact1, glm::vec2 &contact2, int &contactCount)
+{
+    contact1 = {};
+    contact2 = {};
+    contactCount = 0;
+
+    RigidBodyShape typeA = bodyA->bodyShape;
+
+    int aLen = bodyA->GetNumVertices();
+    glm::vec2 verts[4];
+    for (int i = 0; i < 4; i++)
+    {
+        verts[i] = bodyB->vertices[i];
+    }
+
+    if (typeA == RigidBodyShape::RB_BOX)
+    {
+        FindContactPoint(bodyA->GetTransformedVertices(), aLen,
+            verts, 4, contact1, contact2, contactCount);
+    } else if (typeA == RigidBodyShape::RB_CIRCLE)
+    {
+        FindContactPoint(bodyA->transform->GlobalPosition(), bodyA->GetRadius(),
+                bodyB->center, verts, 4, contact1);
+        contactCount = 1;
+    }
+}
+
+
 void CollisionChecker::PointSegmentDistance(glm::vec2 p, glm::vec2 a, glm::vec2 b, float &distanceSquared, glm::vec2 &contact)
 {
     glm::vec2 ab = b - a;
@@ -390,6 +419,32 @@ void CollisionChecker::FindContactPoint(glm::vec2 *verticesA, int aLen, glm::vec
         }
     }
 }
+
+bool CollisionChecker::CollideCheck(RigidBody bodyA, TileCollider bodyB, glm::vec2 &normal, float &depth)
+{
+    normal = glm::vec2(0);
+    depth = 0;
+
+    RigidBodyShape typeA = bodyA.bodyShape;
+
+    if (typeA == RigidBodyShape::RB_BOX)
+    {
+        return CollisionChecker::IntersectPolygons
+            (bodyA.GetTransformedVertices(), bodyA.GetNumVertices(), bodyA.transform->GlobalPosition(),
+                bodyB.vertices, 4, bodyB.center, normal, depth);
+    } else if (typeA == RigidBodyShape::RB_CIRCLE)
+    {
+        bool result = CollisionChecker::IntersectCirclePolygon
+            (bodyA.transform->GlobalPosition(), bodyA.GetRadius(),
+                bodyB.center, bodyB.vertices, 4, normal, depth);
+
+        normal = -normal;
+        return result;
+    }
+
+    return false;
+}
+
 
 bool CollisionChecker::CollideCheck(RigidBody bodyA, RigidBody bodyB, glm::vec2 &normal, float &depth)
 {

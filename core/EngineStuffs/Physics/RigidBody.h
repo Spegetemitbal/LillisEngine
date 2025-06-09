@@ -9,6 +9,7 @@
 
 #include "EngineStuffs/Component.h"
 #include "EngineStuffs/Transform.h"
+#include "PhysicsMaterial.h"
 #include "AABB.h"
 
 enum RigidBodyType
@@ -34,14 +35,6 @@ struct BoxData
     glm::vec2 vertices[4] = {};
     glm::vec2 transformedVertices[4] = {};
     glm::vec2 boxSize = glm::vec2(1.0f);
-};
-
-struct PhysicsMaterial
-{
-    //Bounciness, between 0 and 1
-    float restitution = 0;
-    float staticFriction = 0.6f;
-    float dynamicFriction = 0.4f;
 };
 
 class RigidBody : public Component {

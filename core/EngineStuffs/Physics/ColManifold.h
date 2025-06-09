@@ -7,17 +7,21 @@
 
 #include "RigidBody.h"
 
+class TileCollider;
+
 struct ColManifold {
     //Perhaps change this for safety later.
     RigidBody* BodyA = nullptr;
     RigidBody* BodyB = nullptr;
+    const TileCollider* Tile = nullptr;
+
     glm::vec2 Normal = {};
     float Depth = 0.0f;
 
     glm::vec2 Contact1 = {}, Contact2 = {};
     int ContactCount = 0;
 
-    ColManifold(RigidBody* bodyA, RigidBody* bodyB, glm::vec2 normal, float depth,
+    ColManifold(RigidBody* bodyA, RigidBody* bodyB, const TileCollider* tile, glm::vec2 normal, float depth,
         int numContacts, glm::vec2 contact1, glm::vec2 contact2 = {})
     {
         BodyA = bodyA;
@@ -27,6 +31,7 @@ struct ColManifold {
         ContactCount = numContacts;
         Contact1 = contact1;
         Contact2 = contact2;
+        Tile = tile;
     };
 
     ColManifold() = default;

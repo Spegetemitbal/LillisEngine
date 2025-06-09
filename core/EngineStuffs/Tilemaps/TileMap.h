@@ -8,7 +8,7 @@
 #include <utility>
 
 #include "TileGrid.h"
-#include "EngineStuffs/Physics/AABB.h"
+#include "TileCollider.h"
 
 struct TileData
 {
@@ -85,12 +85,13 @@ public:
 
     std::vector<TileLoc> tilesToRender;
 
-    const std::vector<glm::vec2>& getTileColliderVerts() const
+    const std::vector<TileCollider>& getTileColliderVerts() const
     {
-        return tileColliderVertices;
+        return tileColliders;
     }
 
     unsigned int layer = 0;
+    int collisionTag = 0;
     bool active = true;
 
     void GenerateColliders();
@@ -115,7 +116,7 @@ private:
     std::vector<glm::vec2> tileWorldPositions;
     std::vector<bool> tileHasCollider;
     //Every 4 is a chunk.
-    std::vector<glm::vec2> tileColliderVertices;
+    std::vector<TileCollider> tileColliders;
     TileSet tileSet;
     TileGrid* tileGrid;
 };

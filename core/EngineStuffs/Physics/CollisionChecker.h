@@ -9,6 +9,7 @@
 #include "AABB.h"
 
 class RigidBody;
+class TileCollider;
 
 class CollisionChecker {
 public:
@@ -16,6 +17,7 @@ public:
     //If 2 points are closer than this, they are the same point.
     static inline const float NearlyEqual = 0.0005f;
 
+    static void FindContactPoints(RigidBody* bodyA, const TileCollider* bodyB, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
     static void FindContactPoints(RigidBody* bodyA, RigidBody* bodyB, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
 
     static bool IntersectAABBs(AABB a, AABB b);
@@ -29,6 +31,7 @@ public:
     static bool IntersectPolygons(glm::vec2 *verticesA, int aLen, glm::vec2 centerA, glm::vec2 *verticesB, int bLen, glm::vec2 centerB, glm::vec2 &normal, float &depth);
 
     static bool CollideCheck(RigidBody bodyA, RigidBody bodyB, glm::vec2 &normal, float &depth);
+    static bool CollideCheck(RigidBody bodyA, TileCollider bodyB, glm::vec2 &normal, float &depth);
     //Resolve
     static void ResolveCollision(const RigidBody& rb1, const RigidBody& rb2, float depth, glm::vec2 normal);
 private:
