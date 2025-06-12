@@ -31,8 +31,8 @@ namespace LILLIS
 		inline glm::vec4 getAABB(unsigned int PPU) const
 		{
 			float ppu = 1.0f / (float)PPU;
-			float halfWidth = WIDTH * 0.5f;
-			float halfHeight = HEIGHT * 0.5f;
+			float halfWidth = WIDTH * 0.5f * (float)PPU;
+			float halfHeight = HEIGHT * 0.5f * (float)PPU;
 			glm::vec2 pos = position * ppu;
 			return {pos.x - halfWidth, pos.y - halfHeight, halfWidth + pos.x, halfHeight + pos.y};
 		}
