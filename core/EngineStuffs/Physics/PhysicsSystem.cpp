@@ -170,7 +170,7 @@ void PhysicsSystem::BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned 
             contactList.push_back({false, {i,j}});
         }
 
-        if (bodyA->bodyType != RigidBodyType::RB_DYNAMIC)
+        if (bodyA->bodyType == RigidBodyType::RB_DYNAMIC)
         {
             for (int k = 0; k < tMaps.size(); k++)
             {

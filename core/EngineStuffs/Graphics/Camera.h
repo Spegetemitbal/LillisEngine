@@ -28,11 +28,13 @@ namespace LILLIS
 		//float orthoHeight = 6.0f;
 		float aspectRatio = 0;
 
-		inline glm::vec4 getAABB() const
+		inline glm::vec4 getAABB(unsigned int PPU) const
 		{
+			float ppu = 1.0f / (float)PPU;
 			float halfWidth = WIDTH * 0.5f;
 			float halfHeight = HEIGHT * 0.5f;
-			return {position.x - halfWidth, position.y - halfHeight, halfWidth + position.x, halfHeight + position.y};
+			glm::vec2 pos = position * ppu;
+			return {pos.x - halfWidth, pos.y - halfHeight, halfWidth + pos.x, halfHeight + pos.y};
 		}
 
 		inline glm::mat4 viewMatrix()const {

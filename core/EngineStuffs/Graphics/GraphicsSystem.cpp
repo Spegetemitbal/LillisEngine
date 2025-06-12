@@ -179,7 +179,7 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 	upSprite = -std::numeric_limits<float>::infinity();
 	downSprite = std::numeric_limits<float>::infinity();
 
-	glm::vec4 camAB = mainCamera.getAABB();
+	glm::vec4 camAB = mainCamera.getAABB(render_settings.pixelsPerUnit);
 	AABB cameraAABB = {camAB.x, camAB.y, camAB.z, camAB.w};
 
 	for (int i = 0; i < lastSprite; i++)
@@ -220,7 +220,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	//Do broad phase, cull all sprites not on screen.
 	std::vector<Sprite *> spritesOnScreen = CullToScreen(sprites,lastSprite);
 
-	glm::vec4 camRect = mainCamera.getAABB();
+	glm::vec4 camRect = mainCamera.getAABB(render_settings.pixelsPerUnit);
 	AABB camAABB = {camRect.x, camRect.y, camRect.z, camRect.w};
 
 	//Cull all tilemaps on screen.
@@ -264,7 +264,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 			throw;
 		}
 		Texture2D tex = ResourceManager::GetTexture(spr->image);
-		SpriteRenderer::DrawSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), (int)spr->frame,
+		SpriteRenderer::DrawSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), (int)spr->frame, mainCamera.projectionMatrix(),
 			spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
 	}
 
@@ -283,7 +283,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 					throw;
 				}
 				Texture2D tex = ResourceManager::GetTexture(img);
-				SpriteRenderer::DrawSprite(tex, t.worldPos, t.zVal, (int)frm,
+				SpriteRenderer::DrawSprite(tex, t.worldPos, t.zVal, (int)frm, mainCamera.projectionMatrix(),
 					renderSize, 0);
 			}
 		}

@@ -67,7 +67,7 @@ public:
 
 	void SetCameraPosition(const glm::vec2& pos)
 	{
-		mainCamera.position = pos;
+		mainCamera.position = glm::vec2(pos.x, -pos.y) * (float)render_settings.pixelsPerUnit;
 	}
 
 	LillisWindow* GetWin() { return &_win; }

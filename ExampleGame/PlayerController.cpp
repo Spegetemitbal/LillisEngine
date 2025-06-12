@@ -13,27 +13,28 @@ Behavior* PlayerController::CreatePlayerController(char* loc)
 
 void PlayerController::Update(float deltaTime)
 {
-	//std::cout << "Internal: " << thisObject->getSprite() << '\n';
-
-	//Make this more cache friendly.
-	LilObj<Transform> t = thisObject->transform;
+	if (!transform.Exists())
+	{
+		return;
+	}
 
 	if (w)
 	{
-		t->Translate({0, moveSpeed * deltaTime});
+		transform->Translate({0, moveSpeed * deltaTime});
 	}
 	else if (s)
 	{
-		t->Translate({0, -moveSpeed * deltaTime});
+		transform->Translate({0, -moveSpeed * deltaTime});
 	}
 	if (a)
 	{
-		t->Translate({-moveSpeed * deltaTime, 0});
+		transform->Translate({-moveSpeed * deltaTime, 0});
 	}
 	else if (d)
 	{
-		t->Translate({moveSpeed * deltaTime, 0});
+		transform->Translate({moveSpeed * deltaTime, 0});
 	}
+	graphicsSystem->SetCameraPosition(transform->GlobalPosition());
 	//std::cout << "PostMove: " << t.x << " " << t.y << '\n';
 }
 
@@ -63,4 +64,10 @@ void PlayerController::handleEvent(const Event& theEvent)
 			break;
 		}
 	}
+}
+
+void PlayerController::ConnectComponents()
+{
+	transform = thisObject->transform;
+	graphicsSystem = GraphicsSystem::getInstance();
 }
