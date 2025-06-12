@@ -91,6 +91,7 @@ public:
     }
 
     unsigned int layer = 0;
+    PhysicsMaterial physMaterial = {};
     int collisionTag = 0;
     bool active = true;
 

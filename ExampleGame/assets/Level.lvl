@@ -1,5 +1,5 @@
 Grid Rectangle 0.8 0.8
-TileMap rectTest -5 -5 10 10 0
+TileMap rectTest -5 -5 10 10 Physics: 0 0.4 0.4 0.6
 C 0 0 0 0 0 0 0 0 C
 0 B A D 0 0 B 0 0 0
 0 0 D B A C 0 0 0 D

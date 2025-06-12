@@ -15,7 +15,7 @@ public:
     glm::vec2 center = {};
     AABB aabb = AABB(0,0,0,0);
     int collisionTag = 0;
-    PhysicsMaterial material = PhysicsMaterial();
+    PhysicsMaterial* material = nullptr;
     void InitAABB();
 private:
 };

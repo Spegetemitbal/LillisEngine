@@ -170,20 +170,23 @@ void PhysicsSystem::BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned 
             contactList.push_back({false, {i,j}});
         }
 
-        for (int k = 0; k < tMaps.size(); k++)
+        if (bodyA->bodyType != RigidBodyType::RB_DYNAMIC)
         {
-            //TODO optimize
-            std::vector<TileCollider> tileCols = tMaps[k].getTileColliderVerts();
-            for (int l = 0; l < tileCols.size(); l++)
+            for (int k = 0; k < tMaps.size(); k++)
             {
-                TileCollider* collider = &tileCols[l];
-                if (CollisionChecker::IntersectAABBs(bodyA_aabb, collider->aabb))
+                //TODO optimize
+                std::vector<TileCollider> tileCols = tMaps[k].getTileColliderVerts();
+                for (int l = 0; l < tileCols.size(); l++)
                 {
-                    //TODO add event here
-                    contactList.emplace_back();
-                    contactList.back().hasTile = true;
-                    contactList.back().colliderIndices = {i, -1};
-                    contactList.back().tileCollider = {k,l};
+                    TileCollider* collider = &tileCols[l];
+                    if (CollisionChecker::IntersectAABBs(bodyA_aabb, collider->aabb))
+                    {
+                        //TODO add event here
+                        contactList.emplace_back();
+                        contactList.back().hasTile = true;
+                        contactList.back().colliderIndices = {i, -1};
+                        contactList.back().tileCollider = {k,l};
+                    }
                 }
             }
         }
@@ -316,6 +319,7 @@ void PhysicsSystem::SeparateBodies(RigidBody *bodyA, RigidBody *bodyB, const glm
     RigidBodyType typeA = bodyA->bodyType;
     if (bodyB == nullptr)
     {
+        //Tile Collision
         if (typeA == RigidBodyType::RB_DYNAMIC)
         {
             bodyA->transform->Translate(-mtv);
@@ -522,11 +526,11 @@ void PhysicsSystem::ResolveTileCollision(ColManifold &contact)
     int contactCount = contact.ContactCount;
 
     //Using min for now, add options to change this.
-    float rest = std::min(contact.BodyA->material.restitution, tile->material.restitution);
+    float rest = std::min(contact.BodyA->material.restitution, tile->material->restitution);
 
     //TODO: Add options for min or max.
-    float sf = (bodyA->material.staticFriction + tile->material.staticFriction) * 0.5f;
-    float df = (bodyA->material.dynamicFriction + tile->material.dynamicFriction) * 0.5f;
+    float sf = (bodyA->material.staticFriction + tile->material->staticFriction) * 0.5f;
+    float df = (bodyA->material.dynamicFriction + tile->material->dynamicFriction) * 0.5f;
 
     resContacts[0] = contact1;
     resContacts[1] = contact2;

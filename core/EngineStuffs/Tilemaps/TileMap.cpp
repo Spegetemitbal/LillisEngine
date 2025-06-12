@@ -234,6 +234,7 @@ void TileMap::GenerateColliders()
                 }
                 tileColliders.back().InitAABB();
                 tileColliders.back().collisionTag = collisionTag;
+                tileColliders.back().material = &physMaterial;
 
                 //Clear data from colliderCheck
                 for (int i = currentMin.first; i <= currentMax.first; i++)
