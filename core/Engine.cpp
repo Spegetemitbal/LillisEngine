@@ -127,8 +127,10 @@ void Engine::frameStep()
         }
     }
 
-    //TODO: Find a place to put this.
-    //WORLD->compactObjects(.GetNumActive());
+    //TODO: Find a better place to put this.
+    ActiveTracker<GameObject*> objs = WORLD->getObjectsRaw();
+    WORLD->compactObjects(objs.GetNumInactive());
+    
     WORLD->compactEmitters(pe.GetNumInactive());
     WORLD->compactAnimators(anims.GetNumInactive());
     WORLD->compactRigidBodies(rb.GetNumInactive());
