@@ -201,7 +201,7 @@ void PhysicsSystem::HashGrid(ActiveTracker<RigidBody *> &physObjects, unsigned i
                 {
                     int secondObject = j->second;
                     CollisionPairing p = {false, {firstObject, secondObject}};
-                    if (firstObject == secondObject)
+                    if (i->first != j->first)
                     {
                         continue;
                         //TODO improve hash!
