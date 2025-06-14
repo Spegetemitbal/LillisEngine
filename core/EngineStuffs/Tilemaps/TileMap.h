@@ -94,6 +94,7 @@ public:
     PhysicsMaterial physMaterial = {};
     int collisionTag = 0;
     bool active = true;
+    bool updateColliderFlag = true;
 
     void GenerateColliders();
 

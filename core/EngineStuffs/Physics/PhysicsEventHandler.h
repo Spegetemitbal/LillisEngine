@@ -51,6 +51,8 @@ public:
     void ClearMatrix()
     {
         collisionMatrix.clear();
+        persistingCollisions.clear();
+        leftCollision.clear();
     }
     bool GetIsColliding(const std::pair<RigidBody*, RigidBody*>& identifiers)
     {

@@ -56,6 +56,7 @@ void PhysicsSystem::SetPhysicsSettings(PhysicsSettings settings)
 
 void PhysicsSystem::InitRigidBodies(ActiveTracker<RigidBody *> &physObjects, unsigned int numActive)
 {
+    eventHandler->ClearMatrix();
     for (int i = 0; i < numActive; i++)
     {
         physObjects[i]->UpdateVertices();
@@ -140,58 +141,124 @@ void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &phy
     eventHandler->TickFireEvent(physObjects.getMPool());
 }
 
+//TODO remove.
 void PhysicsSystem::BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, std::vector<TileMap>& tMaps)
 {
-    for (int i = 0; i < numActive - 1; i++)
+    HashGrid(physObjects, numActive, tMaps);
+}
+
+void PhysicsSystem::HashGrid(ActiveTracker<RigidBody *> &physObjects, unsigned int numActive, std::vector<TileMap> &tMaps)
+{
+    spatialHasher.Clear();
+
+    bool reloadStaticGeometry = false;
+    for (int i = 0; i < tMaps.size(); i++)
     {
-
-        RigidBody* bodyA = physObjects[i];
-        AABB bodyA_aabb = bodyA->GetAABB();
-        if (!bodyA->GetActive())
+        if (tMaps[i].updateColliderFlag && tMaps[i].active)
         {
-            continue;
+            reloadStaticGeometry = true;
+            break;
         }
+    }
 
-        for (int j = i + 1; j < numActive; j++)
+    if (reloadStaticGeometry)
+    {
+        spatialHasher.ClearTiles();
+        for (int i = 0; i < tMaps.size(); i++)
         {
-            RigidBody* bodyB = physObjects[j];
-            AABB bodyB_aabb = bodyB->GetAABB();
-            if (!bodyB->GetActive())
+            const std::vector<TileCollider>& t = tMaps[i].getTileColliderVerts();
+            for (int j = 0; j < t.size(); j++)
             {
-                continue;
+                spatialHasher.InsertTile(t[j].aabb, i, j);
             }
-
-            if (!CollisionChecker::IntersectAABBs(bodyA_aabb, bodyB_aabb))
-            {
-                eventHandler->NotColliding(std::make_pair(bodyA, bodyB));
-                continue;
-            }
-
-            contactList.push_back({false, {i,j}});
+            tMaps[i].updateColliderFlag = false;
         }
+    }
 
-        if (bodyA->bodyType == RigidBodyType::RB_DYNAMIC)
+    for (int i = 0; i < numActive; i++)
+    {
+        RigidBody* rb = physObjects[i];
+        if (rb->GetActive() && rb->GetisEnabled())
         {
-            for (int k = 0; k < tMaps.size(); k++)
+            spatialHasher.InsertObject(rb->GetAABB(),i);
+        }
+    }
+
+    unordered_set<GridHash>& g = spatialHasher.GetGridSpaces();
+    //For each gridspace with items in it.
+    for (const auto& item : g)
+    {
+        //Get all items in said grid
+        auto gridBits = spatialHasher.GetObjectsInGrid(item);
+        auto tileBits = spatialHasher.GetTilesInGrid(item);
+        for (auto i = gridBits.first; i != gridBits.second; ++i)
+        {
+            int firstObject = i->second;
+            //If not last, check against all other objects
+            if (i != std::prev(gridBits.second))
             {
-                //TODO optimize
-                std::vector<TileCollider> tileCols = tMaps[k].getTileColliderVerts();
-                for (int l = 0; l < tileCols.size(); l++)
+                for (auto j = std::next(i); j != gridBits.second; ++j)
                 {
-                    TileCollider* collider = &tileCols[l];
-                    if (CollisionChecker::IntersectAABBs(bodyA_aabb, collider->aabb))
+                    int secondObject = j->second;
+                    CollisionPairing p = {false, {firstObject, secondObject}};
+                    if (firstObject == secondObject)
                     {
-                        //TODO add event here
-                        contactList.emplace_back();
-                        contactList.back().hasTile = true;
-                        contactList.back().colliderIndices = {i, -1};
-                        contactList.back().tileCollider = {k,l};
+                        continue;
+                        //TODO improve hash!
                     }
+                    AABBChecks(p, physObjects, nullptr);
+                }
+            }
+
+            //Check against all tiles
+            if (tileBits.first != tileBits.second && physObjects[firstObject]->bodyType == RigidBodyType::RB_DYNAMIC)
+            {
+                for (auto j = tileBits.first; j != tileBits.second; ++j)
+                {
+                    auto pr = j->second;
+                    CollisionPairing p = {true, {firstObject, -1}, pr};
+                    AABBChecks(p, physObjects, &tMaps[pr.first].getTileColliderVerts());
                 }
             }
         }
     }
 }
+
+void PhysicsSystem::AABBChecks(const CollisionPairing &tempContact, ActiveTracker<RigidBody*> &physObjects, const std::vector<TileCollider>* tMap)
+{
+    RigidBody* bodyA = physObjects[tempContact.colliderIndices.first];
+    AABB bodyA_aabb = bodyA->GetAABB();
+    if (tempContact.hasTile)
+    {
+        if (tMap == nullptr)
+        {
+            return;
+        }
+        const TileCollider* col = &tMap->at(tempContact.tileCollider.second);
+        if (CollisionChecker::IntersectAABBs(bodyA_aabb, col->aabb))
+        {
+            //TODO add event here
+            contactList.push_back(tempContact);
+        }
+    } else
+    {
+        RigidBody* bodyB = physObjects[tempContact.colliderIndices.second];
+        AABB bodyB_aabb = bodyB->GetAABB();
+        if (!bodyB->GetActive())
+        {
+            return;
+        }
+        if (!CollisionChecker::IntersectAABBs(bodyA_aabb, bodyB_aabb))
+        {
+            eventHandler->NotColliding(std::make_pair(bodyA, bodyB));
+            return;
+        }
+        contactList.push_back(tempContact);
+    }
+
+}
+
+
 
 void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects, std::vector<TileMap>& tMaps)
 {

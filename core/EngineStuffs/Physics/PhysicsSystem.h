@@ -5,6 +5,7 @@
 #include "RigidBody.h"
 #include "ColManifold.h"
 #include "PhysicsEventHandler.h"
+#include "EngineStuffs/SpatialHasher.h"
 #include "EngineStuffs/Tilemaps/TileCollider.h"
 
 class TileMap;
@@ -59,6 +60,7 @@ public:
 private:
     static PhysicsSystem* instance;
     PhysicsEventHandler* eventHandler = nullptr;
+    SpatialHasher spatialHasher = SpatialHasher();
     PhysicsSystem(PhysicsSettings settings);
     ~PhysicsSystem()
     {
@@ -69,6 +71,9 @@ private:
 
     void BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, std::vector<TileMap>& tMaps);
     void NarrowPhase(ActiveTracker<RigidBody*> &physObjects, std::vector<TileMap>& tMaps);
+
+    void HashGrid(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, std::vector<TileMap>& tMaps);
+    void AABBChecks(const CollisionPairing& tempContact, ActiveTracker<RigidBody*> &physObjects, const std::vector<TileCollider>* tMap = nullptr);
 
     glm::vec2 resContacts[2] = {};
     glm::vec2 impulseList[2] = {};

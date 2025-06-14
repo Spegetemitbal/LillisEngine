@@ -25,7 +25,7 @@ public:
 
 	//A disabled object is not garbage and will not be wiped.
 	void SetEnabled(bool enabled) {if (isActive) {isEnabled = enabled;} };
-	bool GetEnabled() const { return isEnabled; };
+	bool GetisEnabled() const { return isEnabled; };
 
 protected:
 	LilObj<GameObject> thisObject;

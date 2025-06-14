@@ -185,7 +185,7 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 	for (int i = 0; i < lastSprite; i++)
 	{
 		Sprite* spr = sprites[i];
-		if (spr->GetActive() && spr->GetEnabled())
+		if (spr->GetActive() && spr->GetisEnabled())
 		{
 			if (spr->image.empty())
 			{

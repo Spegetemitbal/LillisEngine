@@ -145,6 +145,7 @@ glm::vec2 TileMap::CullMap(AABB camAABB, unsigned int pixelsPerUnit)
 
 void TileMap::GenerateColliders()
 {
+    updateColliderFlag = true;
     tileColliders.clear();
     int xIndex = 0, yIndex = 0;
     std::pair<int,int> currentMin = {0,0};
