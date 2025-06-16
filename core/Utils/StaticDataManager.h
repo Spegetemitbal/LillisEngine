@@ -28,6 +28,7 @@ struct TexImportData
     int numSprites, width, height;
     //First is height/width, then position
     std::vector<std::pair<glm::vec2, glm::vec2>> data;
+    bool isOpaque;
 };
 
 class StaticDataManager {

@@ -37,6 +37,7 @@ public:
     //Min x, max x, min y, max y
     std::vector<glm::vec4> spriteLocations;
     std::vector<glm::vec2> spriteSizes;
+    bool isOpaque;
 
     Texture2D();
     // generates texture from image data

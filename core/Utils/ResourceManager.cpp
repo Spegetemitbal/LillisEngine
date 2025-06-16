@@ -170,6 +170,7 @@ Texture2D ResourceManager::loadTextureFromFile(const char* name,const char* file
 
     // create texture object
     Texture2D texture;
+    texture.isOpaque = importData.isOpaque;
     if (alpha)
     {
         texture.Internal_Format = GL_RGBA;

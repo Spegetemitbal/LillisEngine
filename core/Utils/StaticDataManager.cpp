@@ -181,10 +181,20 @@ void StaticDataManager::LoadAnimation(std::ifstream& file)
 
 void StaticDataManager::LoadSpriteInfo(std::ifstream& file)
 {
-    std::string name, importType;
+    std::string name, importType, opacity;
     file >> name;
+    file >> opacity;
     file >> importType;
+
     SpriteInfo.emplace(name, TexImportData());
+
+    if (opacity == "Opaque")
+    {
+        SpriteInfo[name].isOpaque = true;
+    } else
+    {
+        SpriteInfo[name].isOpaque = false;
+    }
 
     if (importType == "Auto")
     {

@@ -175,6 +175,7 @@ void GraphicsSystem::ShutDown()
 std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &sprites, unsigned int lastSprite)
 {
 	std::vector<Sprite *> culledSprites = std::vector<Sprite *>();
+	std::vector<Sprite *> transparentSprites = std::vector<Sprite *>();
 
 	upSprite = -std::numeric_limits<float>::infinity();
 	downSprite = std::numeric_limits<float>::infinity();
@@ -201,10 +202,20 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 				{
 					downSprite = yVal;
 				}
-				culledSprites.push_back(sprites[i]);
+				if (spr->opaque)
+				{
+					culledSprites.push_back(sprites[i]);
+				} else
+				{
+					transparentSprites.push_back(sprites[i]);
+				}
 			}
 		}
 	}
+
+	std::sort(transparentSprites.begin(), transparentSprites.end(), [](const Sprite *s1, const Sprite *s2)
+		{return s1->getLayer() < s2->getLayer();});
+	culledSprites.insert(culledSprites.end(), transparentSprites.begin(), transparentSprites.end());
 
 	return culledSprites;
 }

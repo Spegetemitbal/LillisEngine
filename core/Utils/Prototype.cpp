@@ -158,10 +158,11 @@ LilObj<GameObject> Prototype::CreatePrototype(const std::string &name, glm::vec2
 						stream >> sprHeight;
 						//s->SetLayer(lyr);
 						s->frame = 0;
+						Texture2D tex = ResourceManager::GetTexture(s->image);
+						s->opaque = tex.isOpaque;
 						if (sprWidth == 0 && sprHeight == 0)
 						{
 							//Add import settings to determine default size later.
-							Texture2D tex = ResourceManager::GetTexture(s->image);
 							s->setRenderSize(tex.spriteSizes[0]);
 						} else
 						{

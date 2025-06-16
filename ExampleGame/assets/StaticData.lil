@@ -1,12 +1,12 @@
-SPRITE Angry Auto
-SPRITE Background Auto
-SPRITE Player1 Auto
-SPRITE Player2 Auto
-SPRITE Test Auto
-SPRITE WinFlag Auto
-SPRITE Calm Auto
-SPRITE UniformTest Uniform 6 2 3
-SPRITE TileBackdrop Uniform 4 2 2
+SPRITE Angry Opaque Auto
+SPRITE Background Opaque Auto
+SPRITE Player1 Opaque Auto
+SPRITE Player2 Opaque Auto
+SPRITE Test Opaque Auto
+SPRITE WinFlag Opaque Auto
+SPRITE Calm Opaque Auto
+SPRITE UniformTest Opaque Uniform 6 2 3
+SPRITE TileBackdrop Opaque Uniform 4 2 2
 ANIMATION Player1Idle 3 STOP false false
 KeyFrame 0.5 1
 Sprite UniformTest 0 0 0 40 40

@@ -38,6 +38,7 @@ public:
     }
 
     unsigned int frame = 0;
+    bool opaque = true;
     glm::vec2 getRenderLocation();
     glm::vec2 getRenderCenter();
     float getRenderRotation();
