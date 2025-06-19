@@ -7,6 +7,11 @@
 #include "ProcGen.h"
 #include "EngineStuffs/Particles/ParticleEmitter.h"
 #include "Utils/InputSystem.h"
+#include "Pipeline/ParticlePipelineSegment.h"
+#include "Pipeline/SpritePipelineSegment.h"
+#include "Pipeline/PostProcessSegment.h"
+#include "Pipeline/ProcGenPipelineSegment.h"
+#include "Pipeline/UIPipelineSegment.h"
 
 GraphicsSystem* GraphicsSystem::instance = nullptr;
 
@@ -55,6 +60,51 @@ void GraphicsSystem::error_callback(int error, const char* description)
 	fprintf(stderr, "Error: %s\n", description);
 }
 
+void GraphicsSystem::SetParticlePipeline(ParticlePipelineSegment *pipeline, bool init)
+{
+	particlePipeline = pipeline;
+	if (init)
+	{
+		pipeline->InitSegment();
+	}
+}
+
+void GraphicsSystem::SetSpritePipeline(SpritePipelineSegment *pipeline, bool init)
+{
+	spritePipeline = pipeline;
+	if (init)
+	{
+		pipeline->InitSegment();
+	}
+}
+
+void GraphicsSystem::SetPostProcessPipeline(PostProcessSegment *pipeline, bool init)
+{
+	postProcessPipeline = pipeline;
+	if (init)
+	{
+	//	pipeline->InitSegment();
+	}
+}
+
+void GraphicsSystem::SetProcGenPipeline(ProcGenPipelineSegment *pipeline, bool init)
+{
+	procGenPipeline = pipeline;
+	if (init)
+	{
+		pipeline->InitSegment();
+	}
+}
+
+void GraphicsSystem::SetUIPipeline(UIPipelineSegment *pipeline, bool init)
+{
+	uiPipeline = pipeline;
+	if (init)
+	{
+	//	pipeline->InitSegment();
+	}
+}
+
 
 bool GraphicsSystem::Init()
 {
@@ -101,32 +151,7 @@ bool GraphicsSystem::Init()
 	
 	glfwSetErrorCallback(error_callback);
 
-
-	//Generate frame buffer.
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-	//8 bit RGBA color buffer
-	glGenTextures(1, &colorBuffer);
-	glBindTexture(GL_TEXTURE_2D, colorBuffer);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, render_settings.resolutionWidth, render_settings.resolutionHeight);
-
-	//Make depth buffer.
-	glGenTextures(1, &depthBuffer);
-	glBindTexture(GL_TEXTURE_2D, depthBuffer);
-	//Maybe use a higher precision buffer if issues are arising.
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT24, render_settings.resolutionWidth, render_settings.resolutionHeight);
-
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorBuffer, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBuffer,0);
-
 	glCreateVertexArrays(1, &postProcessVAO);
-
-	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-		printf("Framebuffer incomplete: %d", fboStatus);
-		return false;
-	}
 
 	// load shaders
 	ResourceManager::loadDefaultPipeline();
@@ -135,6 +160,11 @@ bool GraphicsSystem::Init()
 	ResourceManager::GetShader("Default").SetMatrix4("projection", mainCamera.projectionMatrix());
 	ResourceManager::GetShader("DefaultProcGen").SetMatrix4("_projection", mainCamera.projectionMatrix());
 	// set render-specific controls
+
+	SetSpritePipeline(DBG_NEW SpritePipelineSegment(render_settings, ResourceManager::GetShader("Default")), true);
+	SetParticlePipeline(DBG_NEW ParticlePipelineSegment(render_settings, ResourceManager::GetShader("DefaultParticle")), true);
+	SetProcGenPipeline(DBG_NEW ProcGenPipelineSegment(render_settings, ResourceManager::GetShader("DefaultProcGen")), true);
+
 	SpriteRenderer::setDefaultShader(ResourceManager::GetShader("Default"));
 	SpriteRenderer::setDefaultUIShader(ResourceManager::GetShader("DefaultUI"));
 	SpriteRenderer::setDefaultProcGenShader(ResourceManager::GetShader("DefaultProcGen"));
@@ -143,11 +173,11 @@ bool GraphicsSystem::Init()
 	// load textures
 
 	//Beep beep I'm a sheep
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glDisable(GL_CULL_FACE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDepthFunc(GL_LEQUAL);
+	//glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_BLEND);
+	//glDisable(GL_CULL_FACE);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glDepthFunc(GL_LEQUAL);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -160,7 +190,17 @@ bool GraphicsSystem::Init()
 
 void GraphicsSystem::ShutDown()
 {
-	glDeleteFramebuffers(1, &fbo);
+	delete spritePipeline;
+	spritePipeline = nullptr;
+	delete postProcessPipeline;
+	postProcessPipeline = nullptr;
+	delete procGenPipeline;
+	procGenPipeline = nullptr;
+	delete uiPipeline;
+	uiPipeline = nullptr;
+	delete particlePipeline;
+	particlePipeline = nullptr;
+
 	if (postProcessFBO != 0)
 	{
 		glDeleteFramebuffers(1, &postProcessFBO);
@@ -265,53 +305,17 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	RenderOrder::CalculateOrder(spritesOnScreen, upSprite, downSprite);
 	RenderOrder::CalculateOrder(emitters.extractData());
 
-	glEnable(GL_DEPTH_TEST);
+	spritePipeline->PreRender();
+	spritePipeline->DoStep(spritesOnScreen, lastSprite, tile_maps, mainCamera.projectionMatrix());
+	spritePipeline->PostRender();
 
-	for (int i = 0; i < spritesOnScreen.size(); i++)
-	{
-		Sprite* spr = spritesOnScreen[i];
-		if (spr->image.empty())
-		{
-			throw;
-		}
-		Texture2D tex = ResourceManager::GetTexture(spr->image);
-		SpriteRenderer::DrawSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), (int)spr->frame, mainCamera.projectionMatrix(),
-			spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
-	}
+	particlePipeline->PreRender();
+	particlePipeline->DoStep(emitters, lastEmitter, upSprite, downSprite, mainCamera.projectionMatrix());
+	particlePipeline->PostRender();
 
-	for (auto & tMap: tile_maps)
-	{
-		if (tMap.active)
-		{
-			glm::vec2 renderSize = tMap.getTileSize();
-			for (int i = 0; i < tMap.tilesToRender.size(); i++)
-			{
-				TileLoc t = tMap.tilesToRender[i];
-				std::string img = tMap.getImageFromIndex(t.tile);
-				unsigned int frm = tMap.getFrameFromIndex(t.tile);
-				if (img.empty())
-				{
-					throw;
-				}
-				Texture2D tex = ResourceManager::GetTexture(img);
-				SpriteRenderer::DrawSprite(tex, t.worldPos, t.zVal, (int)frm, mainCamera.projectionMatrix(),
-					renderSize, 0);
-			}
-		}
-	}
-
-	bool doRenderAxis = RenderOrder::GetRenderAxis() != glm::vec2(0);
-	float invDist = 1 / (upSprite - downSprite);
-	for (int i = 0; i < lastEmitter; i++)
-	{
-		if (emitters[i]->GetActive())
-		{
-			SpriteRenderer::DrawParticles(*emitters[i], mainCamera.projectionMatrix(), upSprite, invDist, doRenderAxis);
-		}
-	}
-
-	glDisable(GL_DEPTH_TEST);
-	ProcGen::getInstance()->Render(mainCamera.projectionMatrix());
+	procGenPipeline->PreRender();
+	ProcGen::getInstance()->Render(mainCamera.projectionMatrix(), procGenPipeline);
+	procGenPipeline->PostRender();
 
 	RunPostProcessing();
 }
@@ -324,9 +328,9 @@ void GraphicsSystem::PreDraw()
 		return;
 	}
 	glfwPollEvents();
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void GraphicsSystem::PostDraw()
@@ -360,7 +364,7 @@ void GraphicsSystem::RunPostProcessing()
 			glBindTextureUnit(0, postProcessColorBuffer);
 		} else
 		{
-			glBindTextureUnit(0, colorBuffer);
+			glBindTextureUnit(0, spritePipeline->GetColorBuffer(0));
 		}
 
 		//Do something here idk man.
@@ -371,7 +375,7 @@ void GraphicsSystem::RunPostProcessing()
 				glBindFramebuffer(GL_FRAMEBUFFER, postProcessFBO);
 			} else
 			{
-				glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+				glBindFramebuffer(GL_FRAMEBUFFER, spritePipeline->GetFBO(0));
 			}
 			glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -401,7 +405,7 @@ void GraphicsSystem::RunPostProcessing()
 		defaultPostProcess.Use();
 		defaultPostProcess.SetInteger("_ColorBuffer", 0);
 
-		glBindTextureUnit(0, colorBuffer);
+		glBindTextureUnit(0, spritePipeline->GetColorBuffer(0));
 		//3 vertices because triangle
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 	}

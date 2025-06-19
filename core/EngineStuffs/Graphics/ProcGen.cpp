@@ -7,6 +7,7 @@
 #include <glad/gl.h>
 
 #include "SpriteRenderer.h"
+#include "Pipeline/ProcGenPipelineSegment.h"
 
 ProcGen* ProcGen::instance = nullptr;
 
@@ -87,22 +88,22 @@ void ProcGen::SetPointSize(float diameter)
     glPointSize(diameter);
 }
 
-void ProcGen::Render(glm::mat4 camera)
+void ProcGen::Render(glm::mat4 camera, ProcGenPipelineSegment* pipeline)
 {
     //Draw points
     if (!debugPoints.empty())
     {
-        SpriteRenderer::DrawProcGen(debugPoints, debugPointColor,(int)debugPoints.size() / 2, PRIMITIVE_POINT, camera);
+        pipeline->RenderProcGen(debugPoints, debugPointColor,(int)debugPoints.size() / 2, PRIMITIVE_POINT, camera);
     }
     //Draw lines
     if (!debugLines.empty())
     {
-        SpriteRenderer::DrawProcGen(debugLines, debugLineColor,(int)debugLines.size() / 2, PRIMITIVE_LINE,camera);
+        pipeline->RenderProcGen(debugLines, debugLineColor,(int)debugLines.size() / 2, PRIMITIVE_LINE,camera);
     }
     //Draw batches
     for (int i = 0; i < batches.size(); i++)
     {
-        SpriteRenderer::DrawProcGen(batches[i]->vertices, batches[i]->colors, (int)batches[i]->vertices.size() / 2, PRIMITIVE_TRIANGLE, camera);
+        pipeline->RenderProcGen(batches[i]->vertices, batches[i]->colors, (int)batches[i]->vertices.size() / 2, PRIMITIVE_TRIANGLE, camera);
     }
 }
 

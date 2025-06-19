@@ -80,6 +80,7 @@ private:
 
     friend class SpriteRenderer;
     friend class PhysicsSystem;
+    friend class ParticlePipelineSegment;
 
     float renderVal = 0;
     float layerDif = 0;

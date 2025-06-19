@@ -7,7 +7,7 @@
 ** option) any later version.
 ******************************************************************/
 #include "ResourceManager.h"
-#include "../EngineStuffs/Graphics/DefaultRenderPipeline.h"
+#include "../EngineStuffs/Graphics/Pipeline/DefaultRenderPipeline.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"

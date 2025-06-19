@@ -11,6 +11,12 @@
 #include "../GameObject.h"
 #include "../Tilemaps/TileMap.h"
 
+class SpritePipelineSegment;
+class ParticlePipelineSegment;
+class ProcGenPipelineSegment;
+class UIPipelineSegment;
+class PostProcessSegment;
+
 class GraphicsSystem
 {
 public:
@@ -26,6 +32,16 @@ public:
 	bool GetIsInitted() const { return isInitted;}
 
 	//void Update();
+	void SetSpritePipeline(SpritePipelineSegment* pipeline, bool init = false);
+	void SetParticlePipeline(ParticlePipelineSegment* pipeline, bool init = false);
+	void SetProcGenPipeline(ProcGenPipelineSegment* pipeline, bool init = false);
+	void SetUIPipeline(UIPipelineSegment* pipeline, bool init = false);
+	void SetPostProcessPipeline(PostProcessSegment* pipeline, bool init = false);
+	SpritePipelineSegment* GetSpritePipeline() { return spritePipeline; }
+	ParticlePipelineSegment* GetParticlePipeline() { return particlePipeline; }
+	ProcGenPipelineSegment* GetProcGenPipeline() { return procGenPipeline; }
+	UIPipelineSegment* GetUIPipeline() { return uiPipeline; }
+	PostProcessSegment* GetPostProcessPipeline() { return postProcessPipeline; }
 
 	void PreDraw();
 	void RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite,
@@ -91,6 +107,12 @@ public:
 
 private:
 
+	SpritePipelineSegment* spritePipeline = nullptr;
+	ParticlePipelineSegment* particlePipeline = nullptr;
+	ProcGenPipelineSegment* procGenPipeline = nullptr;
+	UIPipelineSegment* uiPipeline = nullptr;
+	PostProcessSegment* postProcessPipeline = nullptr;
+
 	GraphicsSystem(const RenderSettings &render_settings = RenderSettings(), const std::string &name = "LILLIS");
 	~GraphicsSystem();
 
@@ -98,7 +120,7 @@ private:
 
 	static GraphicsSystem* instance;
 
-	unsigned int depthBuffer{}, fbo{}, colorBuffer{};
+	//unsigned int depthBuffer{}, fbo{}, colorBuffer{};
 	unsigned int postProcessVAO{}, postProcessFBO{}, postProcessColorBuffer{};
 
 	std::vector<LILLIS::Shader> postProcessChain;
