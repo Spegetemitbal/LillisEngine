@@ -31,12 +31,14 @@ public:
             return;
         }
 
-        if (!collidedThisFrame.contains(identifiers))
+        std::pair<unsigned int, unsigned int> col = std::make_pair(identifiers.first->GetID(), identifiers.second->GetID());
+
+        if (!collidedThisFrame.contains(col))
         {
-            collidedThisFrame.emplace(identifiers,cm);
+            collidedThisFrame.emplace(col,cm);
         } else
         {
-            collidedThisFrame[identifiers] = cm;
+            collidedThisFrame[col] = cm;
         }
     }
     void IsColliding(RigidBody* rb, ColManifold cm)
@@ -45,18 +47,18 @@ public:
         {
             return;
         }
-        std::pair<RigidBody*,RigidBody*> pr = std::make_pair(rb,rb);
+        std::pair<unsigned int, unsigned int> col = std::make_pair(rb->GetID(), rb->GetID());
         int tileTag = cm.Tile->collisionTag;
 
-        if (!collidedThisFrame.contains(pr))
+        if (!collidedThisFrame.contains(col))
         {
-            collidedThisFrame.emplace(pr,cm);
-            tileCollisions.try_emplace(rb, tileTag);
+            collidedThisFrame.emplace(col,cm);
+            tileCollisions.try_emplace(col.first, tileTag);
         } else
         {
-            collidedThisFrame[pr] = cm;
+            collidedThisFrame[col] = cm;
             //May need additional safety here.
-            tileCollisions[rb] = tileTag;
+            tileCollisions[col.first] = tileTag;
         }
     }
 
@@ -67,15 +69,14 @@ public:
     }
     bool GetIsColliding(const std::pair<RigidBody*, RigidBody*>& identifiers)
     {
-        return collidedThisFrame.contains(identifiers);
+        return collidedThisFrame.contains(std::make_pair(identifiers.first->GetID(), identifiers.second->GetID()));
     }
 private:
-    //TODO add memory safety for persistent collisions
-    std::unordered_map<std::pair<RigidBody*, RigidBody*>,ColManifold, IDHolder> collidedThisFrame;
-    std::unordered_set<std::pair<RigidBody*, RigidBody*>, IDHolder> collidedLastFrame;
-    std::unordered_set<std::pair<RigidBody*, RigidBody*>, IDHolder> colliderCache;
-    std::unordered_map<RigidBody*, int> tileCollisions;
-    std::vector<std::pair<RigidBody*, RigidBody*>> toRemove;
+    std::unordered_map<std::pair<unsigned int, unsigned int>,ColManifold, IDHolder> collidedThisFrame;
+    std::unordered_set<std::pair<unsigned int, unsigned int>, IDHolder> collidedLastFrame;
+    std::unordered_set<std::pair<unsigned int, unsigned int>, IDHolder> colliderCache;
+    std::unordered_map<unsigned int, int> tileCollisions;
+    std::vector<std::pair<unsigned int, unsigned int>> toRemove;
 };
 
 

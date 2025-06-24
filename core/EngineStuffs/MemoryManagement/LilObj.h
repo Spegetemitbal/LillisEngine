@@ -39,6 +39,11 @@ class LilObj
     }
   }
 
+  Obj* GetRawPtr()
+  {
+    return pool->GetObjByID<Obj>(itemID);
+  }
+
   bool Exists() const
   {
     if (itemID == 0 || pool == nullptr)
