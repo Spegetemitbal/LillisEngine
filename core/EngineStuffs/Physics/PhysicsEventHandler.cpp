@@ -12,29 +12,17 @@ void PhysicsEventHandler::TickFireEvent(MemoryPool* memPool)
 {
     EventSystem* ev = EventSystem::getInstance();
 
-    for (auto it : collisionMatrix)
+    for (auto it : collidedThisFrame)
     {
         bool isTrigger = false;
         RigidBody* rbA = it.first.first;
         RigidBody* rbB = it.first.second;
-        if (it.second.BodyA->isTrigger || it.second.BodyB->isTrigger)
+        if (rbA->isTrigger || rbB->isTrigger)
         {
             isTrigger = true;
         }
 
-        if (persistingCollisions.contains(it.first))
-        {
-            //Collision Stay
-            if (isTrigger)
-            {
-                ev->fireEvent(TriggerColliderEvent({memPool, rbA->GetID()}, {memPool, rbB->GetID()}, rbA->GetColTag(), rbB->GetColTag(),
-                    TriggerColliderEventType::TCOL_STAY));
-            } else
-            {
-                ev->fireEvent(CollisionStayEvent({memPool,rbA->GetID()}, {memPool,rbB->GetID()}, rbA->GetColTag(), rbB->GetColTag(),
-                    it.second.Normal,it.second.Depth,it.second.ContactCount,it.second.Contact1,it.second.Contact2));
-            }
-        } else
+        if (!collidedLastFrame.contains(it.first))
         {
             //Collision Enter
             if (isTrigger)
@@ -46,21 +34,64 @@ void PhysicsEventHandler::TickFireEvent(MemoryPool* memPool)
                 ev->fireEvent(CollisionEnterEvent({memPool, rbA->GetID()}, {memPool, rbB->GetID()}, rbA->GetColTag(), rbB->GetColTag(),
                 it.second.Normal,it.second.Depth,it.second.ContactCount,it.second.Contact1,it.second.Contact2));
             }
+            colliderCache.insert(it.first);
         }
     }
 
-    //Collision Exit
-    for (auto it : leftCollision)
+    //Testing existing colliders.
+    for (auto it : collidedLastFrame)
     {
+        bool isTrigger = false;
         RigidBody* rbA = it.first;
         RigidBody* rbB = it.second;
         if (rbA->isTrigger || rbB->isTrigger)
         {
-            ev->fireEvent(TriggerColliderEvent({memPool, rbA->GetID()}, {memPool, rbB->GetID()}, rbA->GetColTag(), rbB->GetColTag(),
-                TriggerColliderEventType::TCOL_EXIT));
-            continue;
+            isTrigger = true;
         }
-        ev->fireEvent(CollisionExitEvent({memPool, rbA->GetID()}, {memPool, rbB->GetID()}, rbA->GetColTag(), rbB->GetColTag()));
+
+        if (collidedThisFrame.contains(it))
+        {
+            ColManifold& col = collidedThisFrame[it];
+            if (!colliderCache.contains(it))
+            {
+                //Collision Stay
+                if (isTrigger)
+                {
+                    ev->fireEvent(TriggerColliderEvent({memPool, rbA->GetID()}, {memPool, rbB->GetID()}, rbA->GetColTag(), rbB->GetColTag(),
+                        TriggerColliderEventType::TCOL_STAY));
+                } else
+                {
+                    ev->fireEvent(CollisionStayEvent({memPool,rbA->GetID()}, {memPool,rbB->GetID()}, rbA->GetColTag(), rbB->GetColTag(),
+                        col.Normal, col.Depth,col.ContactCount,col.Contact1,col.Contact2));
+                }
+            }
+        } else
+        {
+            toRemove.push_back(it);
+            //Collision Exit
+            if (rbA->isTrigger || rbB->isTrigger)
+            {
+                ev->fireEvent(TriggerColliderEvent({memPool, rbA->GetID()}, {memPool, rbB->GetID()}, rbA->GetColTag(), rbB->GetColTag(),
+                    TriggerColliderEventType::TCOL_EXIT));
+                continue;
+            }
+            ev->fireEvent(CollisionExitEvent({memPool, rbA->GetID()}, {memPool, rbB->GetID()}, rbA->GetColTag(), rbB->GetColTag()));
+        }
     }
-    leftCollision.clear();
+
+    //Remove null collisions from persistent.
+    for (auto it : toRemove)
+    {
+        collidedLastFrame.erase(it);
+    }
+
+    //Add new collisions to persistent.
+    for (auto it : colliderCache)
+    {
+        collidedLastFrame.emplace(it);
+    }
+
+    collidedThisFrame.clear();
+    colliderCache.clear();
+    toRemove.clear();
 }

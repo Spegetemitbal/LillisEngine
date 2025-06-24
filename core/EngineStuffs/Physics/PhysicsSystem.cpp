@@ -248,11 +248,6 @@ void PhysicsSystem::AABBChecks(const CollisionPairing &tempContact, ActiveTracke
         {
             return;
         }
-        if (!CollisionChecker::IntersectAABBs(bodyA_aabb, bodyB_aabb))
-        {
-            eventHandler->NotColliding(std::make_pair(bodyA, bodyB));
-            return;
-        }
         contactList.push_back(tempContact);
     }
 
@@ -298,8 +293,6 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects, std::vec
                 glm::vec2 contact1, contact2;
                 CollisionChecker::FindContactPoints(bodyA, tile, contact1, contact2, contactCount);
                 ColManifold cm = ColManifold(bodyA, nullptr, tile, normal, depth, contactCount, contact1, contact2);
-
-                //eventHandler->IsColliding(std::make_pair(bodyA, bodyB), cm);
 
                 if (renderPhysics)
                 {
@@ -373,9 +366,6 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects, std::vec
                 {
                     ResolveCollisionComplex(cm);
                 }
-            } else
-            {
-                eventHandler->NotColliding(std::make_pair(bodyA, bodyB));
             }
         }
     }

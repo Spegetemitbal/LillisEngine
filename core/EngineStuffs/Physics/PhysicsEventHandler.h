@@ -25,43 +25,28 @@ public:
 
     void IsColliding(std::pair<RigidBody*, RigidBody*> identifiers, ColManifold cm)
     {
-        if (!collisionMatrix.contains(identifiers))
+        if (!collidedThisFrame.contains(identifiers))
         {
-            collisionMatrix.emplace(identifiers,cm);
+            collidedThisFrame.emplace(identifiers,cm);
         } else
         {
-            collisionMatrix[identifiers] = cm;
-        }
-    }
-    void NotColliding(const std::pair<RigidBody*, RigidBody*>& identifiers)
-    {
-        if (collisionMatrix.contains(identifiers))
-        {
-            collisionMatrix.erase(identifiers);
-            if (persistingCollisions.contains(identifiers))
-            {
-                persistingCollisions.erase(identifiers);
-            }
-            if (!leftCollision.contains(identifiers))
-            {
-                leftCollision.emplace(identifiers);
-            }
+            collidedThisFrame[identifiers] = cm;
         }
     }
     void ClearMatrix()
     {
-        collisionMatrix.clear();
-        persistingCollisions.clear();
-        leftCollision.clear();
+        collidedThisFrame.clear();
+        collidedLastFrame.clear();
     }
     bool GetIsColliding(const std::pair<RigidBody*, RigidBody*>& identifiers)
     {
-        return collisionMatrix.contains(identifiers);
+        return collidedThisFrame.contains(identifiers);
     }
 private:
-    std::unordered_map<std::pair<RigidBody*, RigidBody*>,ColManifold, IDHolder> collisionMatrix;
-    std::unordered_set<std::pair<RigidBody*, RigidBody*>, IDHolder> persistingCollisions;
-    std::unordered_set<std::pair<RigidBody*, RigidBody*>, IDHolder> leftCollision;
+    std::unordered_map<std::pair<RigidBody*, RigidBody*>,ColManifold, IDHolder> collidedThisFrame;
+    std::unordered_set<std::pair<RigidBody*, RigidBody*>, IDHolder> collidedLastFrame;
+    std::unordered_set<std::pair<RigidBody*, RigidBody*>, IDHolder> colliderCache;
+    std::vector<std::pair<RigidBody*, RigidBody*>> toRemove;
 };
 
 

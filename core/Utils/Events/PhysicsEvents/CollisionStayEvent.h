@@ -28,7 +28,11 @@ public:
     int getThatTag() const { return mSecondColTag; };
     bool containsID(unsigned int ID) const override
     {
-        return ID == mFirst.GetID() || ID == mSecond.GetID();
+        if (mSecond.Exists())
+        {
+            return ID == mFirst.GetID() || ID == mSecond.GetID();
+        }
+        return ID == mFirst.GetID();
     };
 private:
     LilObj<RigidBody> mFirst{};
