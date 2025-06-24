@@ -237,7 +237,6 @@ void PhysicsSystem::AABBChecks(const CollisionPairing &tempContact, ActiveTracke
         const TileCollider* col = &tMap->at(tempContact.tileCollider.second);
         if (CollisionChecker::IntersectAABBs(bodyA_aabb, col->aabb))
         {
-            //TODO add event here
             contactList.push_back(tempContact);
         }
     } else
@@ -293,6 +292,8 @@ void PhysicsSystem::NarrowPhase(ActiveTracker<RigidBody*> &physObjects, std::vec
                 glm::vec2 contact1, contact2;
                 CollisionChecker::FindContactPoints(bodyA, tile, contact1, contact2, contactCount);
                 ColManifold cm = ColManifold(bodyA, nullptr, tile, normal, depth, contactCount, contact1, contact2);
+
+                eventHandler->IsColliding(bodyA, cm);
 
                 if (renderPhysics)
                 {

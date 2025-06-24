@@ -24,6 +24,23 @@ void PhysicsEventHandler::TickFireEvent(MemoryPool* memPool)
 
         if (!collidedLastFrame.contains(it.first))
         {
+            //Tile stuffs.
+            if (rbA == rbB)
+            {
+                //Collision Enter
+                if (isTrigger)
+                {
+                    ev->fireEvent(TriggerColliderEvent({memPool, rbA->GetID()}, {}, rbA->GetColTag(), tileCollisions[rbA],
+                        TriggerColliderEventType::TCOL_ENTER));
+                } else
+                {
+                    ev->fireEvent(CollisionEnterEvent({memPool, rbA->GetID()}, {}, rbA->GetColTag(), tileCollisions[rbA],
+                    it.second.Normal,it.second.Depth,it.second.ContactCount,it.second.Contact1,it.second.Contact2));
+                }
+                colliderCache.insert(it.first);
+                continue;
+            }
+
             //Collision Enter
             if (isTrigger)
             {
@@ -54,6 +71,21 @@ void PhysicsEventHandler::TickFireEvent(MemoryPool* memPool)
             ColManifold& col = collidedThisFrame[it];
             if (!colliderCache.contains(it))
             {
+                if (rbA == rbB)
+                {
+                    //Collision Stay
+                    if (isTrigger)
+                    {
+                        ev->fireEvent(TriggerColliderEvent({memPool, rbA->GetID()}, {}, rbA->GetColTag(), tileCollisions[rbA],
+                            TriggerColliderEventType::TCOL_STAY));
+                    } else
+                    {
+                        ev->fireEvent(CollisionStayEvent({memPool,rbA->GetID()}, {}, rbA->GetColTag(), tileCollisions[rbA],
+                            col.Normal, col.Depth,col.ContactCount,col.Contact1,col.Contact2));
+                    }
+                    continue;
+                }
+
                 //Collision Stay
                 if (isTrigger)
                 {
@@ -68,6 +100,26 @@ void PhysicsEventHandler::TickFireEvent(MemoryPool* memPool)
         } else
         {
             toRemove.push_back(it);
+
+            //Making a collider Inactive should not trigger a collision exit.
+            if (!rbA->GetActive() || !rbB->GetActive())
+            {
+                continue;
+            }
+
+            if (rbA == rbB)
+            {
+                //Collision Exit
+                if (rbA->isTrigger || rbB->isTrigger)
+                {
+                    ev->fireEvent(TriggerColliderEvent({memPool, rbA->GetID()}, {}, rbA->GetColTag(), tileCollisions[rbA],
+                        TriggerColliderEventType::TCOL_EXIT));
+                    continue;
+                }
+                ev->fireEvent(CollisionExitEvent({memPool, rbA->GetID()}, {}, rbA->GetColTag(), tileCollisions[rbA]));
+                continue;
+            }
+
             //Collision Exit
             if (rbA->isTrigger || rbB->isTrigger)
             {
@@ -83,6 +135,10 @@ void PhysicsEventHandler::TickFireEvent(MemoryPool* memPool)
     for (auto it : toRemove)
     {
         collidedLastFrame.erase(it);
+        if (it.first == it.second)
+        {
+            tileCollisions.erase(it.first);
+        }
     }
 
     //Add new collisions to persistent.
