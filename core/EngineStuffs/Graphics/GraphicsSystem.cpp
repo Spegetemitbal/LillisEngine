@@ -83,7 +83,7 @@ void GraphicsSystem::SetPostProcessPipeline(PostProcessSegment *pipeline, bool i
 	postProcessPipeline = pipeline;
 	if (init)
 	{
-	//	pipeline->InitSegment();
+		pipeline->InitSegment();
 	}
 }
 
@@ -164,6 +164,7 @@ bool GraphicsSystem::Init()
 	SetSpritePipeline(DBG_NEW SpritePipelineSegment(render_settings, ResourceManager::GetShader("Default")), true);
 	SetParticlePipeline(DBG_NEW ParticlePipelineSegment(render_settings, ResourceManager::GetShader("DefaultParticle")), true);
 	SetProcGenPipeline(DBG_NEW ProcGenPipelineSegment(render_settings, ResourceManager::GetShader("DefaultProcGen")), true);
+	SetPostProcessPipeline(DBG_NEW PostProcessSegment(render_settings, ResourceManager::GetShader("DefaultPostProcess")), true);
 
 	SpriteRenderer::setDefaultShader(ResourceManager::GetShader("Default"));
 	SpriteRenderer::setDefaultUIShader(ResourceManager::GetShader("DefaultUI"));
@@ -317,7 +318,10 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	ProcGen::getInstance()->Render(mainCamera.projectionMatrix(), procGenPipeline);
 	procGenPipeline->PostRender();
 
-	RunPostProcessing();
+	postProcessPipeline->PreRender();
+	postProcessPipeline->DoPostProcess(spritePipeline->GetColorBuffer(0));
+	postProcessPipeline->PostRender();
+	//RunPostProcessing();
 }
 
 void GraphicsSystem::PreDraw()
