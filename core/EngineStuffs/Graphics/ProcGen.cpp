@@ -6,7 +6,6 @@
 
 #include <glad/gl.h>
 
-#include "SpriteRenderer.h"
 #include "Pipeline/ProcGenPipelineSegment.h"
 
 ProcGen* ProcGen::instance = nullptr;

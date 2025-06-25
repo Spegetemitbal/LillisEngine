@@ -6,6 +6,7 @@
 #include "MemoryManagement/LilObj.h"
 
 struct ParticleEmitterData;
+class ParticleEmitter;
 
 class GameObject
 {

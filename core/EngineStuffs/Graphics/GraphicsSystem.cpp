@@ -47,7 +47,6 @@ GraphicsSystem::GraphicsSystem(const RenderSettings &render_settings, const std:
 {
 	_windowName = name;
 	this->render_settings = render_settings;
-	SpriteRenderer::setPixelsPerUnit(render_settings.pixelsPerUnit);
 }
 
 GraphicsSystem::~GraphicsSystem()
@@ -166,11 +165,6 @@ bool GraphicsSystem::Init()
 	SetProcGenPipeline(DBG_NEW ProcGenPipelineSegment(render_settings, ResourceManager::GetShader("DefaultProcGen")), true);
 	SetPostProcessPipeline(DBG_NEW PostProcessSegment(render_settings, ResourceManager::GetShader("DefaultPostProcess")), true);
 
-	SpriteRenderer::setDefaultShader(ResourceManager::GetShader("Default"));
-	SpriteRenderer::setDefaultUIShader(ResourceManager::GetShader("DefaultUI"));
-	SpriteRenderer::setDefaultProcGenShader(ResourceManager::GetShader("DefaultProcGen"));
-	SpriteRenderer::setDefaultParticleShader(ResourceManager::GetShader("DefaultParticle"));
-	SpriteRenderer::initRenderData();
 	// load textures
 
 	//Beep beep I'm a sheep
@@ -206,7 +200,6 @@ void GraphicsSystem::ShutDown()
 	{
 		glDeleteFramebuffers(1, &postProcessFBO);
 	}
-	SpriteRenderer::shutdownRenderData();
 	_win.DelWindow();
 	glfwTerminate();
 	isInitted = false;
@@ -346,107 +339,6 @@ void GraphicsSystem::PostDraw()
 	}
 	glfwSwapBuffers(_win.window);
 }
-
-void GraphicsSystem::RunPostProcessing()
-{
-	if (!isInitted)
-	{
-		std::cerr << "Graphics system isn't initialized" << std::endl;
-		return;
-	}
-	glBindVertexArray(postProcessVAO);
-
-	bool usingAlternativeFBO = false;
-	for (int i = 0; i < postProcessChain.size(); i++)
-	{
-		LILLIS::Shader currentShader = postProcessChain[i];
-		currentShader.Use();
-		currentShader.SetInteger("_ColorBuffer", 0);
-
-		if (usingAlternativeFBO)
-		{
-			glBindTextureUnit(0, postProcessColorBuffer);
-		} else
-		{
-			glBindTextureUnit(0, spritePipeline->GetColorBuffer(0));
-		}
-
-		//Do something here idk man.
-		if (i < postProcessChain.size() - 1)
-		{
-			if (usingAlternativeFBO)
-			{
-				glBindFramebuffer(GL_FRAMEBUFFER, postProcessFBO);
-			} else
-			{
-				glBindFramebuffer(GL_FRAMEBUFFER, spritePipeline->GetFBO(0));
-			}
-			glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			//DRAW FULLSCREEN TRIANGLE
-			glDrawArrays(GL_TRIANGLES, 0, 3);
-
-			usingAlternativeFBO = !usingAlternativeFBO;
-		} else
-		{
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glViewport(0, 0, (GLsizei)render_settings.windowWidth, (GLsizei)render_settings.windowHeight);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			//DRAW FULLSCREEN TRIANGLE
-			glDrawArrays(GL_TRIANGLES, 0, 3);
-		}
-	}
-
-	if (postProcessChain.empty())
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, (GLsizei)render_settings.windowWidth, (GLsizei)render_settings.windowHeight);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		LILLIS:Shader defaultPostProcess = ResourceManager::GetShader("DefaultPostProcess");
-		defaultPostProcess.Use();
-		defaultPostProcess.SetInteger("_ColorBuffer", 0);
-
-		glBindTextureUnit(0, spritePipeline->GetColorBuffer(0));
-		//3 vertices because triangle
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-	}
-}
-
-void GraphicsSystem::AddPostProcess(LILLIS::Shader shader)
-{
-	if (!isInitted)
-	{
-		std::cerr << "Graphics system isn't initialized" << std::endl;
-		return;
-	}
-	postProcessChain.push_back(shader);
-	if (postProcessChain.size() > 2 && postProcessFBO < 1)
-	{
-		//Generate frame buffer.
-		glGenFramebuffers(1, &postProcessFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, postProcessFBO);
-
-		//8 bit RGBA color buffer
-		glGenTextures(1, &postProcessColorBuffer);
-		glBindTexture(GL_TEXTURE_2D, postProcessColorBuffer);
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
-
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, postProcessColorBuffer, 0);
-
-		GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-			printf("Framebuffer incomplete: %d", fboStatus);
-			return;
-		}
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-}
-
-
 
 void GraphicsSystem::SetCursor(const std::string &imageName, unsigned int xHot, unsigned int yHot)
 {

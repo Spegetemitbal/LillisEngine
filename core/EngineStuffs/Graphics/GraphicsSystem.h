@@ -1,7 +1,6 @@
 #pragma once
 
 #define GLFW_INCLUDE_NONE
-#include "SpriteRenderer.h"
 #include "../../Utils/ResourceManager.h"
 #include "LillisWindow.h"
 #include "Camera.h"
@@ -16,6 +15,7 @@ class ParticlePipelineSegment;
 class ProcGenPipelineSegment;
 class UIPipelineSegment;
 class PostProcessSegment;
+class ParticleEmitter;
 
 class GraphicsSystem
 {
@@ -46,20 +46,6 @@ public:
 	void PreDraw();
 	void RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite,
 		ActiveTracker<ParticleEmitter*>& emitters, unsigned int lastEmitter, std::vector<TileMap>& tile_maps);
-
-	void RunPostProcessing();
-	void AddPostProcess(LILLIS::Shader shader);
-	void RemovePostProcess(LILLIS::Shader shader)
-	{
-		for (int i = 0; i < postProcessChain.size(); i++)
-		{
-			if (postProcessChain[i].ID == shader.ID)
-			{
-				postProcessChain.erase(postProcessChain.begin() + i);
-				break;
-			}
-		}
-	}
 
 	void PostDraw();
 
@@ -122,8 +108,6 @@ private:
 
 	//unsigned int depthBuffer{}, fbo{}, colorBuffer{};
 	unsigned int postProcessVAO{}, postProcessFBO{}, postProcessColorBuffer{};
-
-	std::vector<LILLIS::Shader> postProcessChain;
 
 	RenderSettings render_settings;
 

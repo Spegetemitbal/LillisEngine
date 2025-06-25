@@ -6,8 +6,6 @@
 #include "../../Particles/ParticleEmitter.h"
 #include "EngineStuffs/Graphics/RenderOrder.h"
 #include <glad/gl.h>
-
-#include "EngineStuffs/Graphics/SpriteRenderer.h"
 #include "Utils/ResourceManager.h"
 
 ParticlePipelineSegment::ParticlePipelineSegment(RenderSettings render_settings, LILLIS::Shader shader) : PipelineSegment(render_settings)

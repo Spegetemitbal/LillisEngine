@@ -4,7 +4,6 @@
 
 #include "UIRenderer.h"
 
-#include "EngineStuffs/Graphics/SpriteRenderer.h"
 #include "EngineStuffs/Graphics/Texture.h"
 #include "glad/gl.h"
 #include "Utils/ResourceManager.h"
@@ -130,8 +129,8 @@ void UIRenderer::RenderUI(ActiveTracker<UIObject *> &uiObjs, unsigned int lastUI
             throw;
         }
         Texture2D tex = ResourceManager::GetTexture(spr->image);
-        SpriteRenderer::DrawUI(tex, renderPos, spr->frame,
-            renderSize, 0);
+        //SpriteRenderer::DrawUI(tex, renderPos, spr->frame,
+        // renderSize, 0);
     }
 }
 
