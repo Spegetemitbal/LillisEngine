@@ -10,6 +10,7 @@
 #include "Prototype.h"
 #include "StaticDataManager.h"
 #include "EngineStuffs/ObjectGrouping.h"
+#include "EngineStuffs/Graphics/BackgroundManager.h"
 #include "EngineStuffs/UI/UISystem.h"
 #include "EngineStuffs/Tilemaps/TileMap.h"
 
@@ -396,6 +397,50 @@ void SceneLoader::LoadData(const std::string& fileName)
 			{
 				RenderSettings settings = RenderSettings(resolutionWidth, resolutionHeight, windowWidth, windowHeight, pixelsPerUnit, false);
 			}
+		} else if (word == "Background")
+		{
+			BackgroundManager* background_manager = WORLD->backgrounds();
+
+			std::string image, animCheck;
+			bool hasAnim = false;
+			float animSpeed = 1.0f;
+			std::vector<int> imageFrames = std::vector<int>();
+			unsigned int layer = 0, numFrames = 1;
+			glm::vec2 basePosition = glm::vec2(0.0f);
+			glm::vec2 imageSize = glm::vec2(1.0f);
+			//int upExpand = 0, downExpand = 0, leftExpand = 0, rightExpand = 0;
+
+			stream >> image;
+			stream >> layer;
+			stream >> basePosition.x;
+			stream >> basePosition.y;
+			stream >> imageSize.x;
+			stream >> imageSize.y;
+
+			stream >> animCheck;
+			if (animCheck == "Anim")
+			{
+				hasAnim = true;
+				stream >> animSpeed;
+				stream >> numFrames;
+			}
+
+			int frm;
+			for (unsigned int i = 0; i < numFrames; i++)
+			{
+				stream >> frm;
+				imageFrames.push_back(frm);
+			}
+
+			BackgroundData bd = BackgroundData( );
+			bd.image = image;
+			bd.layer = layer;
+			bd.basePosition = basePosition;
+			bd.imageSize = imageSize;
+			bd.imageFrames = imageFrames;
+			bd.hasAnim = hasAnim;
+			bd.animSpeed = animSpeed;
+			background_manager->AddBackground(bd);
 		}
 	}
 	WORLD->initializeAllComponents();

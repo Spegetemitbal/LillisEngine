@@ -7,6 +7,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "Utils/ResourceManager.h"
+#include "../BackgroundManager.h"
 
 SpritePipelineSegment::SpritePipelineSegment(RenderSettings render_settings, LILLIS::Shader shader) : PipelineSegment(render_settings)
 {
@@ -95,17 +96,19 @@ void SpritePipelineSegment::PreRender()
 {
     shader.Use();
     glBindFramebuffer(GL_FRAMEBUFFER, FBOs[0]);
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glDisable(GL_CULL_FACE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthFunc(GL_LEQUAL);
     glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 
-void SpritePipelineSegment::DoStep(std::vector<Sprite *> &sprites, unsigned int lastSprite, std::vector<TileMap> &tile_maps, glm::mat4 camera)
+std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite *> &sprites, unsigned int lastSprite, std::vector<TileMap> &tile_maps, glm::mat4 camera)
 {
     for (int i = 0; i < sprites.size(); i++)
     {
@@ -139,6 +142,9 @@ void SpritePipelineSegment::DoStep(std::vector<Sprite *> &sprites, unsigned int 
             }
         }
     }
+
+    //TODO add possible splitting.
+    return {ColorBufferWrapper(true, 0, colorBuffers[0])};
 }
 
 void SpritePipelineSegment::RenderSprite(const Texture2D &texture, glm::vec2 position, float renderVal, int frame, glm::mat4 camera, glm::vec2 size, float rotate, glm::vec3 color)

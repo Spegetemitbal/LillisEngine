@@ -28,6 +28,7 @@ namespace LILLIS
 		//float orthoHeight = 6.0f;
 		float aspectRatio = 0;
 
+		//Min then Max
 		inline glm::vec4 getAABB(unsigned int PPU) const
 		{
 			float ppu = 1.0f / (float)PPU;

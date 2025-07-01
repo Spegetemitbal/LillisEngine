@@ -15,7 +15,7 @@ public:
 
     void InitSegment() override;
     void PreRender() override;
-    virtual void DoPostProcess(unsigned int previousColorBuffer);
+    virtual void DoPostProcess(std::vector<ColorBufferWrapper> wrappers, int numSprWrappers);
 
     void AddPostProcess(LILLIS::Shader shader);
     void RemovePostProcess(LILLIS::Shader shader)

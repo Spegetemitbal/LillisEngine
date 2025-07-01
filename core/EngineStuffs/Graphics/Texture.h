@@ -21,7 +21,7 @@ public:
     // holds the ID of the texture object, used for all texture operations to reference to this particular texture
 
     //Eventually have a list of textures in the graphics system rather than the resourceManager?
-    unsigned int ID;
+    unsigned int ID = 0;
     // texture image dimensions
     unsigned int Width, Height; // width and height of loaded image in pixels
     // texture Format

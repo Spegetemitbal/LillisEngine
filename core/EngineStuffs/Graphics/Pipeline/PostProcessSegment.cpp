@@ -43,41 +43,54 @@ void PostProcessSegment::InitSegment()
 void PostProcessSegment::PreRender()
 {
     glBindVertexArray(VAOs[0]);
+    glEnable(GL_BLEND);
     glViewport(0, 0, (GLsizei)render_settings.windowWidth, (GLsizei)render_settings.windowHeight);
 }
 
-void PostProcessSegment::DoPostProcess(unsigned int previousColorBuffer)
+void PostProcessSegment::DoPostProcess(std::vector<ColorBufferWrapper> wrappers, int numSprWrappers)
 {
+    //TODO add parallax
+
     //Run all added postProcesses.
     glBindFramebuffer(GL_FRAMEBUFFER, FBOs[0]);
     for (int i = 0; i < postProcessChain.size(); i++)
     {
         LILLIS::Shader& shad = postProcessChain[i];
+        shad.Use();
+        shad.SetInteger("_ColorBuffer", 0);
         if (i == 0)
         {
-            glBindTextureUnit(0, previousColorBuffer);
+            for (int j = 0; j < wrappers.size(); j++)
+            {
+                if (wrappers[i].doPostProcess)
+                {
+                    glBindTextureUnit(0, wrappers[i].colorAttachment);
+                    glDrawArrays(GL_TRIANGLES, 0, 3);
+                }
+            }
         } else
         {
             glBindTextureUnit(0, colorBuffers[0]);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
         }
-        shad.Use();
-        shad.SetInteger("_ColorBuffer", 0);
-
-        glDrawArrays(GL_TRIANGLES, 0, 3);
     }
+
     //Run default.
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    shader.Use();
+    shader.SetInteger("_ColorBuffer", 0);
     if (postProcessChain.empty())
     {
-        glBindTextureUnit(0, previousColorBuffer);
+        for (int i = 0; i < wrappers.size(); i++)
+        {
+            glBindTextureUnit(0, wrappers[i].colorAttachment);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+        }
     } else
     {
         glBindTextureUnit(0, colorBuffers[0]);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
     }
-
-    shader.Use();
-    shader.SetInteger("_ColorBuffer", 0);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void PostProcessSegment::AddPostProcess(LILLIS::Shader shader)

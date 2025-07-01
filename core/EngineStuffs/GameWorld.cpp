@@ -6,6 +6,7 @@
 #include "UI/UISystem.h"
 #include "ObjectGrouping.h"
 #include "Particles/ParticleEmitter.h"
+#include "Graphics/BackgroundManager.h"
 
 GameWorld::GameWorld()
 {
@@ -19,6 +20,7 @@ GameWorld::GameWorld()
 	renderOrder = DBG_NEW RenderOrder(spritePool);
 	behaviors = DBG_NEW BehaviorHandler(40);
 	emitterPool = DBG_NEW ComponentPool<ParticleEmitter>(10);
+	backgroundManager = DBG_NEW BackgroundManager();
 }
 
 GameWorld::~GameWorld() 
@@ -34,6 +36,7 @@ GameWorld::~GameWorld()
 	delete behaviors;
 	delete emitterPool;
 	delete objectGroup;
+	delete backgroundManager;
 	if (worldGrid != nullptr)
 	{
 		delete worldGrid;
@@ -142,6 +145,7 @@ void GameWorld::clearAll()
 		emitterPool->ClearPool();
 		rigidBodyPool->ClearPool();
 		UISystem::getInstance()->clearUIObjects();
+		backgroundManager->ClearBackgrounds();
 		numObjects = 0;
 	}
 	if (worldGrid != nullptr)

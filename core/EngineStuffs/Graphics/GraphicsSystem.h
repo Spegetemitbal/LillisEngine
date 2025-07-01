@@ -15,7 +15,9 @@ class ParticlePipelineSegment;
 class ProcGenPipelineSegment;
 class UIPipelineSegment;
 class PostProcessSegment;
+class BackgroundPipelineSegment;
 class ParticleEmitter;
+class BackgroundManager;
 
 class GraphicsSystem
 {
@@ -37,15 +39,17 @@ public:
 	void SetProcGenPipeline(ProcGenPipelineSegment* pipeline, bool init = false);
 	void SetUIPipeline(UIPipelineSegment* pipeline, bool init = false);
 	void SetPostProcessPipeline(PostProcessSegment* pipeline, bool init = false);
+	void SetBackgroundPipeline(BackgroundPipelineSegment* pipeline, bool init = false);
 	SpritePipelineSegment* GetSpritePipeline() { return spritePipeline; }
 	ParticlePipelineSegment* GetParticlePipeline() { return particlePipeline; }
 	ProcGenPipelineSegment* GetProcGenPipeline() { return procGenPipeline; }
 	UIPipelineSegment* GetUIPipeline() { return uiPipeline; }
 	PostProcessSegment* GetPostProcessPipeline() { return postProcessPipeline; }
+	BackgroundPipelineSegment* GetBackgroundPipeline() { return backgroundPipeline; }
 
 	void PreDraw();
 	void RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite,
-		ActiveTracker<ParticleEmitter*>& emitters, unsigned int lastEmitter, std::vector<TileMap>& tile_maps);
+		ActiveTracker<ParticleEmitter*>& emitters, unsigned int lastEmitter, std::vector<TileMap>& tile_maps, BackgroundManager* backgrounds);
 
 	void PostDraw();
 
@@ -98,6 +102,8 @@ private:
 	ProcGenPipelineSegment* procGenPipeline = nullptr;
 	UIPipelineSegment* uiPipeline = nullptr;
 	PostProcessSegment* postProcessPipeline = nullptr;
+	BackgroundPipelineSegment* backgroundPipeline = nullptr;
+
 
 	GraphicsSystem(const RenderSettings &render_settings = RenderSettings(), const std::string &name = "LILLIS");
 	~GraphicsSystem();

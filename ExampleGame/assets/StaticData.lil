@@ -5,6 +5,7 @@ SPRITE Player2 Opaque Auto
 SPRITE Test Opaque Auto
 SPRITE WinFlag Opaque Auto
 SPRITE Calm Opaque Auto
+SPRITE SkyBackground Opaque Auto
 SPRITE UniformTest Opaque Uniform 6 2 3
 SPRITE TileBackdrop Opaque Uniform 4 2 2
 ANIMATION Player1Idle 3 STOP false false

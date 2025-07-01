@@ -15,6 +15,7 @@ class GameObjPool;
 class SceneGraph;
 class RenderOrder;
 class ObjectGrouping;
+class BackgroundManager;
 
 class GameWorld
 {
@@ -84,6 +85,7 @@ public:
 	TileGrid* getTileGrid() const {return worldGrid;};
 
 	ObjectGrouping* const objectGrouping() const {return objectGroup;}
+	BackgroundManager* const backgrounds() const {return backgroundManager;}
 
 private:
 
@@ -97,6 +99,7 @@ private:
 	GameObjPool* objects;
 	ComponentPool<Transform>* transformPool;
 
+	BackgroundManager* backgroundManager;
 	ObjectGrouping* objectGroup;
 	SceneGraph* sceneGraph;
 	ComponentPool<Sprite>* spritePool;

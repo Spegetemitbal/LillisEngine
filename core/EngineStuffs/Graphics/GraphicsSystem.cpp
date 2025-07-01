@@ -6,6 +6,7 @@
 
 #include "ProcGen.h"
 #include "EngineStuffs/Particles/ParticleEmitter.h"
+#include "Pipeline/BackgroundPipelineSegment.h"
 #include "Utils/InputSystem.h"
 #include "Pipeline/ParticlePipelineSegment.h"
 #include "Pipeline/SpritePipelineSegment.h"
@@ -104,6 +105,16 @@ void GraphicsSystem::SetUIPipeline(UIPipelineSegment *pipeline, bool init)
 	}
 }
 
+void GraphicsSystem::SetBackgroundPipeline(BackgroundPipelineSegment *pipeline, bool init)
+{
+	backgroundPipeline = pipeline;
+	if (init)
+	{
+		pipeline->InitSegment();
+	}
+}
+
+
 
 bool GraphicsSystem::Init()
 {
@@ -164,6 +175,7 @@ bool GraphicsSystem::Init()
 	SetParticlePipeline(DBG_NEW ParticlePipelineSegment(render_settings, ResourceManager::GetShader("DefaultParticle")), true);
 	SetProcGenPipeline(DBG_NEW ProcGenPipelineSegment(render_settings, ResourceManager::GetShader("DefaultProcGen")), true);
 	SetPostProcessPipeline(DBG_NEW PostProcessSegment(render_settings, ResourceManager::GetShader("DefaultPostProcess")), true);
+	SetBackgroundPipeline(DBG_NEW BackgroundPipelineSegment(render_settings, ResourceManager::GetShader("Default")), true);
 
 	// load textures
 
@@ -195,6 +207,8 @@ void GraphicsSystem::ShutDown()
 	uiPipeline = nullptr;
 	delete particlePipeline;
 	particlePipeline = nullptr;
+	delete backgroundPipeline;
+	backgroundPipeline = nullptr;
 
 	if (postProcessFBO != 0)
 	{
@@ -255,7 +269,7 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 }
 
 void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite,
-	ActiveTracker<ParticleEmitter*>& emitters, unsigned int lastEmitter, std::vector<TileMap>& tile_maps)
+	ActiveTracker<ParticleEmitter*>& emitters, unsigned int lastEmitter, std::vector<TileMap>& tile_maps, BackgroundManager* backgrounds)
 {
 	if (!isInitted)
 	{
@@ -299,9 +313,18 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	RenderOrder::CalculateOrder(spritesOnScreen, upSprite, downSprite);
 	RenderOrder::CalculateOrder(emitters.extractData());
 
+	std::vector<ColorBufferWrapper> cbWrappers = std::vector<ColorBufferWrapper>();
+
+	backgroundPipeline->PreRender();
+	std::vector<BackgroundImage> backgroundImages = backgrounds->GetBackgrounds(mainCamera.getAABB(1));
+	cbWrappers = backgroundPipeline->RenderBackgrounds(backgroundImages, false, mainCamera.projectionMatrix());
+	backgroundPipeline->PostRender();
+
 	spritePipeline->PreRender();
-	spritePipeline->DoStep(spritesOnScreen, lastSprite, tile_maps, mainCamera.projectionMatrix());
+	std::vector<ColorBufferWrapper> sprtWrap = spritePipeline->DoStep(spritesOnScreen, lastSprite, tile_maps, mainCamera.projectionMatrix());
 	spritePipeline->PostRender();
+
+	cbWrappers.insert(cbWrappers.end(), sprtWrap.begin(), sprtWrap.end());
 
 	particlePipeline->PreRender();
 	particlePipeline->DoStep(emitters, lastEmitter, upSprite, downSprite, mainCamera.projectionMatrix());
@@ -312,9 +335,8 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	procGenPipeline->PostRender();
 
 	postProcessPipeline->PreRender();
-	postProcessPipeline->DoPostProcess(spritePipeline->GetColorBuffer(0));
+	postProcessPipeline->DoPostProcess(cbWrappers, (int)sprtWrap.size());
 	postProcessPipeline->PostRender();
-	//RunPostProcessing();
 }
 
 void GraphicsSystem::PreDraw()
@@ -327,7 +349,7 @@ void GraphicsSystem::PreDraw()
 	glfwPollEvents();
 	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void GraphicsSystem::PostDraw()

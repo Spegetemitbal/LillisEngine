@@ -8,6 +8,13 @@
 #include "EngineStuffs/Graphics/RenderSettings.h"
 #include "EngineStuffs/Graphics/Shader.h"
 
+struct ColorBufferWrapper
+{
+    bool doPostProcess = true;
+    int depth = 0;
+    unsigned int colorAttachment = 0;
+};
+
 class PipelineSegment {
 public:
 
@@ -26,12 +33,19 @@ public:
     //In inherited items, give interface for inserting specific vertex or uniform data.
 
     unsigned int GetVBO(int index) {return VBOs[index];}
+    size_t GetNumVBOs() {return VBOs.size();}
     unsigned int GetVAO(int index) {return VAOs[index];}
+    size_t GetNumVAOs() {return VAOs.size();}
     unsigned int GetFBO(int index) {return FBOs[index];}
+    size_t GetNumFBOs() {return FBOs.size();}
     unsigned int GetRBO(int index) {return RBOs[index];}
+    size_t GetNumRBOs() {return RBOs.size();}
     unsigned int GetColorBuffer(int index) {return colorBuffers[index];}
+    size_t GetNumColorBuffers() {return colorBuffers.size();}
     unsigned int GetDepthBuffer(int index) {return depthBuffers[index];}
+    size_t GetNumDepthBuffers() {return depthBuffers.size();}
     unsigned int GetStencilBuffer(int index) {return stencilBuffers[index];}
+    size_t GetNumStencilBuffers() {return stencilBuffers.size();}
 
     virtual void PreRender();
     void PostRender();

@@ -1,4 +1,5 @@
 Grid Rectangle 0.8 0.8
+Background SkyBackground 0 0 0 640 480 None 0
 TileMap rectTest -5 -5 10 10 Physics: 0 0.4 0.4 0.6
 C 0 0 0 0 0 0 0 0 C
 0 B A D 0 0 B 0 0 0
@@ -28,8 +29,5 @@ ParticleEmitter Smiley 0 10 INHERIT 0 0 -3 -3 3 3 0 0 0.25 0.25 0.25 0.25 1 1 1 
 Object 0 0 0 FlippyBoy NONE NONE
 Sprite Angry 1 1 1
 Animator Single FigureEight
-;
-NonObject 0 0 0 Background NONE NONE
-Sprite Background 0 0 0
 ;
 END

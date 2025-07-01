@@ -3,6 +3,7 @@
 #include "EngineStuffs/Audio/AudioSystem.h"
 #include "EngineStuffs/UI/UISystem.h"
 //#include "Utils/ResourceLoader.h"
+#include "EngineStuffs/Graphics/BackgroundManager.h"
 #include "EngineStuffs/Graphics/ProcGen.h"
 #include "EngineStuffs/Particles/ParticleEmitter.h"
 #include "Utils/Timing.h"
@@ -106,6 +107,7 @@ void Engine::frameStep()
             anims[i]->Update(Timing::fixedUpdateTime);
         }
     }
+    WORLD->backgrounds()->TickBackgrounds((float)Timing::fixedUpdateTime);
 
     ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
     unsigned int numRB = WORLD->getRBActive();
@@ -160,8 +162,7 @@ void Engine::renderStep()
     unsigned int lastSpr = WORLD->getSprActive();
     ActiveTracker<ParticleEmitter*> pe = WORLD->getEmittersRaw();
     unsigned int numPE = WORLD->getEmittersActive();
-
-    graphics->RenderCall(sprites, lastSpr, pe, numPE,WORLD->getTileMaps());
+    graphics->RenderCall(sprites, lastSpr, pe, numPE,WORLD->getTileMaps(), WORLD->backgrounds());
 
 
 
