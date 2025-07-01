@@ -18,26 +18,6 @@ BackgroundManager::~BackgroundManager()
 
 }
 
-void BackgroundManager::SetBackgroundSlots(int backgroundSlots)
-{
-    if (backgroundSlots < 1)
-    {
-        std::cout << "Invalid number of slots!" << '\n';
-        return;
-    }
-
-    int maxBackgrounds;
-    glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxBackgrounds);
-
-    if (backgroundSlots > maxBackgrounds)
-    {
-        std::cout << "Too many backgrounds!" << '\n';
-        return;
-    }
-
-    this->backgroundSlots = backgroundSlots;
-}
-
 
 std::vector<BackgroundImage> BackgroundManager::GetBackgrounds(glm::vec4 cameraAABB)
 {
@@ -112,11 +92,15 @@ void BackgroundManager::TickBackgrounds(float dt)
 }
 
 
-void BackgroundManager::AddBackground(const BackgroundData& background)
+bool BackgroundManager::AddBackground(const BackgroundData& background)
 {
-    if (backgroundDatas.size() >= backgroundSlots)
+    int maxBackgrounds;
+    glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxBackgrounds);
+
+    if (backgroundDatas.size() + 1 > maxBackgrounds)
     {
-        std::cout << "Too many backgrounds!" << '\n';
+        std::cout << "Maximum backgrounds (" << maxBackgrounds << ") reached, cannot add: " << background.image << '\n';
+        return false;
     }
 
     for (auto & backgroundImage : backgroundDatas)
@@ -124,11 +108,12 @@ void BackgroundManager::AddBackground(const BackgroundData& background)
         if (backgroundImage.layer == background.layer)
         {
             std::cout << "Only one background per layer." << '\n';
-            return;
+            return false;
         }
     }
     backgroundDatas.push_back(background);
     std::sort(backgroundDatas.begin(), backgroundDatas.end());
+    return true;
 }
 
 void BackgroundManager::RemoveBackgroundLayer(unsigned int layer)

@@ -41,15 +41,12 @@ public:
     ~BackgroundManager();
     std::vector<BackgroundImage> GetBackgrounds(glm::vec4 cameraAABB);
     void TickBackgrounds(float dt);
-    void AddBackground(const BackgroundData& background);
+    bool AddBackground(const BackgroundData& background);
     void RemoveBackgroundLayer(unsigned int layer);
-    void SetBackgroundSlots(int backgroundSlots);
-    int GetBackgroundSlots() const {return backgroundSlots;}
     void ClearBackgrounds() {backgroundDatas.clear();}
 
 private:
     unsigned int SpriteLayerAbove = 0;
-    int backgroundSlots = 0;
     std::vector<BackgroundData> backgroundDatas = std::vector<BackgroundData>();
 };
 
