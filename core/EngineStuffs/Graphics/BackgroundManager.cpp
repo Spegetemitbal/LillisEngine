@@ -45,10 +45,16 @@ std::vector<BackgroundImage> BackgroundManager::GetBackgrounds(glm::vec4 cameraA
 
     glm::vec2 xRange = {cameraAABB.x, cameraAABB.z};
     glm::vec2 yRange = {cameraAABB.y, cameraAABB.w};
+    glm::vec2 topLeft = {xRange.x, yRange.y};
+
 
     for (int i = 0; i < backgroundDatas.size(); i++)
     {
-        //No "Fixed" backgrounds, those can be done with a simple sprite following the camera.
+        if (backgroundDatas[i].fixed)
+        {
+            returnable.emplace_back(&backgroundDatas[i], topLeft);
+            continue;
+        }
 
         glm::vec2 invSize = {1 / backgroundDatas[i].imageSize.x, 1 / backgroundDatas[i].imageSize.y};
 
@@ -63,6 +69,20 @@ std::vector<BackgroundImage> BackgroundManager::GetBackgrounds(glm::vec4 cameraA
             {
                 glm::vec2 displacement = {((float)x * backgroundDatas[i].imageSize.x) + backgroundDatas[i].basePosition.x,
                     ((float)y * backgroundDatas[i].imageSize.y) + backgroundDatas[i].basePosition.y};
+                if (!backgroundDatas[i].hasHorizontal)
+                {
+                    if (backgroundDatas[i].basePosition.x != displacement.x)
+                    {
+                        continue;
+                    }
+                }
+                if (!backgroundDatas[i].hasVertical)
+                {
+                    if (backgroundDatas[i].basePosition.y != displacement.y)
+                    {
+                        continue;
+                    }
+                }
                 returnable.emplace_back(&backgroundDatas[i], displacement);
             }
         }

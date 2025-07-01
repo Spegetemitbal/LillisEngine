@@ -10,8 +10,6 @@
 struct BackgroundData
 {
     std::string image;
-
-    bool hasAnim = false;
     float animSpeed = 1.0f;
     std::vector<int> imageFrames = std::vector<int>();
 
@@ -22,7 +20,7 @@ struct BackgroundData
 
     glm::vec2 basePosition = glm::vec2(0.0f);
     glm::vec2 imageSize = glm::vec2(1.0f);
-    int upExpand = 0, downExpand = 0, leftExpand = 0, rightExpand = 0;
+    bool fixed = false, hasAnim = false, hasVertical = true, hasHorizontal = true;
 
     bool operator<(const BackgroundData& other) const
     {

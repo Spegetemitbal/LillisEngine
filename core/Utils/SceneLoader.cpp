@@ -401,7 +401,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 		{
 			BackgroundManager* background_manager = WORLD->backgrounds();
 
-			std::string image, animCheck;
+			std::string image, animCheck, isFixed, tileState;
 			bool hasAnim = false;
 			float animSpeed = 1.0f;
 			std::vector<int> imageFrames = std::vector<int>();
@@ -409,6 +409,8 @@ void SceneLoader::LoadData(const std::string& fileName)
 			glm::vec2 basePosition = glm::vec2(0.0f);
 			glm::vec2 imageSize = glm::vec2(1.0f);
 			//int upExpand = 0, downExpand = 0, leftExpand = 0, rightExpand = 0;
+
+			BackgroundData bd = BackgroundData( );
 
 			stream >> image;
 			stream >> layer;
@@ -432,7 +434,23 @@ void SceneLoader::LoadData(const std::string& fileName)
 				imageFrames.push_back(frm);
 			}
 
-			BackgroundData bd = BackgroundData( );
+			stream >> isFixed;
+
+			if (isFixed == "Fixed")
+			{
+				bd.fixed = true;
+			} else
+			{
+				stream >> tileState;
+				if (tileState == "Horizontal")
+				{
+					bd.hasVertical = false;
+				} else if (tileState == "Vertical")
+				{
+					bd.hasHorizontal = false;
+				}
+			}
+
 			bd.image = image;
 			bd.layer = layer;
 			bd.basePosition = basePosition;
