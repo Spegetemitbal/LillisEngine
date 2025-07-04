@@ -9,9 +9,9 @@ void Parallax::setCenterLayer(int layer, float centerDistance)
     if (parallaxLayers.contains(layer))
     {
         centerLayer = layer;
-        if (centerDistance <= 5.0f)
+        if (centerDistance <= 1.0f)
         {
-            centerDistance = 5.0f;
+            centerDistance = 1.0f;
         }
         centerDist = centerDistance;
         return;
@@ -54,6 +54,16 @@ glm::vec2 Parallax::doParallaxOffset(int layer, glm::vec2 itemCenter, glm::vec2 
         //This should never happen.
         dist2 = 1;
     }
+
+    if (!doHorizontal)
+    {
+        distFromCam.x = 0;
+    }
+    if (!doVertical)
+    {
+        distFromCam.y = 0;
+    }
+
     return distFromCam * (centerDist / dist2);
 }
 

@@ -400,7 +400,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 			}
 		} else if (word == "Parallax")
 		{
-			std::string doParallax;
+			std::string doParallax, directions;
 
 			stream >> doParallax;
 			if (doParallax == "false")
@@ -409,6 +409,15 @@ void SceneLoader::LoadData(const std::string& fileName)
 				Parallax::clearParallax();
 				continue;
 			}
+			stream >> directions;
+			if (directions == "Horizontal")
+			{
+				Parallax::doVertical = false;
+			} else if (directions == "Vertical")
+			{
+				Parallax::doHorizontal = false;
+			}
+
 			GraphicsSystem::getInstance()->SetDoParallax(true);
 			int numLayers, layerToAdd, centerLayer;
 			float layerDist, centerLayerDist;
