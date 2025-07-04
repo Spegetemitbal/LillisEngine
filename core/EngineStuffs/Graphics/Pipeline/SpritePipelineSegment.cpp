@@ -108,7 +108,7 @@ void SpritePipelineSegment::PreRender()
 }
 
 
-std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite *> &sprites, unsigned int lastSprite, std::vector<TileMap> &tile_maps, glm::mat4 camera)
+std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite *> &sprites, unsigned int lastSprite, std::vector<TileMap> &tile_maps, LILLIS::Camera& camera)
 {
     for (int i = 0; i < sprites.size(); i++)
     {
@@ -118,7 +118,7 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
             throw;
         }
         Texture2D tex = ResourceManager::GetTexture(spr->image);
-        RenderSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), (int)spr->frame, camera,
+        RenderSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), (int)spr->frame, camera.projectionMatrix(),
             spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
     }
 
@@ -137,7 +137,7 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
                     throw;
                 }
                 Texture2D tex = ResourceManager::GetTexture(img);
-                RenderSprite(tex, t.worldPos, t.zVal, (int)frm, camera,
+                RenderSprite(tex, t.worldPos, t.zVal, (int)frm, camera.projectionMatrix(),
                     renderSize, 0);
             }
         }

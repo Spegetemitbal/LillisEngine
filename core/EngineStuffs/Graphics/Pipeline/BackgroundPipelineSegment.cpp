@@ -90,12 +90,16 @@ void BackgroundPipelineSegment::PreRender()
     shader.Use();
     glBindFramebuffer(GL_FRAMEBUFFER, FBOs[0]);
     glBindVertexArray(VAOs[0]);
-    glClear(GL_COLOR_BUFFER_BIT);
+    for (int i = 0; i < colorBuffers.size(); i++)
+    {
+        glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
     glDisable(GL_DEPTH_TEST);
     glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
 }
 
-std::vector<ColorBufferWrapper> BackgroundPipelineSegment::RenderBackgrounds(std::vector<BackgroundImage> &backgrounds, bool deferredRender, glm::mat4 camera)
+std::vector<ColorBufferWrapper> BackgroundPipelineSegment::RenderBackgrounds(std::vector<BackgroundImage> &backgrounds, LILLIS::Camera& camera)
 {
     std::vector<ColorBufferWrapper> fbosRendered;
 
@@ -104,11 +108,10 @@ std::vector<ColorBufferWrapper> BackgroundPipelineSegment::RenderBackgrounds(std
         return fbosRendered;
     }
 
-    shader.SetMatrix4("projection", camera);
+    shader.SetMatrix4("projection", camera.projectionMatrix());
     shader.SetVector4f("spriteColor", {1.0f, 1.0f, 1.0f, 1.0f});
     shader.SetFloat("renderValue", 15);
     shader.SetInteger("image", 0);
-    shader.SetMatrix4("projection", camera);
 
     if (deferredRender)
     {
@@ -134,9 +137,17 @@ std::vector<ColorBufferWrapper> BackgroundPipelineSegment::RenderBackgrounds(std
             glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (colorBuffers.size() - 1), colorBuffers.back(), 0);
         }
 
+        int colorAttachment = 0, currentBackground = backgrounds[0].data->layer;
+
         for (int i = 0; i < backgrounds.size(); i++)
         {
-            glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
+            if (currentBackground < backgrounds[i].data->layer)
+            {
+                currentBackground = backgrounds[i].data->layer;
+                colorAttachment++;
+            }
+            const GLenum item = GL_COLOR_ATTACHMENT0 + colorAttachment;
+            glDrawBuffers(1, &item);
             RenderBackgroundImage(backgrounds[i]);
             fbosRendered.emplace_back(false, backgrounds[i].data->layer, colorBuffers[i]);
         }

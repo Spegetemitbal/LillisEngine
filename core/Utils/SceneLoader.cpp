@@ -11,6 +11,7 @@
 #include "StaticDataManager.h"
 #include "EngineStuffs/ObjectGrouping.h"
 #include "EngineStuffs/Graphics/BackgroundManager.h"
+#include "EngineStuffs/Graphics/Parallax.h"
 #include "EngineStuffs/UI/UISystem.h"
 #include "EngineStuffs/Tilemaps/TileMap.h"
 
@@ -397,7 +398,33 @@ void SceneLoader::LoadData(const std::string& fileName)
 			{
 				RenderSettings settings = RenderSettings(resolutionWidth, resolutionHeight, windowWidth, windowHeight, pixelsPerUnit, false);
 			}
-		} else if (word == "Background")
+		} else if (word == "Parallax")
+		{
+			std::string doParallax;
+
+			stream >> doParallax;
+			if (doParallax == "false")
+			{
+				GraphicsSystem::getInstance()->SetDoParallax(false);
+				Parallax::clearParallax();
+				continue;
+			}
+			GraphicsSystem::getInstance()->SetDoParallax(true);
+			int numLayers, layerToAdd, centerLayer;
+			float layerDist, centerLayerDist;
+
+			stream >> layerDist;
+			stream >> numLayers;
+			for (int i = 0; i < numLayers; i++)
+			{
+				stream >> layerToAdd;
+				Parallax::AddLayerToParallax(layerToAdd);
+			}
+			stream >> centerLayer;
+			stream >> centerLayerDist;
+			Parallax::setCenterLayer(centerLayer, centerLayerDist);
+		}
+		else if (word == "Background")
 		{
 			BackgroundManager* background_manager = WORLD->backgrounds();
 
@@ -405,10 +432,9 @@ void SceneLoader::LoadData(const std::string& fileName)
 			bool hasAnim = false;
 			float animSpeed = 1.0f;
 			std::vector<int> imageFrames = std::vector<int>();
-			unsigned int layer = 0, numFrames = 1;
+			int layer = 0, numFrames = 1;
 			glm::vec2 basePosition = glm::vec2(0.0f);
 			glm::vec2 imageSize = glm::vec2(1.0f);
-			//int upExpand = 0, downExpand = 0, leftExpand = 0, rightExpand = 0;
 
 			BackgroundData bd = BackgroundData( );
 

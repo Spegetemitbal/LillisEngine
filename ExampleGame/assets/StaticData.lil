@@ -8,6 +8,7 @@ SPRITE Calm Opaque Auto
 SPRITE SkyBackground Opaque Auto
 SPRITE UniformTest Opaque Uniform 6 2 3
 SPRITE TileBackdrop Opaque Uniform 4 2 2
+SPRITE ExtraLayers Opaque Uniform 2 1 2
 ANIMATION Player1Idle 3 STOP false false
 KeyFrame 0.5 1
 Sprite UniformTest 0 0 0 40 40

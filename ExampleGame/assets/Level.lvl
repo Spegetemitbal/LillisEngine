@@ -1,5 +1,8 @@
 Grid Rectangle 0.8 0.8
-Background SkyBackground 0 0 0 640 480 None 0 Tiled All
+Parallax true 5 3 -2 -1 0 0 10
+Background ExtraLayers -2 0 0 640 480 None 1 Tiled Horizontal
+Background ExtraLayers -1 0 0 640 480 None 0 Tiled Horizontal
+Background SkyBackground -3 0 0 640 480 None 0 Tiled All
 TileMap rectTest -5 -5 10 10 Physics: 0 0.4 0.4 0.6
 C 0 0 0 0 0 0 0 0 C
 0 B A D 0 0 B 0 0 0

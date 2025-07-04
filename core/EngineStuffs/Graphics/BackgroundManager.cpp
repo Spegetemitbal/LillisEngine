@@ -5,6 +5,7 @@
 #include "BackgroundManager.h"
 #include <glad/gl.h>
 
+#include "Parallax.h"
 #include "Texture.h"
 #include "Utils/ResourceManager.h"
 
@@ -19,9 +20,11 @@ BackgroundManager::~BackgroundManager()
 }
 
 
-std::vector<BackgroundImage> BackgroundManager::GetBackgrounds(glm::vec4 cameraAABB)
+std::vector<BackgroundImage> BackgroundManager::GetBackgrounds(LILLIS::Camera& camera, bool doParallax)
 {
     std::vector<BackgroundImage> returnable = std::vector<BackgroundImage>();
+
+    glm::vec4 cameraAABB = camera.getAABB(1);
 
     glm::vec2 xRange = {cameraAABB.x, cameraAABB.z};
     glm::vec2 yRange = {cameraAABB.y, cameraAABB.w};
@@ -36,29 +39,36 @@ std::vector<BackgroundImage> BackgroundManager::GetBackgrounds(glm::vec4 cameraA
             continue;
         }
 
+        glm::vec2 Disp = backgroundDatas[i].basePosition;
+        if (doParallax)
+        {
+            Disp += Parallax::doParallaxOffset(
+                backgroundDatas[i].layer, backgroundDatas[i].basePosition, camera.position);
+        }
+
         glm::vec2 invSize = {1 / backgroundDatas[i].imageSize.x, 1 / backgroundDatas[i].imageSize.y};
 
-        int horMin = std::floor((xRange.x - backgroundDatas[i].basePosition.x) * invSize.x);
-        int horMax = std::ceil((xRange.y - backgroundDatas[i].basePosition.x) * invSize.x);
-        int vertMin = std::floor((yRange.x - backgroundDatas[i].basePosition.y) * invSize.y);
-        int vertMax = std::ceil((yRange.y - backgroundDatas[i].basePosition.y) * invSize.y);
+        int horMin = std::floor((xRange.x - Disp.x) * invSize.x);
+        int horMax = std::ceil((xRange.y - Disp.x) * invSize.x);
+        int vertMin = std::floor((yRange.x - Disp.y) * invSize.y);
+        int vertMax = std::ceil((yRange.y - Disp.y) * invSize.y);
 
         for (int x = horMin; x < horMax; x++)
         {
             for (int y = vertMax; y > vertMin; y--)
             {
-                glm::vec2 displacement = {((float)x * backgroundDatas[i].imageSize.x) + backgroundDatas[i].basePosition.x,
-                    ((float)y * backgroundDatas[i].imageSize.y) + backgroundDatas[i].basePosition.y};
+                glm::vec2 displacement = {((float)x * backgroundDatas[i].imageSize.x) + Disp.x,
+                    ((float)y * backgroundDatas[i].imageSize.y) + Disp.y};
                 if (!backgroundDatas[i].hasHorizontal)
                 {
-                    if (backgroundDatas[i].basePosition.x != displacement.x)
+                    if (Disp.x != displacement.x)
                     {
                         continue;
                     }
                 }
                 if (!backgroundDatas[i].hasVertical)
                 {
-                    if (backgroundDatas[i].basePosition.y != displacement.y)
+                    if (Disp.y != displacement.y)
                     {
                         continue;
                     }

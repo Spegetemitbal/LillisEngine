@@ -31,7 +31,7 @@ void ParticlePipelineSegment::PreRender()
 }
 
 void ParticlePipelineSegment::DoStep(ActiveTracker<ParticleEmitter *> &emitters, unsigned int lastEmitter, float upSprite, float downSprite,
-        glm::mat4 camera)
+        LILLIS::Camera& camera)
 {
     bool doRenderAxis = RenderOrder::GetRenderAxis() != glm::vec2(0);
     float invDist = 1 / (upSprite - downSprite);
@@ -39,7 +39,7 @@ void ParticlePipelineSegment::DoStep(ActiveTracker<ParticleEmitter *> &emitters,
     {
         if (emitters[i]->GetActive())
         {
-            RenderParticles(*emitters[i], camera, upSprite, invDist, doRenderAxis);
+            RenderParticles(*emitters[i], camera.projectionMatrix(), upSprite, invDist, doRenderAxis);
         }
     }
 }

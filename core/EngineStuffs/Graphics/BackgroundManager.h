@@ -7,6 +7,8 @@
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 
+#include "Camera.h"
+
 struct BackgroundData
 {
     std::string image;
@@ -16,7 +18,7 @@ struct BackgroundData
     int currentFrame = 0;
     float currentTime = 0.0f;
 
-    unsigned int layer = 0;
+    int layer = 0;
 
     glm::vec2 basePosition = glm::vec2(0.0f);
     glm::vec2 imageSize = glm::vec2(1.0f);
@@ -39,7 +41,7 @@ class BackgroundManager {
 public:
     BackgroundManager();
     ~BackgroundManager();
-    std::vector<BackgroundImage> GetBackgrounds(glm::vec4 cameraAABB);
+    std::vector<BackgroundImage> GetBackgrounds(LILLIS::Camera& camera, bool doParallax);
     void TickBackgrounds(float dt);
     bool AddBackground(const BackgroundData& background);
     void RemoveBackgroundLayer(unsigned int layer);

@@ -7,6 +7,7 @@
 #include "EngineStuffs/Graphics/ProcGenData.h"
 #include "EngineStuffs/Graphics/RenderSettings.h"
 #include "EngineStuffs/Graphics/Shader.h"
+#include "EngineStuffs/Graphics/Camera.h"
 
 struct ColorBufferWrapper
 {

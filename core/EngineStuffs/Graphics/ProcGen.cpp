@@ -7,6 +7,7 @@
 #include <glad/gl.h>
 
 #include "Pipeline/ProcGenPipelineSegment.h"
+#include "Camera.h"
 
 ProcGen* ProcGen::instance = nullptr;
 
@@ -87,7 +88,7 @@ void ProcGen::SetPointSize(float diameter)
     glPointSize(diameter);
 }
 
-void ProcGen::Render(glm::mat4 camera, ProcGenPipelineSegment* pipeline)
+void ProcGen::Render(LILLIS::Camera& camera, ProcGenPipelineSegment* pipeline)
 {
     //Draw points
     if (!debugPoints.empty())

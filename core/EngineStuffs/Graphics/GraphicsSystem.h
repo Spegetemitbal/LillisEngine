@@ -53,6 +53,8 @@ public:
 
 	void PostDraw();
 
+	void SetDoParallax(bool par);
+
 	//Major allocation, do not use often.
 	void SetCursor(const std::string& imageName, unsigned int xHot, unsigned int yHot);
 
@@ -104,6 +106,8 @@ private:
 	PostProcessSegment* postProcessPipeline = nullptr;
 	BackgroundPipelineSegment* backgroundPipeline = nullptr;
 
+
+	bool doParallax = false;
 
 	GraphicsSystem(const RenderSettings &render_settings = RenderSettings(), const std::string &name = "LILLIS");
 	~GraphicsSystem();

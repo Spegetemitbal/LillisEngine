@@ -316,22 +316,22 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	std::vector<ColorBufferWrapper> cbWrappers = std::vector<ColorBufferWrapper>();
 
 	backgroundPipeline->PreRender();
-	std::vector<BackgroundImage> backgroundImages = backgrounds->GetBackgrounds(mainCamera.getAABB(1));
-	cbWrappers = backgroundPipeline->RenderBackgrounds(backgroundImages, false, mainCamera.projectionMatrix());
+	std::vector<BackgroundImage> backgroundImages = backgrounds->GetBackgrounds(mainCamera, doParallax);
+	cbWrappers = backgroundPipeline->RenderBackgrounds(backgroundImages, mainCamera);
 	backgroundPipeline->PostRender();
 
 	spritePipeline->PreRender();
-	std::vector<ColorBufferWrapper> sprtWrap = spritePipeline->DoStep(spritesOnScreen, lastSprite, tile_maps, mainCamera.projectionMatrix());
+	std::vector<ColorBufferWrapper> sprtWrap = spritePipeline->DoStep(spritesOnScreen, lastSprite, tile_maps, mainCamera);
 	spritePipeline->PostRender();
 
 	cbWrappers.insert(cbWrappers.end(), sprtWrap.begin(), sprtWrap.end());
 
 	particlePipeline->PreRender();
-	particlePipeline->DoStep(emitters, lastEmitter, upSprite, downSprite, mainCamera.projectionMatrix());
+	particlePipeline->DoStep(emitters, lastEmitter, upSprite, downSprite, mainCamera);
 	particlePipeline->PostRender();
 
 	procGenPipeline->PreRender();
-	ProcGen::getInstance()->Render(mainCamera.projectionMatrix(), procGenPipeline);
+	ProcGen::getInstance()->Render(mainCamera, procGenPipeline);
 	procGenPipeline->PostRender();
 
 	postProcessPipeline->PreRender();
@@ -361,6 +361,20 @@ void GraphicsSystem::PostDraw()
 	}
 	glfwSwapBuffers(_win.window);
 }
+
+void GraphicsSystem::SetDoParallax(bool par)
+{
+	if (!isInitted)
+	{
+		std::cerr << "Graphics system isn't initialized" << std::endl;
+		return;
+	}
+	doParallax = par;
+	backgroundPipeline->deferredRender = par;
+	spritePipeline->deferredRender = par;
+	postProcessPipeline->deferredRender = par;
+}
+
 
 void GraphicsSystem::SetCursor(const std::string &imageName, unsigned int xHot, unsigned int yHot)
 {

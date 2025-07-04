@@ -10,6 +10,11 @@
 
 #include "Color.h"
 
+namespace LILLIS
+{
+    struct Camera;
+}
+
 class ProcGenPipelineSegment;
 
 class ProcGen {
@@ -23,7 +28,7 @@ public:
     void DrawDebugPoint(glm::vec2 point, Color color);
     void DrawDebugLine(glm::vec2 from, glm::vec2 to, Color color);
 
-    void Render(glm::mat4 camera, ProcGenPipelineSegment* pipeline);
+    void Render(LILLIS::Camera& camera, ProcGenPipelineSegment* pipeline);
 
     void InsertBatch(ProcGenBatch* batch)
     {

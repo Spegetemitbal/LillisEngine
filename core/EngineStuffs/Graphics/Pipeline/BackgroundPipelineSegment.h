@@ -14,7 +14,8 @@ public:
     void InitSegment() override;
     void PreRender() override;
 
-    virtual std::vector<ColorBufferWrapper> RenderBackgrounds(std::vector<BackgroundImage>& backgrounds, bool deferredRender, glm::mat4 camera);
+    virtual std::vector<ColorBufferWrapper> RenderBackgrounds(std::vector<BackgroundImage>& backgrounds, LILLIS::Camera& camera);
+    bool deferredRender = false;
 
 protected:
     virtual void RenderBackgroundImage(BackgroundImage& background);

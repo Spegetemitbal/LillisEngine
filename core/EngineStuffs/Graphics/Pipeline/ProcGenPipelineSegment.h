@@ -15,7 +15,7 @@ public:
 
     void InitSegment() override;
     void PreRender() override;
-    virtual void RenderProcGen(std::vector<float>& verts, std::vector<float>& colors, int numObjects, RenderPrimitive prim, glm::mat4 camera);
+    virtual void RenderProcGen(std::vector<float>& verts, std::vector<float>& colors, int numObjects, RenderPrimitive prim, LILLIS::Camera& camera);
 };
 
 

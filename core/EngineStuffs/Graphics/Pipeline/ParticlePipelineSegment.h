@@ -19,7 +19,7 @@ public:
     void InitSegment() override;
     void PreRender() override;
     virtual void DoStep(ActiveTracker<ParticleEmitter*>& emitters, unsigned int lastEmitter, float upSprite, float downSprite,
-        glm::mat4 camera);
+        LILLIS::Camera& camera);
 protected:
     virtual void RenderParticles(ParticleEmitter& emitter, glm::mat4 camera, float upSprite, float invDist, bool doRenderAxis);
 };

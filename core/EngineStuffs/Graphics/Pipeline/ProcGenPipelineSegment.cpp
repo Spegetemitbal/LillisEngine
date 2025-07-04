@@ -27,7 +27,7 @@ void ProcGenPipelineSegment::PreRender()
     glDisable(GL_DEPTH_TEST);
 }
 
-void ProcGenPipelineSegment::RenderProcGen(std::vector<float> &verts, std::vector<float> &colors, int numObjects, RenderPrimitive prim, glm::mat4 camera)
+void ProcGenPipelineSegment::RenderProcGen(std::vector<float> &verts, std::vector<float> &colors, int numObjects, RenderPrimitive prim, LILLIS::Camera& camera)
 {
     switch (prim)
     {
@@ -46,7 +46,7 @@ void ProcGenPipelineSegment::RenderProcGen(std::vector<float> &verts, std::vecto
     }
 
 
-    shader.SetMatrix4("_projection", camera);
+    shader.SetMatrix4("_projection", camera.projectionMatrix());
     shader.SetFloat("_ppu", (float)render_settings.pixelsPerUnit);
 
     glEnableVertexAttribArray(0);
