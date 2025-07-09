@@ -332,6 +332,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 
 			int width, height, gridX, gridY, collisionLayer = 0;
 			char input;
+			unsigned int layer;
 			std::string tileSetName, hasPhysics;
 
 			PhysicsMaterial physMaterial = {};
@@ -341,6 +342,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 			stream >> gridY;
 			stream >> width;
 			stream >> height;
+			stream >> layer;
 			stream >> hasPhysics;
 			if (hasPhysics == "Physics:")
 			{
@@ -354,7 +356,7 @@ void SceneLoader::LoadData(const std::string& fileName)
 			TileSet set = StaticDataManager::TileSets[tileSetName];
 
 			TileMap* map = WORLD->createTileMap(set,
-				{gridX,gridY}, {width,height});
+				{gridX,gridY}, {width,height}, layer);
 			map->collisionTag = collisionLayer;
 			map->physMaterial = physMaterial;
 			for (int y = 0; y < height; y++)

@@ -168,6 +168,51 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
         const GLenum defaultAttachment = GL_COLOR_ATTACHMENT0;
         glDrawBuffers(1, &defaultAttachment);
 
+
+        //Render other stuff.
+        for (auto & tMap: tile_maps)
+        {
+            if (tMap.active)
+            {
+                if (tMap.GetLayer() > currentLayer)
+                {
+                    currentLayer = (int)tMap.GetLayer();
+                    if (layersToParallax.contains(currentLayer))
+                    {
+                        if (currentBuffer != layersToParallax[currentLayer])
+                        {
+                            currentBuffer = layersToParallax[currentLayer];
+                            const GLenum attachment = GL_COLOR_ATTACHMENT0 + currentBuffer;
+                            glDrawBuffers(1, &attachment);
+                        }
+                    } else if (currentBuffer < colorBuffers.size() - 1)
+                    {
+                        glDrawBuffers(1, &defaultAttachment);
+                    }
+                }
+
+                glm::vec2 renderSize = tMap.getTileSize();
+                for (int i = 0; i < tMap.tilesToRender.size(); i++)
+                {
+                    TileLoc t = tMap.tilesToRender[i];
+                    std::string img = tMap.getImageFromIndex(t.tile);
+                    unsigned int frm = tMap.getFrameFromIndex(t.tile);
+                    if (img.empty())
+                    {
+                        throw;
+                    }
+                    Texture2D tex = ResourceManager::GetTexture(img);
+                    glm::vec2 parOffset = Parallax::doParallaxOffset((int)tMap.GetLayer(), t.worldPos, camera.position);
+                    RenderSprite(tex, t.worldPos + parOffset, t.zVal, (int)frm, camera.projectionMatrix(),
+                        renderSize, 0);
+                }
+            }
+        }
+
+        currentBuffer = 0;
+        currentLayer = 0;
+        glDrawBuffers(1, &defaultAttachment);
+
         //Render Sprites
         for (int i = 0; i < sprites.size(); i++)
         {
@@ -200,68 +245,12 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
                 spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
         }
 
-        currentBuffer = 0;
-        currentLayer = 0;
-        glDrawBuffers(1, &defaultAttachment);
-
-        //Render other stuff.
-        for (auto & tMap: tile_maps)
-        {
-            if (tMap.active)
-            {
-                if (tMap.layer > currentLayer)
-                {
-                    currentLayer = (int)tMap.layer;
-                    if (layersToParallax.contains(currentLayer))
-                    {
-                        if (currentBuffer != layersToParallax[currentLayer])
-                        {
-                            currentBuffer = layersToParallax[currentLayer];
-                            const GLenum attachment = GL_COLOR_ATTACHMENT0 + currentBuffer;
-                            glDrawBuffers(1, &attachment);
-                        }
-                    } else if (currentBuffer < colorBuffers.size() - 1)
-                    {
-                        glDrawBuffers(1, &defaultAttachment);
-                    }
-                }
-
-                glm::vec2 renderSize = tMap.getTileSize();
-                for (int i = 0; i < tMap.tilesToRender.size(); i++)
-                {
-                    TileLoc t = tMap.tilesToRender[i];
-                    std::string img = tMap.getImageFromIndex(t.tile);
-                    unsigned int frm = tMap.getFrameFromIndex(t.tile);
-                    if (img.empty())
-                    {
-                        throw;
-                    }
-                    Texture2D tex = ResourceManager::GetTexture(img);
-                    glm::vec2 parOffset = Parallax::doParallaxOffset((int)tMap.layer, t.worldPos, camera.position);
-                    RenderSprite(tex, t.worldPos + parOffset, t.zVal, (int)frm, camera.projectionMatrix(),
-                        renderSize, 0);
-                }
-            }
-        }
-
         for (auto it : layersToParallax)
         {
             bufferTime.emplace_back(true, it.first, colorBuffers[it.second]);
         }
 
         return bufferTime;
-    }
-
-    for (int i = 0; i < sprites.size(); i++)
-    {
-        Sprite* spr = sprites[i];
-        if (spr->image.empty())
-        {
-            throw;
-        }
-        Texture2D tex = ResourceManager::GetTexture(spr->image);
-        RenderSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), (int)spr->frame, camera.projectionMatrix(),
-            spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
     }
 
     for (auto & tMap: tile_maps)
@@ -284,6 +273,19 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
             }
         }
     }
+
+    for (int i = 0; i < sprites.size(); i++)
+    {
+        Sprite* spr = sprites[i];
+        if (spr->image.empty())
+        {
+            throw;
+        }
+        Texture2D tex = ResourceManager::GetTexture(spr->image);
+        RenderSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), (int)spr->frame, camera.projectionMatrix(),
+            spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
+    }
+
     return {ColorBufferWrapper(true, 0, colorBuffers[0])};
 }
 

@@ -35,7 +35,7 @@ class TileMap {
 public:
 
     TileMap();
-    TileMap(TileGrid* grid, TileSet tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions, unsigned int chunkSize = 20);
+    TileMap(TileGrid* grid, TileSet tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions, unsigned int layer,unsigned int chunkSize = 20);
     //Has no data ownership.
     ~TileMap() = default;
 
@@ -90,7 +90,8 @@ public:
         return tileColliders;
     }
 
-    unsigned int layer = 0;
+    unsigned int GetLayer() const {return layer;}
+
     PhysicsMaterial physMaterial = {};
     int collisionTag = 0;
     bool active = true;
@@ -99,6 +100,8 @@ public:
     void GenerateColliders();
 
 private:
+
+    unsigned int layer = 0;
 
     void GeneratePartitions();
     std::pair<int, int> partitionDimensions;

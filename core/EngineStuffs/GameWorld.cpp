@@ -285,7 +285,12 @@ TileGrid *GameWorld::createTileGrid(GridShape tileShape, glm::vec2 tileSize)
 	return worldGrid;
 }
 
-TileMap *GameWorld::createTileMap(const TileSet& tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions)
+bool compareTiles(const TileMap& obj1, const TileMap& obj2)
+{
+	return obj1.GetLayer() < obj2.GetLayer();
+}
+
+TileMap *GameWorld::createTileMap(const TileSet& tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions, unsigned int layer)
 {
 	if (dimensions.first < 5)
 	{
@@ -302,7 +307,8 @@ TileMap *GameWorld::createTileMap(const TileSet& tileSet, std::pair<int, int> gr
 		return nullptr;
 	}
 
-	tileMaps.emplace_back(worldGrid, tileSet, gridIndex, dimensions);
+	tileMaps.emplace_back(worldGrid, tileSet, gridIndex, dimensions, layer);
+	std::sort(tileMaps.begin(), tileMaps.end(), compareTiles);
 	return &tileMaps.back();
 }
 

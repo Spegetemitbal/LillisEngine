@@ -277,11 +277,6 @@ bool compareWrappers(const ColorBufferWrapper& obj1, const ColorBufferWrapper& o
 	return obj1.depth < obj2.depth;
 }
 
-bool compareTiles(const TileMap& obj1, const TileMap& obj2)
-{
-	return obj1.layer < obj2.layer;
-}
-
 void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite,
 	ActiveTracker<ParticleEmitter*>& emitters, unsigned int lastEmitter, std::vector<TileMap>& tile_maps, BackgroundManager* backgrounds)
 {
@@ -336,7 +331,6 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	backgroundPipeline->PostRender();
 
 	spritePipeline->PreRender();
-	std::sort(tile_maps.begin(), tile_maps.end(), compareTiles);
 	std::vector<ColorBufferWrapper> sprtWrap = spritePipeline->DoStep(spritesOnScreen, lastSprite, tile_maps, mainCamera);
 	spritePipeline->PostRender();
 

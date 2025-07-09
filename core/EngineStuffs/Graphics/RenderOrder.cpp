@@ -94,7 +94,7 @@ void RenderOrder::CalculateTileOrder(TileMap *tileMap, const float &up, const fl
     const float invDist = 1 / dist;
     const float planeDist = FAR_PLANE - NEAR_PLANE;
 
-    const unsigned int layer = tileMap->layer;
+    const unsigned int layer = tileMap->GetLayer();
 
     if (layer > highestLayer)
     {

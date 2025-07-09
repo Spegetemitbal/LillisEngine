@@ -40,7 +40,7 @@ TileMap::TileMap()
     tileGrid = nullptr;
 }
 
-TileMap::TileMap(TileGrid *grid, TileSet tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions, unsigned int chunkSize)
+TileMap::TileMap(TileGrid *grid, TileSet tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions, unsigned int layer, unsigned int chunkSize)
 {
     //For square, bottom left is 0,0
     //For isometric, left center is 0,0
@@ -51,6 +51,7 @@ TileMap::TileMap(TileGrid *grid, TileSet tileSet, std::pair<int, int> gridIndex,
     this->gridIndex = gridIndex;
     this->chunkSize = chunkSize;
     this->dimensions = dimensions;
+    this->layer = layer;
 
     int dimSize = dimensions.first * dimensions.second;
 

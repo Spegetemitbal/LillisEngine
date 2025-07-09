@@ -79,7 +79,7 @@ public:
 	void compactEmitters(int active) {emitterPool->CompactPool(active);}
 	unsigned int getEmittersActive() {return emitterPool->GetActiveLine(); };
 
-	TileMap* createTileMap(const TileSet& tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions);
+	TileMap* createTileMap(const TileSet& tileSet, std::pair<int, int> gridIndex, std::pair<int, int> dimensions, unsigned int layer);
 	TileGrid* createTileGrid(GridShape tileShape, glm::vec2 tileSize);
 	std::vector<TileMap>& getTileMaps() { return tileMaps; }
 	TileGrid* getTileGrid() const {return worldGrid;};
