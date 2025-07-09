@@ -39,7 +39,7 @@ public:
     static inline bool doHorizontal = true, doVertical = true;
 private:
 
-    static inline std::unordered_set<int> parallaxLayers = std::unordered_set<int>();
+    static inline std::unordered_set<int> parallaxLayers = {0};
     static inline float centerDist = 10;
     static inline float distBetweenLayers = 5;
     static inline int centerLayer = 0;

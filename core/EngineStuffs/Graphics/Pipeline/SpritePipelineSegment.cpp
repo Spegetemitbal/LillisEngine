@@ -8,6 +8,8 @@
 
 #include "Utils/ResourceManager.h"
 #include "../BackgroundManager.h"
+#include "EngineStuffs/Graphics/Parallax.h"
+#include "EngineStuffs/Graphics/RenderOrder.h"
 
 SpritePipelineSegment::SpritePipelineSegment(RenderSettings render_settings, LILLIS::Shader shader) : PipelineSegment(render_settings)
 {
@@ -110,6 +112,146 @@ void SpritePipelineSegment::PreRender()
 
 std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite *> &sprites, unsigned int lastSprite, std::vector<TileMap> &tile_maps, LILLIS::Camera& camera)
 {
+    if (deferredRender)
+    {
+        //Note, if not in parallax, default to top layer.
+        unsigned int high = RenderOrder::GetHighestLayer();
+        int highestColorBuffer = 0;
+        //first is layer, second is buffer.
+        std::unordered_map<unsigned int, int> layersToParallax;
+        std::vector<ColorBufferWrapper> bufferTime;
+
+        //Get necessary data to render.
+        for (unsigned int i = 0; i <= high; i++)
+        {
+            if (Parallax::isLayerParallax((int)i))
+            {
+                if (i == Parallax::getCenterLayer())
+                {
+                    layersToParallax.emplace(i, 0);
+                } else
+                {
+                    highestColorBuffer++;
+                    layersToParallax.emplace(i, highestColorBuffer);
+                }
+            }
+        }
+        if (highestColorBuffer < 0)
+        {
+            highestColorBuffer = 0;
+        }
+
+        //Ensure num layer stuff is acceptable.
+        int maxBuffers;
+        glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxBuffers);
+
+        //Ensure max backgrounds hasn't been reached.
+        if (highestColorBuffer + 1 > maxBuffers)
+        {
+            std::cout << "Max buffers reached in Sprite Rendering" << std::endl;
+            return bufferTime;
+        }
+
+        while (colorBuffers.size() < highestColorBuffer + 1)
+        {
+            colorBuffers.push_back(0);
+            //8 bit RGBA color buffer
+            glGenTextures(1, &colorBuffers.back());
+            glBindTexture(GL_TEXTURE_2D, colorBuffers.back());
+            glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
+
+            glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (colorBuffers.size() - 1), colorBuffers.back(), 0);
+        }
+
+        int currentBuffer = 0, currentLayer = 0;
+
+        const GLenum defaultAttachment = GL_COLOR_ATTACHMENT0;
+        glDrawBuffers(1, &defaultAttachment);
+
+        //Render Sprites
+        for (int i = 0; i < sprites.size(); i++)
+        {
+            Sprite* spr = sprites[i];
+
+            if (spr->getLayer() > currentLayer)
+            {
+                currentLayer = (int)spr->getLayer();
+                if (layersToParallax.contains(currentLayer))
+                {
+                    if (currentBuffer != layersToParallax[currentLayer])
+                    {
+                        currentBuffer = layersToParallax[currentLayer];
+                        const GLenum attachment = GL_COLOR_ATTACHMENT0 + currentBuffer;
+                        glDrawBuffers(1, &attachment);
+                    }
+                } else if (currentBuffer < colorBuffers.size() - 1)
+                {
+                    glDrawBuffers(1, &defaultAttachment);
+                }
+            }
+
+            if (spr->image.empty())
+            {
+                throw;
+            }
+            Texture2D tex = ResourceManager::GetTexture(spr->image);
+            glm::vec2 parOffset = Parallax::doParallaxOffset((int)spr->getLayer(), spr->getRenderLocation(), camera.position);
+            RenderSprite(tex, spr->getRenderLocation() + parOffset, spr->getRenderValue(), (int)spr->frame, camera.projectionMatrix(),
+                spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
+        }
+
+        currentBuffer = 0;
+        currentLayer = 0;
+        glDrawBuffers(1, &defaultAttachment);
+
+        //Render other stuff.
+        for (auto & tMap: tile_maps)
+        {
+            if (tMap.active)
+            {
+                if (tMap.layer > currentLayer)
+                {
+                    currentLayer = (int)tMap.layer;
+                    if (layersToParallax.contains(currentLayer))
+                    {
+                        if (currentBuffer != layersToParallax[currentLayer])
+                        {
+                            currentBuffer = layersToParallax[currentLayer];
+                            const GLenum attachment = GL_COLOR_ATTACHMENT0 + currentBuffer;
+                            glDrawBuffers(1, &attachment);
+                        }
+                    } else if (currentBuffer < colorBuffers.size() - 1)
+                    {
+                        glDrawBuffers(1, &defaultAttachment);
+                    }
+                }
+
+                glm::vec2 renderSize = tMap.getTileSize();
+                for (int i = 0; i < tMap.tilesToRender.size(); i++)
+                {
+                    TileLoc t = tMap.tilesToRender[i];
+                    std::string img = tMap.getImageFromIndex(t.tile);
+                    unsigned int frm = tMap.getFrameFromIndex(t.tile);
+                    if (img.empty())
+                    {
+                        throw;
+                    }
+                    Texture2D tex = ResourceManager::GetTexture(img);
+                    glm::vec2 parOffset = Parallax::doParallaxOffset((int)tMap.layer, t.worldPos, camera.position);
+                    RenderSprite(tex, t.worldPos + parOffset, t.zVal, (int)frm, camera.projectionMatrix(),
+                        renderSize, 0);
+                }
+            }
+        }
+
+        for (auto it : layersToParallax)
+        {
+            bufferTime.emplace_back(true, it.first, colorBuffers[it.second]);
+        }
+
+        return bufferTime;
+    }
+
     for (int i = 0; i < sprites.size(); i++)
     {
         Sprite* spr = sprites[i];
@@ -142,8 +284,6 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
             }
         }
     }
-
-    //TODO add possible splitting.
     return {ColorBufferWrapper(true, 0, colorBuffers[0])};
 }
 

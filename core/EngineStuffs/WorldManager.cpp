@@ -3,6 +3,8 @@
 //
 
 #include "WorldManager.h"
+
+#include "Graphics/RenderOrder.h"
 #include "Utils/SceneLoader.h"
 #include "Physics/PhysicsSystem.h"
 
@@ -26,6 +28,7 @@ void WorldManager::SetWorld()
     {
         currentWorldName = nextLevel;
         current_world = loadedWorlds[nextLevel];
+        RenderOrder::ResetHighestLayer();
         isChangingWorlds = false;
     }
 
@@ -42,6 +45,7 @@ void WorldManager::SetWorld()
 
 void WorldManager::LoadWorld()
 {
+    RenderOrder::ResetHighestLayer();
     SceneLoader::LoadData(currentWorldName);
     current_world->RunTransformHierarchy(true);
     ActiveTracker<RigidBody*> rb = current_world->getRBsRaw();

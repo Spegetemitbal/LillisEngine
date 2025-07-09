@@ -177,15 +177,6 @@ bool GraphicsSystem::Init()
 	SetPostProcessPipeline(DBG_NEW PostProcessSegment(render_settings, ResourceManager::GetShader("DefaultPostProcess")), true);
 	SetBackgroundPipeline(DBG_NEW BackgroundPipelineSegment(render_settings, ResourceManager::GetShader("Default")), true);
 
-	// load textures
-
-	//Beep beep I'm a sheep
-	//glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_BLEND);
-	//glDisable(GL_CULL_FACE);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glDepthFunc(GL_LEQUAL);
-
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//For the love of god, move the sprite holder here.
@@ -268,6 +259,29 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 	return culledSprites;
 }
 
+bool compareSprites(Sprite* a, Sprite* b) {
+	// Sort primarily by the first element in ascending order
+	if (a->getLayer() < b->getLayer())
+	{
+		return true;
+	}
+	//Do getTransparent.
+	//if (a->getLayer() == b->getLayer())
+	//{
+
+	//}
+	return false;
+}
+
+bool compareWrappers(const ColorBufferWrapper& obj1, const ColorBufferWrapper& obj2) {
+	return obj1.depth < obj2.depth;
+}
+
+bool compareTiles(const TileMap& obj1, const TileMap& obj2)
+{
+	return obj1.layer < obj2.layer;
+}
+
 void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite,
 	ActiveTracker<ParticleEmitter*>& emitters, unsigned int lastEmitter, std::vector<TileMap>& tile_maps, BackgroundManager* backgrounds)
 {
@@ -278,6 +292,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	}
 	//Do broad phase, cull all sprites not on screen.
 	std::vector<Sprite *> spritesOnScreen = CullToScreen(sprites,lastSprite);
+	std::sort(spritesOnScreen.begin(), spritesOnScreen.end(), compareSprites);
 
 	glm::vec4 camRect = mainCamera.getAABB(render_settings.pixelsPerUnit);
 	AABB camAABB = {camRect.x, camRect.y, camRect.z, camRect.w};
@@ -321,6 +336,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	backgroundPipeline->PostRender();
 
 	spritePipeline->PreRender();
+	std::sort(tile_maps.begin(), tile_maps.end(), compareTiles);
 	std::vector<ColorBufferWrapper> sprtWrap = spritePipeline->DoStep(spritesOnScreen, lastSprite, tile_maps, mainCamera);
 	spritePipeline->PostRender();
 
@@ -335,6 +351,7 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	procGenPipeline->PostRender();
 
 	postProcessPipeline->PreRender();
+	std::sort(cbWrappers.begin(), cbWrappers.end(), compareWrappers);
 	postProcessPipeline->DoPostProcess(cbWrappers, (int)sprtWrap.size());
 	postProcessPipeline->PostRender();
 }

@@ -49,8 +49,6 @@ void PostProcessSegment::PreRender()
 
 void PostProcessSegment::DoPostProcess(std::vector<ColorBufferWrapper> wrappers, int numSprWrappers)
 {
-    //TODO add parallax
-
     //Run all added postProcesses.
     glBindFramebuffer(GL_FRAMEBUFFER, FBOs[0]);
     for (int i = 0; i < postProcessChain.size(); i++)

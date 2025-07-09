@@ -164,8 +164,6 @@ void Engine::renderStep()
     unsigned int numPE = WORLD->getEmittersActive();
     graphics->RenderCall(sprites, lastSpr, pe, numPE,WORLD->getTileMaps(), WORLD->backgrounds());
 
-
-
     UISystem::getInstance()->RenderUI();
     graphics->PostDraw();
 

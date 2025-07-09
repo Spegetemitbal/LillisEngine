@@ -46,14 +46,13 @@ glm::vec2 Parallax::doParallaxOffset(int layer, glm::vec2 itemCenter, glm::vec2 
     {
         return {};
     }
+    if (layer == centerLayer)
+    {
+        return {};
+    }
 
     glm::vec2 distFromCam = itemCenter - cameraCenter;
     float dist2 = ((float)(centerLayer - layer) * distBetweenLayers);
-    if (dist2 == 0)
-    {
-        //This should never happen.
-        dist2 = 1;
-    }
 
     if (!doHorizontal)
     {
@@ -62,6 +61,11 @@ glm::vec2 Parallax::doParallaxOffset(int layer, glm::vec2 itemCenter, glm::vec2 
     if (!doVertical)
     {
         distFromCam.y = 0;
+    }
+
+    if (dist2 == 0)
+    {
+        return {};
     }
 
     return distFromCam * (centerDist / dist2);

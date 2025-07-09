@@ -42,11 +42,13 @@ public:
         return axis;
     }
 
+    static unsigned int GetHighestLayer() {return highestLayer;}
+    static void ResetHighestLayer() {highestLayer = 0;}
+
     void MoveSprite(LilObj<Sprite> spr);
 private:
     int compareAxis(Sprite* const &spr1, Sprite* const &spr2);
     ComponentPool<Sprite>* spritePool;
-    std::vector<unsigned int> layerIndices;
 
     static inline glm::vec2 axis;
     static inline unsigned int highestLayer = 0;
