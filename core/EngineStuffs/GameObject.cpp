@@ -10,7 +10,7 @@ void GameObject::SetSpriteImage(const std::string &name)
 {
 	if (sprite.Exists())
 	{
-		sprite->image = name;
+		sprite->setImage(name);
 	}
 }
 

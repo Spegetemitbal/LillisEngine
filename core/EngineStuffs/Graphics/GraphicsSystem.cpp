@@ -214,7 +214,6 @@ void GraphicsSystem::ShutDown()
 std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &sprites, unsigned int lastSprite)
 {
 	std::vector<Sprite *> culledSprites = std::vector<Sprite *>();
-	std::vector<Sprite *> transparentSprites = std::vector<Sprite *>();
 
 	upSprite = -std::numeric_limits<float>::infinity();
 	downSprite = std::numeric_limits<float>::infinity();
@@ -227,7 +226,7 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 		Sprite* spr = sprites[i];
 		if (spr->GetActive() && spr->GetisEnabled())
 		{
-			if (spr->image.empty())
+			if (spr->getImageName().empty())
 			{
 				continue;
 			}
@@ -241,20 +240,10 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 				{
 					downSprite = yVal;
 				}
-				if (spr->opaque)
-				{
-					culledSprites.push_back(sprites[i]);
-				} else
-				{
-					transparentSprites.push_back(sprites[i]);
-				}
+				culledSprites.push_back(sprites[i]);
 			}
 		}
 	}
-
-	std::sort(transparentSprites.begin(), transparentSprites.end(), [](const Sprite *s1, const Sprite *s2)
-		{return s1->getLayer() < s2->getLayer();});
-	culledSprites.insert(culledSprites.end(), transparentSprites.begin(), transparentSprites.end());
 
 	return culledSprites;
 }
@@ -266,10 +255,10 @@ bool compareSprites(Sprite* a, Sprite* b) {
 		return true;
 	}
 	//Do getTransparent.
-	//if (a->getLayer() == b->getLayer())
-	//{
-
-	//}
+	if (a->getLayer() == b->getLayer())
+	{
+		return a->getIsOpaque() > b->getIsOpaque();
+	}
 	return false;
 }
 

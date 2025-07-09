@@ -235,11 +235,11 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
                 }
             }
 
-            if (spr->image.empty())
+            if (spr->getImageName().empty())
             {
                 throw;
             }
-            Texture2D tex = ResourceManager::GetTexture(spr->image);
+            Texture2D tex = ResourceManager::GetTexture(spr->getImageName());
             glm::vec2 parOffset = Parallax::doParallaxOffset((int)spr->getLayer(), spr->getRenderLocation(), camera.position);
             RenderSprite(tex, spr->getRenderLocation() + parOffset, spr->getRenderValue(), (int)spr->frame, camera.projectionMatrix(),
                 spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
@@ -277,11 +277,11 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
     for (int i = 0; i < sprites.size(); i++)
     {
         Sprite* spr = sprites[i];
-        if (spr->image.empty())
+        if (spr->getImageName().empty())
         {
             throw;
         }
-        Texture2D tex = ResourceManager::GetTexture(spr->image);
+        Texture2D tex = ResourceManager::GetTexture(spr->getImageName());
         RenderSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), (int)spr->frame, camera.projectionMatrix(),
             spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
     }

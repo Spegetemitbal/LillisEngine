@@ -113,9 +113,15 @@ LilObj<Sprite> GameWorld::addSprite(const std::string& name, unsigned int layer)
 	//Probs refactor this later. Have component pools spit out smart pointers.
 	Sprite* s = spritePool->AddComponent();
 	LilObj<Sprite> sP = {spritePool, s->GetID()};
-	sP->image = name;
-	sP->SetLayer(layer);
-	return sP;
+	if (sP->setImage(name))
+	{
+		sP->SetLayer(layer);
+		return sP;
+	} else
+	{
+		std::cout << "Failed to create sprite" << std::endl;
+		throw;
+	}
 }
 
 void GameWorld::setSpriteLayer(Sprite* spr)

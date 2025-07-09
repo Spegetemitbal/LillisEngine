@@ -153,9 +153,8 @@ void SceneLoader::LoadData(const std::string& fileName)
 						if (sprWidth == 0 && sprHeight == 0)
 						{
 							//Add import settings to determine default size later.
-							Texture2D tex = ResourceManager::GetTexture(s->image);
+							Texture2D tex = ResourceManager::GetTexture(s->getImageName());
 							s->setRenderSize(tex.spriteSizes[0]);
-							s->opaque = tex.isOpaque;
 						} else
 						{
 							s->setRenderSize({sprWidth, sprHeight});

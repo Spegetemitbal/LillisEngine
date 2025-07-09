@@ -17,6 +17,24 @@ Sprite::Sprite(): aabb(0,0,0,0)
 {
 }
 
+bool Sprite::setImage(const std::string &img)
+{
+    if (img.empty())
+    {
+        std::cout << "Cannot set empty image." << std::endl;
+        return false;
+    }
+    if (!ResourceManager::SpriteTexs.contains(img))
+    {
+        std::cout << "Image " << img << " does not exist." << std::endl;
+        return false;
+    }
+    isOpaque = ResourceManager::SpriteTexs.at(img).isOpaque;
+    image = img;
+    return true;
+}
+
+
 
 void Sprite::SetLayer(unsigned int lyr)
 {

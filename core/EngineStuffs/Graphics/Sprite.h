@@ -20,7 +20,9 @@ public:
 
     explicit Sprite(const std::string& spr);
 
-    std::string image;
+    std::string getImageName() {return image;}
+    bool setImage(const std::string& img);
+    bool getIsOpaque() const {return isOpaque;}
 
     glm::vec2 Offset() const {return offset;}
     glm::vec2 RenderSize() const {return renderSize;}
@@ -38,7 +40,6 @@ public:
     }
 
     unsigned int frame = 0;
-    bool opaque = true;
     glm::vec2 getRenderLocation();
     glm::vec2 getRenderCenter();
     float getRenderRotation();
@@ -58,6 +59,9 @@ private:
     static glm::vec2 transformVertex(glm::vec2 v, glm::vec2 tr, float r);
 
     glm::vec2 verts[4]{};
+
+    std::string image;
+    bool isOpaque = true;
 
     AABB aabb;
     glm::vec2 offset = glm::vec2(0.0f, 0.0f);

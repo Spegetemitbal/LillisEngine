@@ -172,7 +172,7 @@ void Animator::SwapKeyFrame()
         if (sprt.Exists())
         {
             sprt->frame = kf.fsd.sprFrame;
-            sprt->image = kf.fsd.sprImage;
+            sprt->setImage(kf.fsd.sprImage);
             sprt->Offset() = kf.fsd.sprOffset;
             sprt->RenderSize() = kf.fsd.sprSize;
         } else
