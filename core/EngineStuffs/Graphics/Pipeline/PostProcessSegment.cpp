@@ -4,6 +4,7 @@
 
 #include "PostProcessSegment.h"
 
+#include "EngineStuffs/Graphics/Parallax.h"
 #include "glad/gl.h"
 
 
@@ -17,6 +18,8 @@ void PostProcessSegment::InitSegment()
     FBOs.push_back(0);
     colorBuffers.push_back(0);
     VAOs.push_back(0);
+    VBOs.push_back(0);
+    VBOs.push_back(0);
 
     //Generate frame buffer.
     glGenFramebuffers(1, &FBOs[0]);
@@ -25,7 +28,12 @@ void PostProcessSegment::InitSegment()
     //8 bit RGBA color buffer
     glGenTextures(1, &colorBuffers[0]);
     glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.windowWidth, (GLsizei)render_settings.windowHeight);
+    if (render_settings.pixelPerfect)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
 
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorBuffers[0], 0);
 
@@ -36,22 +44,62 @@ void PostProcessSegment::InitSegment()
     }
 
     glGenVertexArrays(1, &VAOs[0]);
+    glGenBuffers(2, VBOs.data());
+
+    glBindVertexArray(VAOs[0]);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    float positions[] = {
+        0.0f, 1.0f,
+        1.0f, 0.0f,
+        0.0f, 0.0f,
+
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f
+    };
+
+    float texCoords[] = {
+        0.0f, 1.0f,
+        1.0f, 0.0f,
+        0.0f, 0.0f,
+
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f
+    };
+
+    //float rendValue = 0.0f;
+
+    //load positions
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+
+    // Load texture coordinates.
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void PostProcessSegment::PreRender()
 {
     glBindVertexArray(VAOs[0]);
+    glBindFramebuffer(GL_FRAMEBUFFER, FBOs[0]);
     glEnable(GL_BLEND);
+    glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, (GLsizei)render_settings.windowWidth, (GLsizei)render_settings.windowHeight);
 }
 
 void PostProcessSegment::DoPostProcess(std::vector<ColorBufferWrapper> wrappers, int numSprWrappers)
 {
     //Run all added postProcesses.
-    glBindFramebuffer(GL_FRAMEBUFFER, FBOs[0]);
-    for (int i = 0; i < postProcessChain.size(); i++)
+    /*for (int i = 0; i < postProcessChain.size(); i++)
     {
         LILLIS::Shader& shad = postProcessChain[i];
         shad.Use();
@@ -71,24 +119,45 @@ void PostProcessSegment::DoPostProcess(std::vector<ColorBufferWrapper> wrappers,
             glBindTextureUnit(0, colorBuffers[0]);
             glDrawArrays(GL_TRIANGLES, 0, 3);
         }
-    }
+    }*/
+    glm::mat4 view = glm::ortho(0.0f, (float)render_settings.windowWidth, (float)render_settings.windowHeight, 0.0f, 0.0f, 10.0f);
+    //view[1][1] *= -1.0f;
 
     //Run default.
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     shader.Use();
-    shader.SetInteger("_ColorBuffer", 0);
+    glm::mat4 model = glm::mat4(1.0f);
+
+    int xScale = (int)render_settings.windowWidth;
+    int yScale = (int)render_settings.windowHeight;
+    if (render_settings.pixelPerfect)
+    {
+        xScale += 4;
+        yScale += 4;
+        //model = glm::translate(model, glm::vec3(Parallax::getCameraOffset(), 0.0f));
+    }
+
+    model = glm::scale(model, glm::vec3(render_settings.windowWidth, render_settings.windowHeight, 1.0f));
+
+    shader.SetMatrix4("model", model);
+    shader.SetInteger("image", 0);
+    shader.SetMatrix4("projection", view);
+
+    glActiveTexture(GL_TEXTURE0);
+
+    //First draw all wrappers to colorbuffer.
     if (postProcessChain.empty())
     {
         for (int i = 0; i < wrappers.size(); i++)
         {
             glBindTextureUnit(0, wrappers[i].colorAttachment);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
         }
-    } else
-    {
-        glBindTextureUnit(0, colorBuffers[0]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
     }
+
+    //Final draw to backbuffer.
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindTextureUnit(0, colorBuffers[0]);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void PostProcessSegment::AddPostProcess(LILLIS::Shader shader)

@@ -404,9 +404,9 @@ void SceneLoader::LoadData(const std::string& fileName)
 			std::string doParallax, directions;
 
 			stream >> doParallax;
-			if (doParallax == "false")
+			if (doParallax == "False")
 			{
-				GraphicsSystem::getInstance()->SetDoParallax(false);
+				GraphicsSystem::getInstance()->SetDoParallax(false, false);
 				Parallax::clearParallax();
 				continue;
 			}
@@ -419,7 +419,13 @@ void SceneLoader::LoadData(const std::string& fileName)
 				Parallax::doHorizontal = false;
 			}
 
-			GraphicsSystem::getInstance()->SetDoParallax(true);
+			if (doParallax == "PixelPerfect")
+			{
+				GraphicsSystem::getInstance()->SetDoParallax(true, true);
+			} else
+			{
+				GraphicsSystem::getInstance()->SetDoParallax(true, false);
+			}
 			int numLayers, layerToAdd, centerLayer;
 			float layerDist, centerLayerDist;
 

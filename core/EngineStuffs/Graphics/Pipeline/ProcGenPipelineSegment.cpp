@@ -46,7 +46,7 @@ void ProcGenPipelineSegment::RenderProcGen(std::vector<float> &verts, std::vecto
     }
 
 
-    shader.SetMatrix4("_projection", camera.projectionMatrix());
+    shader.SetMatrix4("_projection", camera.projectionMatrix(render_settings.pixelPerfect));
     shader.SetFloat("_ppu", (float)render_settings.pixelsPerUnit);
 
     glEnableVertexAttribArray(0);

@@ -5,6 +5,7 @@
 #include "BackgroundManager.h"
 #include <glad/gl.h>
 
+#include "GraphicsSystem.h"
 #include "Parallax.h"
 #include "Texture.h"
 #include "Utils/ResourceManager.h"
@@ -20,11 +21,11 @@ BackgroundManager::~BackgroundManager()
 }
 
 
-std::vector<BackgroundImage> BackgroundManager::GetBackgrounds(LILLIS::Camera& camera, bool doParallax)
+std::vector<BackgroundImage> BackgroundManager::GetBackgrounds(LILLIS::Camera& camera, bool doParallax, bool pixelPerfect)
 {
     std::vector<BackgroundImage> returnable = std::vector<BackgroundImage>();
 
-    glm::vec4 cameraAABB = camera.getAABB(1);
+    glm::vec4 cameraAABB = camera.getAABB(1, pixelPerfect);
 
     glm::vec2 xRange = {cameraAABB.x, cameraAABB.z};
     glm::vec2 yRange = {cameraAABB.y, cameraAABB.w};

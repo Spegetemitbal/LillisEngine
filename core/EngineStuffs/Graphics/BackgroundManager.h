@@ -41,11 +41,13 @@ class BackgroundManager {
 public:
     BackgroundManager();
     ~BackgroundManager();
-    std::vector<BackgroundImage> GetBackgrounds(LILLIS::Camera& camera, bool doParallax);
+    std::vector<BackgroundImage> GetBackgrounds(LILLIS::Camera& camera, bool doParallax, bool pixelPerfect);
     void TickBackgrounds(float dt);
     bool AddBackground(const BackgroundData& background);
     void RemoveBackgroundLayer(unsigned int layer);
     void ClearBackgrounds() {backgroundDatas.clear();}
+
+    int numBackgrounds() {return (int)backgroundDatas.size();}
 
 private:
     unsigned int SpriteLayerAbove = 0;

@@ -22,6 +22,9 @@ public:
 
     static glm::vec2 doParallaxOffset(int layer, glm::vec2 itemCenter, glm::vec2 cameraCenter);
 
+    static glm::vec2 snapCamera(glm::vec2 camPos);
+    static glm::vec2 getCameraOffset() {return cameraOffset;}
+
     static bool isLayerParallax(int layer) {return parallaxLayers.contains(layer);}
     static void AddLayerToParallax(int layer);
     static void RemoveLayerFromParallax(int layer);
@@ -43,6 +46,7 @@ private:
     static inline float centerDist = 10;
     static inline float distBetweenLayers = 5;
     static inline int centerLayer = 0;
+    static inline glm::vec2 cameraOffset = glm::vec2(0, 0);
 };
 
 

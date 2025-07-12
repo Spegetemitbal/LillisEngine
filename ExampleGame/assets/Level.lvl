@@ -1,5 +1,5 @@
 Grid Rectangle 0.8 0.8
-Parallax True Horizontal 10 3 -2 -1 0 0 3
+Parallax PixelPerfect Horizontal 10 3 -2 -1 0 0 3
 Background ExtraLayers -2 0 0 640 480 None 1 Tiled Horizontal
 Background ExtraLayers -1 0 0 640 480 None 0 Tiled Horizontal
 Background SkyBackground -3 0 0 640 480 None 0 Tiled All

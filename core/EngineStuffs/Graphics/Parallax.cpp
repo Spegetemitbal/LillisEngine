@@ -71,5 +71,13 @@ glm::vec2 Parallax::doParallaxOffset(int layer, glm::vec2 itemCenter, glm::vec2 
     return distFromCam * (centerDist / dist2);
 }
 
+glm::vec2 Parallax::snapCamera(glm::vec2 camPos)
+{
+    const glm::vec2 snapPos = {std::round(camPos.x), std::round(camPos.y)};
+    cameraOffset = camPos - snapPos;
+    return snapPos;
+}
+
+
 
 

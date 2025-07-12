@@ -53,7 +53,7 @@ public:
 
 	void PostDraw();
 
-	void SetDoParallax(bool par);
+	void SetDoParallax(bool par, bool pixelPerfect);
 
 	//Major allocation, do not use often.
 	void SetCursor(const std::string& imageName, unsigned int xHot, unsigned int yHot);
@@ -107,7 +107,7 @@ private:
 	BackgroundPipelineSegment* backgroundPipeline = nullptr;
 
 
-	bool doParallax = false;
+	bool doParallax = false, pixelPerfect = false;
 
 	GraphicsSystem(const RenderSettings &render_settings = RenderSettings(), const std::string &name = "LILLIS");
 	~GraphicsSystem();

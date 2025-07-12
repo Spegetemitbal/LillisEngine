@@ -34,7 +34,12 @@ void BackgroundPipelineSegment::InitSegment()
     //8 bit RGBA color buffer
     glGenTextures(1, colorBuffers.data());
     glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.resolutionWidthWBuffer(), (GLsizei)render_settings.resolutionHeightWBuffer());
+    if (render_settings.pixelPerfect)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
 
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorBuffers[0], 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -82,7 +87,6 @@ void BackgroundPipelineSegment::InitSegment()
 
 
     glBindVertexArray(0);
-    glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
 }
 
 void BackgroundPipelineSegment::PreRender()
@@ -96,10 +100,10 @@ void BackgroundPipelineSegment::PreRender()
         glClear(GL_COLOR_BUFFER_BIT);
     }
     glDisable(GL_DEPTH_TEST);
-    glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
+    glViewport(0, 0, (GLsizei)render_settings.resolutionWidthWBuffer(), (GLsizei)render_settings.resolutionHeightWBuffer());
 }
 
-std::vector<ColorBufferWrapper> BackgroundPipelineSegment::RenderBackgrounds(std::vector<BackgroundImage> &backgrounds, LILLIS::Camera& camera)
+std::vector<ColorBufferWrapper> BackgroundPipelineSegment::RenderBackgrounds(std::vector<BackgroundImage> &backgrounds, LILLIS::Camera& camera, int numBackgrounds)
 {
     std::vector<ColorBufferWrapper> fbosRendered;
 
@@ -108,7 +112,7 @@ std::vector<ColorBufferWrapper> BackgroundPipelineSegment::RenderBackgrounds(std
         return fbosRendered;
     }
 
-    shader.SetMatrix4("projection", camera.projectionMatrix());
+    shader.SetMatrix4("projection", camera.projectionMatrix(render_settings.pixelPerfect));
     shader.SetVector4f("spriteColor", {1.0f, 1.0f, 1.0f, 1.0f});
     shader.SetFloat("renderValue", 15);
     shader.SetInteger("image", 0);
@@ -119,37 +123,47 @@ std::vector<ColorBufferWrapper> BackgroundPipelineSegment::RenderBackgrounds(std
         glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxBuffers);
 
         //Ensure max backgrounds hasn't been reached.
-        if (backgrounds.size() > maxBuffers)
+        if (numBackgrounds > maxBuffers)
         {
             std::cout << "Max buffers reached" << std::endl;
             return fbosRendered;
         }
 
         //Ensure enough buffers exist.
-        while (backgrounds.size() > colorBuffers.size())
+        while (colorBuffers.size() < numBackgrounds)
         {
             colorBuffers.push_back(0);
             //8 bit RGBA color buffer
             glGenTextures(1, &colorBuffers.back());
             glBindTexture(GL_TEXTURE_2D, colorBuffers.back());
-            glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
-
+            glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.resolutionWidthWBuffer(), (GLsizei)render_settings.resolutionHeightWBuffer());
+            if (render_settings.pixelPerfect)
+            {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            }
             glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (colorBuffers.size() - 1), colorBuffers.back(), 0);
         }
 
         int colorAttachment = 0, currentBackground = backgrounds[0].data->layer;
+        fbosRendered.emplace_back(false, backgrounds[0].data->layer, colorBuffers[colorAttachment]);
 
         for (int i = 0; i < backgrounds.size(); i++)
         {
+            bool newAttachment = false;
             if (currentBackground < backgrounds[i].data->layer)
             {
                 currentBackground = backgrounds[i].data->layer;
                 colorAttachment++;
+                newAttachment = true;
             }
             const GLenum item = GL_COLOR_ATTACHMENT0 + colorAttachment;
             glDrawBuffers(1, &item);
             RenderBackgroundImage(backgrounds[i]);
-            fbosRendered.emplace_back(false, backgrounds[i].data->layer, colorBuffers[i]);
+            if (newAttachment)
+            {
+                fbosRendered.emplace_back(false, backgrounds[i].data->layer, colorBuffers[colorAttachment]);
+            }
         }
 
         return fbosRendered;

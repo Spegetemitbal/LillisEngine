@@ -95,18 +95,22 @@ public:
 			"gl_Position = vec4(vertex.xy, 0.0, 1.0);}");
 
 		postProcessVertex = std::string(
-			"#version 450\n"
-			"out vec2 UV;"
-			"vec4 vertices[3] = { vec4(-1,-1,0,0), vec4(3,-1,2,0), vec4(-1,3,0,2)};"
-			"void main(){UV = vertices[gl_VertexID].zw;"
-			"gl_Position = vec4(vertices[gl_VertexID].xy,0,1);}");
+		"#version 450\n"
+		"layout(location = 0) in vec2 vertex;" // <vec2 position, vec2 texCoords>
+		"layout(location = 1) in vec2 texCoord;"
+		"out vec2 TexCoords;"
+		"uniform mat4 model;"
+		"uniform mat4 projection;"
+		"void main(){ TexCoords = texCoord;"
+		"gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);}");
 
 		postProcessFragment = std::string(
-			"#version 450\n"
-			"out vec4 FragColor;"
-			"in vec2 UV;"
-			"uniform sampler2D _ColorBuffer;"
-			"void main(){vec4 color = texture(_ColorBuffer,UV); FragColor = color;}");
+		"#version 450\n"
+		"in vec2 TexCoords;"
+		"out vec4 color;"
+		"uniform sampler2D image;"
+		"void main() { vec4 texColor = texture(image, TexCoords);"
+		"color = texColor; }");
 
 		procGenVertex = std::string(
 			"#version 450\n"

@@ -39,7 +39,7 @@ void ParticlePipelineSegment::DoStep(ActiveTracker<ParticleEmitter *> &emitters,
     {
         if (emitters[i]->GetActive())
         {
-            RenderParticles(*emitters[i], camera.projectionMatrix(), upSprite, invDist, doRenderAxis);
+            RenderParticles(*emitters[i], camera.projectionMatrix(render_settings.pixelPerfect), upSprite, invDist, doRenderAxis);
         }
     }
 }

@@ -36,13 +36,18 @@ void SpritePipelineSegment::InitSegment()
     //8 bit RGBA color buffer
     glGenTextures(1, colorBuffers.data());
     glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, render_settings.resolutionWidth, render_settings.resolutionHeight);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.resolutionWidthWBuffer(), (GLsizei)render_settings.resolutionHeightWBuffer());
+    if (render_settings.pixelPerfect)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
 
     //Make depth buffer.
     glGenTextures(1, depthBuffers.data());
     glBindTexture(GL_TEXTURE_2D, depthBuffers[0]);
     //Maybe use a higher precision buffer if issues are arising.
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT24, render_settings.resolutionWidth, render_settings.resolutionHeight);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT24, (GLsizei)render_settings.resolutionWidthWBuffer(), (GLsizei)render_settings.resolutionHeightWBuffer());
 
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorBuffers[0], 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBuffers[0],0);
@@ -91,7 +96,7 @@ void SpritePipelineSegment::InitSegment()
 
 
     glBindVertexArray(0);
-    glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
+    glViewport(0, 0, (GLsizei)render_settings.resolutionWidthWBuffer(), (GLsizei)render_settings.resolutionHeightWBuffer());
 }
 
 void SpritePipelineSegment::PreRender()
@@ -104,7 +109,7 @@ void SpritePipelineSegment::PreRender()
     glDisable(GL_CULL_FACE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthFunc(GL_LEQUAL);
-    glViewport(0, 0, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
+    glViewport(0, 0, (GLsizei)render_settings.resolutionWidthWBuffer(), (GLsizei)render_settings.resolutionHeightWBuffer());
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -158,8 +163,12 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
             //8 bit RGBA color buffer
             glGenTextures(1, &colorBuffers.back());
             glBindTexture(GL_TEXTURE_2D, colorBuffers.back());
-            glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.resolutionWidth, (GLsizei)render_settings.resolutionHeight);
-
+            glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (GLsizei)render_settings.resolutionHeightWBuffer(), (GLsizei)render_settings.resolutionHeightWBuffer());
+            if (render_settings.pixelPerfect)
+            {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            }
             glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (colorBuffers.size() - 1), colorBuffers.back(), 0);
         }
 
@@ -203,7 +212,7 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
                     }
                     Texture2D tex = ResourceManager::GetTexture(img);
                     glm::vec2 parOffset = Parallax::doParallaxOffset((int)tMap.GetLayer(), t.worldPos, camera.position);
-                    RenderSprite(tex, t.worldPos + parOffset, t.zVal, (int)frm, camera.projectionMatrix(),
+                    RenderSprite(tex, t.worldPos + parOffset, t.zVal, (int)frm, camera.projectionMatrix(render_settings.pixelPerfect),
                         renderSize, 0);
                 }
             }
@@ -241,7 +250,7 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
             }
             Texture2D tex = ResourceManager::GetTexture(spr->getImageName());
             glm::vec2 parOffset = Parallax::doParallaxOffset((int)spr->getLayer(), spr->getRenderLocation(), camera.position);
-            RenderSprite(tex, spr->getRenderLocation() + parOffset, spr->getRenderValue(), (int)spr->frame, camera.projectionMatrix(),
+            RenderSprite(tex, spr->getRenderLocation() + parOffset, spr->getRenderValue(), (int)spr->frame, camera.projectionMatrix(render_settings.pixelPerfect),
                 spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
         }
 
@@ -268,7 +277,14 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
                     throw;
                 }
                 Texture2D tex = ResourceManager::GetTexture(img);
-                RenderSprite(tex, t.worldPos, t.zVal, (int)frm, camera.projectionMatrix(),
+                if (doParallax)
+                {
+                    glm::vec2 parallaxOffset = Parallax::doParallaxOffset((int)tMap.GetLayer(), t.worldPos, camera.position);
+                    RenderSprite(tex, t.worldPos + parallaxOffset, t.zVal, (int)frm, camera.projectionMatrix(render_settings.pixelPerfect),
+                    renderSize, 0);
+                    continue;
+                }
+                RenderSprite(tex, t.worldPos, t.zVal, (int)frm, camera.projectionMatrix(render_settings.pixelPerfect),
                     renderSize, 0);
             }
         }
@@ -282,7 +298,14 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
             throw;
         }
         Texture2D tex = ResourceManager::GetTexture(spr->getImageName());
-        RenderSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), (int)spr->frame, camera.projectionMatrix(),
+        if (doParallax)
+        {
+            glm::vec2 parOffset = Parallax::doParallaxOffset((int)spr->getLayer(), spr->getRenderLocation(), camera.position);
+            RenderSprite(tex, spr->getRenderLocation() + parOffset, spr->getRenderValue(), (int)spr->frame, camera.projectionMatrix(render_settings.pixelPerfect),
+                spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
+            continue;
+        }
+        RenderSprite(tex, spr->getRenderLocation(), spr->getRenderValue(), (int)spr->frame, camera.projectionMatrix(render_settings.pixelPerfect),
             spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
     }
 

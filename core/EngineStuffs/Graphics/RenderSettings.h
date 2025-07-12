@@ -13,13 +13,32 @@ struct RenderSettings
     unsigned int windowWidth = 640, windowHeight = 360;
     unsigned int pixelsPerUnit = 40;
     bool fullScreen = false;
+    bool pixelPerfect = false;
     bool ppuIsPercentage = false;
+
+    unsigned int resolutionWidthWBuffer() const
+    {
+        if (pixelPerfect)
+        {
+            return resolutionWidth + 2;
+        }
+        return resolutionWidth;
+    }
+
+    unsigned int resolutionHeightWBuffer() const
+    {
+        if (pixelPerfect)
+        {
+            return resolutionHeight + 2;
+        }
+        return resolutionHeight;
+    }
 
     RenderSettings()
     = default;
 
     RenderSettings(unsigned int resolutionWidth, unsigned int resolutionHeight,
-        unsigned int windowWidth, unsigned int windowHeight, unsigned int pixelsPerUnit, bool fullScreen = false)
+        unsigned int windowWidth, unsigned int windowHeight, unsigned int pixelsPerUnit, bool pixelperf, bool fullScreen = false)
     {
         this->resolutionWidth = resolutionWidth;
         this->resolutionHeight = resolutionHeight;
@@ -27,6 +46,7 @@ struct RenderSettings
         this->windowHeight = windowHeight;
         this->fullScreen = fullScreen;
         this->pixelsPerUnit = pixelsPerUnit;
+        this->pixelPerfect = pixelperf;
     }
 
     void ScaleAll(unsigned int scalar, bool increase)

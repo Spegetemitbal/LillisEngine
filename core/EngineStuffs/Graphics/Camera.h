@@ -29,11 +29,18 @@ namespace LILLIS
 		float aspectRatio = 0;
 
 		//Min then Max
-		inline glm::vec4 getAABB(unsigned int PPU) const
+		inline glm::vec4 getAABB(unsigned int PPU, bool withBuffer) const
 		{
 			float ppu = 1.0f / (float)PPU;
-			float halfWidth = WIDTH * 0.5f * (float)PPU;
-			float halfHeight = HEIGHT * 0.5f * (float)PPU;
+			float newWidth = WIDTH;
+			float newHeight = HEIGHT;
+			if (withBuffer)
+			{
+				newWidth += 2.0f;
+				newHeight += 2.0f;
+			}
+			float halfWidth = newWidth * 0.5f * (float)PPU;
+			float halfHeight = newHeight * 0.5f * (float)PPU;
 			glm::vec2 pos = position * ppu;
 			return {pos.x - halfWidth, pos.y - halfHeight, halfWidth + pos.x, halfHeight + pos.y};
 		}
@@ -42,9 +49,16 @@ namespace LILLIS
 			//Simply determine what's in the camera space here.
 			return glm::mat4();
 		}
-		inline glm::mat4 projectionMatrix()const {
-			float halfWidth = WIDTH * 0.5f;
-			float halfHeight = HEIGHT * 0.5f;
+		inline glm::mat4 projectionMatrix(bool withBuffer)const {
+			float newWidth = WIDTH;
+			float newHeight = HEIGHT;
+			if (withBuffer)
+			{
+				newWidth += 2.0f;
+				newHeight += 2.0f;
+			}
+			float halfWidth = newWidth * 0.5f;
+			float halfHeight = newHeight * 0.5f;
 			glm::mat4 view = glm::ortho(position.x - halfWidth, halfWidth + position.x, halfHeight + position.y, position.y - halfHeight, 10.0f, 20.0f);
 			view[1][1] *= -1.0f;
 			return view;

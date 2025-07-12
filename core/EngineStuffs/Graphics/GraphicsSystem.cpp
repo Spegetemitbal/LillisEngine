@@ -4,6 +4,7 @@
 #include "RenderOrder.h"
 #include <glm/vec4.hpp>
 
+#include "Parallax.h"
 #include "ProcGen.h"
 #include "EngineStuffs/Particles/ParticleEmitter.h"
 #include "Pipeline/BackgroundPipelineSegment.h"
@@ -167,8 +168,8 @@ bool GraphicsSystem::Init()
 	ResourceManager::loadDefaultPipeline();
 	// configure shaders
 	ResourceManager::GetShader("Default").Use().SetInteger("image", 0);
-	ResourceManager::GetShader("Default").SetMatrix4("projection", mainCamera.projectionMatrix());
-	ResourceManager::GetShader("DefaultProcGen").SetMatrix4("_projection", mainCamera.projectionMatrix());
+	ResourceManager::GetShader("Default").SetMatrix4("projection", mainCamera.projectionMatrix(true));
+	ResourceManager::GetShader("DefaultProcGen").SetMatrix4("_projection", mainCamera.projectionMatrix(true));
 	// set render-specific controls
 
 	SetSpritePipeline(DBG_NEW SpritePipelineSegment(render_settings, ResourceManager::GetShader("Default")), true);
@@ -218,7 +219,7 @@ std::vector<Sprite *> GraphicsSystem::CullToScreen(ActiveTracker<Sprite *> &spri
 	upSprite = -std::numeric_limits<float>::infinity();
 	downSprite = std::numeric_limits<float>::infinity();
 
-	glm::vec4 camAB = mainCamera.getAABB(render_settings.pixelsPerUnit);
+	glm::vec4 camAB = mainCamera.getAABB(render_settings.pixelsPerUnit, render_settings.pixelPerfect);
 	AABB cameraAABB = {camAB.x, camAB.y, camAB.z, camAB.w};
 
 	for (int i = 0; i < lastSprite; i++)
@@ -274,11 +275,19 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 		std::cerr << "Graphics system isn't initialized" << std::endl;
 		return;
 	}
+
+	//If pixel perfect, snap camera.
+	if (pixelPerfect)
+	{
+		//mainCamera.position = Parallax::snapCamera(mainCamera.position);
+		glDisable(GL_MULTISAMPLE);
+	}
+
 	//Do broad phase, cull all sprites not on screen.
 	std::vector<Sprite *> spritesOnScreen = CullToScreen(sprites,lastSprite);
 	std::sort(spritesOnScreen.begin(), spritesOnScreen.end(), compareSprites);
 
-	glm::vec4 camRect = mainCamera.getAABB(render_settings.pixelsPerUnit);
+	glm::vec4 camRect = mainCamera.getAABB(render_settings.pixelsPerUnit, render_settings.pixelPerfect);
 	AABB camAABB = {camRect.x, camRect.y, camRect.z, camRect.w};
 
 	//Cull all tilemaps on screen.
@@ -315,8 +324,8 @@ void GraphicsSystem::RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int la
 	std::vector<ColorBufferWrapper> cbWrappers = std::vector<ColorBufferWrapper>();
 
 	backgroundPipeline->PreRender();
-	std::vector<BackgroundImage> backgroundImages = backgrounds->GetBackgrounds(mainCamera, doParallax);
-	cbWrappers = backgroundPipeline->RenderBackgrounds(backgroundImages, mainCamera);
+	std::vector<BackgroundImage> backgroundImages = backgrounds->GetBackgrounds(mainCamera, doParallax, render_settings.pixelPerfect);
+	cbWrappers = backgroundPipeline->RenderBackgrounds(backgroundImages, mainCamera, backgrounds->numBackgrounds());
 	backgroundPipeline->PostRender();
 
 	spritePipeline->PreRender();
@@ -362,7 +371,7 @@ void GraphicsSystem::PostDraw()
 	glfwSwapBuffers(_win.window);
 }
 
-void GraphicsSystem::SetDoParallax(bool par)
+void GraphicsSystem::SetDoParallax(bool par, bool pixelPerfect)
 {
 	if (!isInitted)
 	{
@@ -370,8 +379,11 @@ void GraphicsSystem::SetDoParallax(bool par)
 		return;
 	}
 	doParallax = par;
-	backgroundPipeline->deferredRender = par;
-	spritePipeline->deferredRender = par;
+	this->pixelPerfect = pixelPerfect;
+	backgroundPipeline->deferredRender = pixelPerfect;
+	spritePipeline->deferredRender = pixelPerfect;
+	backgroundPipeline->doParallax = par;
+	spritePipeline->doParallax = par;
 	postProcessPipeline->deferredRender = par;
 }
 
