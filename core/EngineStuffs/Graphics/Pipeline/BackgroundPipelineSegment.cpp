@@ -146,7 +146,7 @@ std::vector<ColorBufferWrapper> BackgroundPipelineSegment::RenderBackgrounds(std
         }
 
         int colorAttachment = 0, currentBackground = backgrounds[0].data->layer;
-        fbosRendered.emplace_back(false, backgrounds[0].data->layer, colorBuffers[colorAttachment]);
+        fbosRendered.emplace_back(doPostProcess, backgrounds[0].data->layer, colorBuffers[colorAttachment]);
 
         for (int i = 0; i < backgrounds.size(); i++)
         {
@@ -162,7 +162,7 @@ std::vector<ColorBufferWrapper> BackgroundPipelineSegment::RenderBackgrounds(std
             RenderBackgroundImage(backgrounds[i]);
             if (newAttachment)
             {
-                fbosRendered.emplace_back(false, backgrounds[i].data->layer, colorBuffers[colorAttachment]);
+                fbosRendered.emplace_back(doPostProcess, backgrounds[i].data->layer, colorBuffers[colorAttachment]);
             }
         }
 
@@ -174,7 +174,7 @@ std::vector<ColorBufferWrapper> BackgroundPipelineSegment::RenderBackgrounds(std
         RenderBackgroundImage(it);
     }
 
-    fbosRendered.emplace_back(false, 0, colorBuffers[0]);
+    fbosRendered.emplace_back(doPostProcess, 0, colorBuffers[0]);
     return fbosRendered;
 }
 

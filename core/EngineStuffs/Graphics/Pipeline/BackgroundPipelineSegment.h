@@ -17,6 +17,8 @@ public:
     virtual std::vector<ColorBufferWrapper> RenderBackgrounds(std::vector<BackgroundImage>& backgrounds, LILLIS::Camera& camera, int numBackgrounds);
     bool deferredRender = false;
     bool doParallax = false;
+
+    bool doPostProcess = true;
 protected:
     virtual void RenderBackgroundImage(BackgroundImage& background);
 };

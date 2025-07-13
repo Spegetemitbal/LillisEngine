@@ -16,26 +16,27 @@ LILLIS::Shader& LILLIS::Shader::Use()
     return *this;
 }
 
-void LILLIS::Shader::Compile(const char* vertexSource, const char* fragmentSource, const char* geometrySource)
+bool LILLIS::Shader::Compile(const char* vertexSource, const char* fragmentSource, const char* geometrySource)
 {
     unsigned int sVertex, sFragment, gShader;
+    bool success = true;
     // vertex Shader
     sVertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(sVertex, 1, &vertexSource, NULL);
     glCompileShader(sVertex);
-    checkCompileErrors(sVertex, "VERTEX");
+    success = checkCompileErrors(sVertex, "VERTEX");
     // fragment Shader
     sFragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(sFragment, 1, &fragmentSource, NULL);
     glCompileShader(sFragment);
-    checkCompileErrors(sFragment, "FRAGMENT");
+    success = checkCompileErrors(sFragment, "FRAGMENT");
     // if geometry shader source code is given, also compile geometry shader
     if (geometrySource != nullptr)
     {
         gShader = glCreateShader(GL_GEOMETRY_SHADER);
         glShaderSource(gShader, 1, &geometrySource, NULL);
         glCompileShader(gShader);
-        checkCompileErrors(gShader, "GEOMETRY");
+        success = checkCompileErrors(gShader, "GEOMETRY");
     }
     // shader program
     this->ID = glCreateProgram();
@@ -44,12 +45,13 @@ void LILLIS::Shader::Compile(const char* vertexSource, const char* fragmentSourc
     if (geometrySource != nullptr)
         glAttachShader(this->ID, gShader);
     glLinkProgram(this->ID);
-    checkCompileErrors(this->ID, "PROGRAM");
+    success = checkCompileErrors(this->ID, "PROGRAM");
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(sVertex);
     glDeleteShader(sFragment);
     if (geometrySource != nullptr)
         glDeleteShader(gShader);
+    return success;
 }
 
 void LILLIS::Shader::SetFloat(const char* name, float value, bool useShader)
@@ -108,7 +110,7 @@ void LILLIS::Shader::SetMatrix4(const char* name, const glm::mat4& matrix, bool 
 }
 
 
-void LILLIS::Shader::checkCompileErrors(unsigned int object, std::string type)
+bool LILLIS::Shader::checkCompileErrors(unsigned int object, std::string type)
 {
     int success;
     char infoLog[1024];
@@ -121,6 +123,7 @@ void LILLIS::Shader::checkCompileErrors(unsigned int object, std::string type)
             std::cout << "| ERROR::SHADER: Compile-time error: Type: " << type << "\n"
                 << infoLog << "\n -- --------------------------------------------------- -- "
                 << std::endl;
+            return false;
         }
     }
     else
@@ -132,6 +135,8 @@ void LILLIS::Shader::checkCompileErrors(unsigned int object, std::string type)
             std::cout << "| ERROR::Shader: Link-time error: Type: " << type << "\n"
                 << infoLog << "\n -- --------------------------------------------------- -- "
                 << std::endl;
+            return false;
         }
     }
+    return true;
 }

@@ -8,6 +8,7 @@
 #include "ProcGen.h"
 #include "EngineStuffs/Particles/ParticleEmitter.h"
 #include "Pipeline/BackgroundPipelineSegment.h"
+#include "Pipeline/DefaultRenderPipeline.h"
 #include "Utils/InputSystem.h"
 #include "Pipeline/ParticlePipelineSegment.h"
 #include "Pipeline/SpritePipelineSegment.h"
@@ -384,8 +385,61 @@ void GraphicsSystem::SetDoParallax(bool par, bool pixelPerfect)
 	spritePipeline->deferredRender = pixelPerfect;
 	backgroundPipeline->doParallax = par;
 	spritePipeline->doParallax = par;
-	postProcessPipeline->deferredRender = par;
 }
+
+void GraphicsSystem::SetPostProcessUsage(bool doSprite, bool doBackground, bool doUI)
+{
+	if (spritePipeline == nullptr || backgroundPipeline == nullptr)
+	{
+		return;
+	}
+	spritePipeline->doPostProcess = doSprite;
+	backgroundPipeline->doPostProcess = doBackground;
+}
+
+bool GraphicsSystem::GeneratePostProcess(const char *fShaderFile, const std::string &name, bool finalShader)
+{
+	if (ResourceManager::Shaders.contains(name))
+	{
+		std::cout << "Shader name: " << name << " already exists." << std::endl;
+		return false;
+	}
+
+
+	DefaultRenderPipeline pipeline = DefaultRenderPipeline();
+	const char* vppShaderCode = pipeline.postProcessVertex.c_str();
+
+	std::string fragmentCode;
+	try
+	{
+		// open files
+		std::ifstream fragmentShaderFile(fShaderFile);
+		std::stringstream fShaderStream;
+		// read file's buffer contents into streams
+		fShaderStream << fragmentShaderFile.rdbuf();
+		// close file handlers
+		fragmentShaderFile.close();
+		// convert stream into string
+		fragmentCode = fShaderStream.str();
+	}
+	catch (std::exception e)
+	{
+		std::cout << "ERROR::SHADER: Failed to read shader files" << std::endl;
+	}
+	const char* fShaderCode = fragmentCode.c_str();
+
+	Shader postProc;
+	if (postProc.Compile(vppShaderCode, fShaderCode, nullptr))
+	{
+		ResourceManager::Shaders[name] = postProc;
+		return true;
+	} else
+	{
+		std::cout << "Shader: " << name << " could not be compiled." << std::endl;
+		return false;
+	}
+}
+
 
 
 void GraphicsSystem::SetCursor(const std::string &imageName, unsigned int xHot, unsigned int yHot)

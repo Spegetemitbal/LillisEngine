@@ -11,6 +11,8 @@
 PostProcessSegment::PostProcessSegment(RenderSettings render_settings, LILLIS::Shader shader) : PipelineSegment(render_settings)
 {
     this->shader = shader;
+    perLayerShader = this->shader;
+    finalShader = this->shader;
 }
 
 void PostProcessSegment::InitSegment()
@@ -98,33 +100,11 @@ void PostProcessSegment::PreRender()
 
 void PostProcessSegment::DoPostProcess(std::vector<ColorBufferWrapper> wrappers, int numSprWrappers)
 {
-    //Run all added postProcesses.
-    /*for (int i = 0; i < postProcessChain.size(); i++)
-    {
-        LILLIS::Shader& shad = postProcessChain[i];
-        shad.Use();
-        shad.SetInteger("_ColorBuffer", 0);
-        if (i == 0)
-        {
-            for (int j = 0; j < wrappers.size(); j++)
-            {
-                if (wrappers[i].doPostProcess)
-                {
-                    glBindTextureUnit(0, wrappers[i].colorAttachment);
-                    glDrawArrays(GL_TRIANGLES, 0, 3);
-                }
-            }
-        } else
-        {
-            glBindTextureUnit(0, colorBuffers[0]);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-        }
-    }*/
     glm::mat4 view = glm::ortho(0.0f, (float)render_settings.windowWidth, (float)render_settings.windowHeight, 0.0f, 0.0f, 10.0f);
     //view[1][1] *= -1.0f;
 
     //Run default.
-    shader.Use();
+    perLayerShader.Use();
     glm::mat4 model = glm::mat4(1.0f);
 
     int xScale = (int)render_settings.windowWidth;
@@ -138,29 +118,46 @@ void PostProcessSegment::DoPostProcess(std::vector<ColorBufferWrapper> wrappers,
 
     model = glm::scale(model, glm::vec3(render_settings.windowWidth, render_settings.windowHeight, 1.0f));
 
+    perLayerShader.SetMatrix4("model", model);
+    perLayerShader.SetInteger("image", 0);
+    perLayerShader.SetMatrix4("projection", view);
     shader.SetMatrix4("model", model);
     shader.SetInteger("image", 0);
     shader.SetMatrix4("projection", view);
 
+    bool perLayerUse = true;
+
     glActiveTexture(GL_TEXTURE0);
 
     //First draw all wrappers to colorbuffer.
-    if (postProcessChain.empty())
+    for (int i = 0; i < wrappers.size(); i++)
     {
-        for (int i = 0; i < wrappers.size(); i++)
+        if (perLayerUse)
         {
-            glBindTextureUnit(0, wrappers[i].colorAttachment);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            if (!wrappers[i].doPerLayerPostProcess)
+            {
+                perLayerUse = false;
+                shader.Use();
+            }
+        } else
+        {
+            if (wrappers[i].doPerLayerPostProcess)
+            {
+                perLayerUse = true;
+                perLayerShader.Use();
+            }
         }
+        glBindTextureUnit(0, wrappers[i].colorAttachment);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
     }
+
+    finalShader.Use();
+    finalShader.SetMatrix4("model", model);
+    finalShader.SetInteger("image", 0);
+    finalShader.SetMatrix4("projection", view);
 
     //Final draw to backbuffer.
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindTextureUnit(0, colorBuffers[0]);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-}
-
-void PostProcessSegment::AddPostProcess(LILLIS::Shader shader)
-{
-    postProcessChain.push_back(shader);
 }

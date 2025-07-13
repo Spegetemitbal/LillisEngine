@@ -16,23 +16,19 @@ public:
     void InitSegment() override;
     void PreRender() override;
     virtual void DoPostProcess(std::vector<ColorBufferWrapper> wrappers, int numSprWrappers);
-    bool deferredRender = false;
 
-    void AddPostProcess(LILLIS::Shader shader);
-    void RemovePostProcess(LILLIS::Shader shader)
+    void SetPerLayerShader(LILLIS::Shader shader)
     {
-        for (int i = 0; i < postProcessChain.size(); i++)
-        {
-            if (postProcessChain[i].ID == shader.ID)
-            {
-                postProcessChain.erase(postProcessChain.begin() + i);
-                break;
-            }
-        }
+        perLayerShader = shader;
+    }
+    void SetFinalShader(LILLIS::Shader shader)
+    {
+        finalShader = shader;
     }
 
 protected:
-    std::vector<LILLIS::Shader> postProcessChain;
+    LILLIS::Shader perLayerShader;
+    LILLIS::Shader finalShader;
 };
 
 

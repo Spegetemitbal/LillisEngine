@@ -11,7 +11,7 @@
 
 struct ColorBufferWrapper
 {
-    bool doPostProcess = true;
+    bool doPerLayerPostProcess = true;
     int depth = 0;
     unsigned int colorAttachment = 0;
 };

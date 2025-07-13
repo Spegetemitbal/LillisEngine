@@ -47,6 +47,11 @@ public:
 	PostProcessSegment* GetPostProcessPipeline() { return postProcessPipeline; }
 	BackgroundPipelineSegment* GetBackgroundPipeline() { return backgroundPipeline; }
 
+	void SetPostProcessUsage(bool doSprite, bool doBackground, bool doUI);
+
+	//Generates and inserts a postprocessing shader, returns false if it fails to compile.
+	bool GeneratePostProcess(const char* fShaderFile, const std::string &name, bool finalShader);
+
 	void PreDraw();
 	void RenderCall(ActiveTracker<Sprite*>& sprites, unsigned int lastSprite,
 		ActiveTracker<ParticleEmitter*>& emitters, unsigned int lastEmitter, std::vector<TileMap>& tile_maps, BackgroundManager* backgrounds);

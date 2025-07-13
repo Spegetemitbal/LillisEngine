@@ -22,6 +22,7 @@ public:
     virtual std::vector<ColorBufferWrapper> DoStep(std::vector<Sprite*>& sprites, unsigned int lastSprite, std::vector<TileMap>& tile_maps, LILLIS::Camera& camera);
     bool deferredRender = false;
     bool doParallax = false;
+    bool doPostProcess = true;
 protected:
     virtual void RenderSprite(const Texture2D& texture, glm::vec2 position, float renderVal, int frame, glm::mat4 camera,
         glm::vec2 size = glm::vec2(10.0f, 10.0f), float rotate = 0.0f,

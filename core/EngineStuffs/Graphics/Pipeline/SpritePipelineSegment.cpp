@@ -256,9 +256,10 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
 
         for (auto it : layersToParallax)
         {
-            bufferTime.emplace_back(true, it.first, colorBuffers[it.second]);
+            bufferTime.emplace_back(doPostProcess, it.first, colorBuffers[it.second]);
         }
 
+        glDrawBuffers(1, &defaultAttachment);
         return bufferTime;
     }
 
@@ -309,7 +310,7 @@ std::vector<ColorBufferWrapper> SpritePipelineSegment::DoStep(std::vector<Sprite
             spr->RenderSize() * spr->getRenderScale(), spr->getRenderRotation());
     }
 
-    return {ColorBufferWrapper(true, 0, colorBuffers[0])};
+    return {ColorBufferWrapper(doPostProcess, 0, colorBuffers[0])};
 }
 
 void SpritePipelineSegment::RenderSprite(const Texture2D &texture, glm::vec2 position, float renderVal, int frame, glm::mat4 camera, glm::vec2 size, float rotate, glm::vec3 color)
