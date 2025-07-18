@@ -8,6 +8,7 @@ SPRITE Calm Opaque Auto
 SPRITE SkyBackground Opaque Auto
 SPRITE UniformTest Opaque Uniform 6 2 3
 SPRITE TileBackdrop Opaque Uniform 4 2 2
+SPRITE IsoTiles Opaque Uniform 4 2 2
 SPRITE ExtraLayers Opaque Uniform 2 1 2
 ANIMATION Player1Idle 3 STOP false false
 KeyFrame 0.5 1
@@ -51,4 +52,9 @@ A TileBackdrop 0 32 NONE
 B TileBackdrop 1 32 NONE
 C TileBackdrop 2 32 COLLIDER
 D TileBackdrop 3 32 NONE
+TILESET isoTest 4
+A IsoTiles 0 32 NONE
+B IsoTiles 1 32 NONE
+C IsoTiles 2 32 COLLIDER
+D IsoTiles 3 32 NONE
 PARTICLE Smiley Calm 0 0.25 0.25

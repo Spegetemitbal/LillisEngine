@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 	PhysicsSystem* phys = PhysicsSystem::createInstance(physics_settings);
 	ProcGen* procGen = ProcGen::createInstance(30);
 	procGen->SetPointSize(3.0f);
-	//phys->DoRenderPhysics(true);
+	phys->DoRenderPhysics(true);
 	BehaviorSystem::RegisterBehavior("PlayerController", sizeof(PlayerController), PlayerController::CreatePlayerController);
 	BehaviorSystem::RegisterBehavior("Rotator", sizeof(Rotator), Rotator::CreateRotator);
 	wm->MakeWorld("Level");

@@ -52,7 +52,7 @@ glm::vec2 TileGrid::GridToWorldSpace(std::pair<int,int> tile)
         case GRID_ISOMETRIC:
             const glm::vec2 yVal = {(float)tile.second * (m_tileSize.x * 0.5f), (float)tile.second * (m_tileSize.y * 0.5f)};
             const glm::vec2 xVal = {(float)tile.first * (m_tileSize.x * 0.5f), -(float)tile.first * (m_tileSize.y * 0.5f)};
-            return xVal + yVal;
+            return (xVal + yVal) - (m_tileSize * 0.5f);
             break;
         case GRID_HEXAGON:
             glm::vec2 currentPos = {(float)tile.first * m_tileSize.x, (float)tile.second * m_tileSize.y * 0.75f};

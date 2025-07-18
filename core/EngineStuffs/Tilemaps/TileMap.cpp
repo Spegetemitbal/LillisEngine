@@ -197,6 +197,7 @@ void TileMap::GenerateColliders()
 
                 //Add points
                 tileColliders.emplace_back();
+                //If only a single tile in the collider.
                 if (currentMin.first == currentMax.first && currentMin.second == currentMax.second)
                 {
                     glm::vec2 pos = tileWorldPositions[FindIndexOfTile(currentMin.first, currentMin.second)];
@@ -210,10 +211,10 @@ void TileMap::GenerateColliders()
                     } else if (tileGrid->GetShape() == GridShape::GRID_ISOMETRIC)
                     {
                         //left clockwise
-                        tileColliders.back().vertices[0] = {pos + glm::vec2(-tHalfWidth.x, 0)};
-                        tileColliders.back().vertices[1] = {pos + glm::vec2(0, tHalfWidth.y)};
-                        tileColliders.back().vertices[2] = {pos + glm::vec2(tHalfWidth.x, 0)};
-                        tileColliders.back().vertices[3] = {pos + glm::vec2(0, -tHalfWidth.y)};
+                        tileColliders.back().vertices[0] = {pos + glm::vec2(0, tHalfWidth.y)};
+                        tileColliders.back().vertices[1] = {pos + glm::vec2(tHalfWidth.x, tSize.y)};
+                        tileColliders.back().vertices[2] = {pos + glm::vec2(tSize.x, tHalfWidth.y)};
+                        tileColliders.back().vertices[3] = {pos + glm::vec2(tHalfWidth.x, 0)};
                     }
                 } else
                 {
@@ -228,10 +229,13 @@ void TileMap::GenerateColliders()
                         tileColliders.back().vertices[3] = {minPos};
                     } else if (tileGrid->GetShape() == GridShape::GRID_ISOMETRIC)
                     {
-                        tileColliders.back().vertices[0] = {glm::vec2(minPos.x, maxPos.y) + glm::vec2(-tHalfWidth.x, 0)};
-                        tileColliders.back().vertices[1] = {glm::vec2(maxPos.x, maxPos.y) + glm::vec2(0, tHalfWidth.y)};
-                        tileColliders.back().vertices[2] = {glm::vec2(maxPos.x, minPos.y) + glm::vec2(tHalfWidth.x, 0)};
-                        tileColliders.back().vertices[3] = {glm::vec2(minPos.x, minPos.y) + glm::vec2(0, -tHalfWidth.y)};
+                        glm::vec2 topLeft = tileWorldPositions[FindIndexOfTile(currentMin.first, currentMax.second)];
+                        glm::vec2 bottomRight = tileWorldPositions[FindIndexOfTile(currentMax.first, currentMin.second)];
+                        //Left clockwise
+                        tileColliders.back().vertices[0] = {minPos + glm::vec2(0, tHalfWidth.y)};
+                        tileColliders.back().vertices[1] = {topLeft + glm::vec2(tHalfWidth.x, tSize.y)};
+                        tileColliders.back().vertices[2] = {maxPos + glm::vec2(tSize.x, tHalfWidth.y)};
+                        tileColliders.back().vertices[3] = {bottomRight + glm::vec2(tHalfWidth.x, 0)};
                     }
                 }
                 tileColliders.back().InitAABB();
