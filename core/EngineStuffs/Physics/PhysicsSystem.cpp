@@ -228,9 +228,14 @@ void PhysicsSystem::AABBChecks(const CollisionPairing &tempContact, ActiveTracke
 {
     RigidBody* bodyA = physObjects[tempContact.colliderIndices.first];
     AABB bodyA_aabb = bodyA->GetAABB();
+    int colTagA = bodyA->collisionTag;
     if (tempContact.hasTile)
     {
         if (tMap == nullptr)
+        {
+            return;
+        }
+        if (collisionMatrix.GetCollisionExclusion(tMap->at(tempContact.tileCollider.second).collisionTag, colTagA))
         {
             return;
         }
@@ -243,11 +248,19 @@ void PhysicsSystem::AABBChecks(const CollisionPairing &tempContact, ActiveTracke
     {
         RigidBody* bodyB = physObjects[tempContact.colliderIndices.second];
         AABB bodyB_aabb = bodyB->GetAABB();
+        int colTagB = bodyB->collisionTag;
+        if (collisionMatrix.GetCollisionExclusion(colTagA, colTagB))
+        {
+            return;
+        }
         if (!bodyB->GetActive())
         {
             return;
         }
-        contactList.push_back(tempContact);
+        if (CollisionChecker::IntersectAABBs(bodyA_aabb, bodyB_aabb))
+        {
+            contactList.push_back(tempContact);
+        }
     }
 
 }

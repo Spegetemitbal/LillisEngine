@@ -7,6 +7,7 @@
 #include "PhysicsEventHandler.h"
 #include "EngineStuffs/SpatialHasher.h"
 #include "EngineStuffs/Tilemaps/TileCollider.h"
+#include "CollisionMatrix.h"
 
 class TileMap;
 
@@ -56,6 +57,8 @@ public:
     {
         renderPhysics = rndr;
     }
+
+    CollisionMatrix collisionMatrix = CollisionMatrix();
 
 private:
     static PhysicsSystem* instance;
