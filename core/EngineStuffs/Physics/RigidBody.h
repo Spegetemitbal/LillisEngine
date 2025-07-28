@@ -25,6 +25,14 @@ enum RigidBodyShape
     RB_BOX
 };
 
+enum RigidBodyConstraint
+{
+    RB_XVEL,
+    RB_YVEL,
+    RB_ALLVEL,
+    RB_ROT
+};
+
 struct CircleData
 {
     float radius = 1;
@@ -102,6 +110,10 @@ public:
         collisionTag = tag;
     }
 
+    void SetConstraint(RigidBodyConstraint constraint, bool val);
+    float GetConstraintMultiplier(RigidBodyConstraint constraint) const;
+    glm::vec2 GetLinearConstraint() const {return linearConstraints;}
+
     AABB GetAABB();
 
     inline static const int triangles[6] = {0,1,2,0,2,3};
@@ -167,6 +179,9 @@ private:
     float mass = 1.0f;
     float invMass = 1.0f;
     void CalcInvMass();
+
+    glm::vec2 linearConstraints = glm::vec2(1.0f);
+    float angularConstraint = 1.0f;
 
     AABB aabb;
     //Hook up to gameobject my guy.

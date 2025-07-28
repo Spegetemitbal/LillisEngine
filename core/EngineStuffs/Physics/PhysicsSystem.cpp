@@ -393,7 +393,7 @@ void PhysicsSystem::SeparateBodies(RigidBody *bodyA, RigidBody *bodyB, const glm
         //Tile Collision
         if (typeA == RigidBodyType::RB_DYNAMIC)
         {
-            bodyA->transform->Translate(-mtv);
+            bodyA->transform->Translate(-mtv * bodyA->GetLinearConstraint());
         }
         return;
     }
@@ -406,14 +406,14 @@ void PhysicsSystem::SeparateBodies(RigidBody *bodyA, RigidBody *bodyB, const glm
 
     if (typeA != RigidBodyType::RB_DYNAMIC)
     {
-        bodyB->transform->Translate(mtv);
+        bodyB->transform->Translate(mtv * bodyB->GetLinearConstraint());
     } else if (typeB != RigidBodyType::RB_DYNAMIC)
     {
-        bodyA->transform->Translate(-mtv);
+        bodyA->transform->Translate(-mtv * bodyA->GetLinearConstraint());
     } else
     {
-        bodyA->transform->Translate(-mtv / 2.0f);
-        bodyB->transform->Translate(mtv / 2.0f);
+        bodyA->transform->Translate((-mtv * bodyA->GetLinearConstraint()) / 2.0f);
+        bodyB->transform->Translate((mtv * bodyB->GetLinearConstraint()) / 2.0f);
     }
 }
 

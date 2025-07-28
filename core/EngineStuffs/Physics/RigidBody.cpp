@@ -171,6 +171,9 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
     glm::vec2 deltaVelocity = (k1 + (k2 * 2.0f) + (k3 * 2.0f) + k4) / 6.0f;
     linearVelocity += deltaVelocity;
     glm::vec2 deltaPosition = linearVelocity * deltaTime;
+
+    linearVelocity *= linearConstraints;
+
     transform->Translate(deltaPosition);
 
     linearVelocity *= linearDamping;
@@ -185,6 +188,7 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
         return;
     }
 
+    angularVelocity *= angularConstraint;
     transform->Rotate((angularVelocity) * deltaTime);
 
    // accumulatedForce = {0,0};
@@ -292,6 +296,43 @@ void RigidBody::SetForce(glm::vec2 force)
 {
     accumulatedForce = force;
 }
+
+void RigidBody::SetConstraint(RigidBodyConstraint constraint, bool val)
+{
+    switch (constraint)
+    {
+        case RB_XVEL:
+            linearConstraints.x = 1.0f - (float)val;
+            break;
+        case RB_YVEL:
+            linearConstraints.y = 1.0f - (float)val;
+            break;
+        case RB_ROT:
+            angularConstraint = 1.0f - (float)val;
+            break;
+        case RB_ALLVEL:
+            linearConstraints.x = 1.0f - (float)val;
+            linearConstraints.y = 1.0f - (float)val;
+            break;
+    }
+}
+
+float RigidBody::GetConstraintMultiplier(RigidBodyConstraint constraint) const
+{
+    switch (constraint)
+    {
+        case RB_XVEL:
+            return linearConstraints.x;
+        case RB_YVEL:
+            return linearConstraints.y;
+        case RB_ROT:
+            return angularConstraint;
+        default:
+            break;
+    }
+    return 0.0f;
+}
+
 
 
 
