@@ -58,7 +58,17 @@ public:
         renderPhysics = rndr;
     }
 
+    //Get if anything hits.
+    bool RayCast(glm::vec2 origin, glm::vec2 direction, float distance = 10, int layerIgnore = -1);
+    //Get nearest object hit
+    ColManifold RayCastNear(glm::vec2 origin, glm::vec2 direction, float distance = 10, int layerIgnore = -1);
+    //Get all objects hit + locations.
+    std::vector<ColManifold> RayCastAll(glm::vec2 origin, glm::vec2 direction, float distance = 10, int layerIgnore = -1, unsigned int numCollisions = 0);
+
     CollisionMatrix collisionMatrix = CollisionMatrix();
+
+    bool GetPhysicsStepComplete() {return physicsStepComplete;}
+    void markPhysicsStepIncomplete() {physicsStepComplete = false;}
 
 private:
     static PhysicsSystem* instance;
@@ -71,6 +81,7 @@ private:
     };
 
     bool renderPhysics = false;
+    bool physicsStepComplete = false;
 
     void BroadPhase(ActiveTracker<RigidBody*> &physObjects, unsigned int numActive, std::vector<TileMap>& tMaps);
     void NarrowPhase(ActiveTracker<RigidBody*> &physObjects, std::vector<TileMap>& tMaps);

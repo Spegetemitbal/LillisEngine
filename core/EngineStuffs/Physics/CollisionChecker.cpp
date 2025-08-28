@@ -514,6 +514,144 @@ bool CollisionChecker::GetNearlyEqual(float a, float b)
     return std::abs(a - b) < NearlyEqual;
 }
 
+bool CollisionChecker::RayCastCheck(RigidBody body, glm::vec2 *lineData)
+{
+    RigidBodyShape shape = body.bodyShape;
+    glm::vec2 fakeNormal;
+    float fakeDepth;
+
+    if (shape == RigidBodyShape::RB_BOX)
+    {
+        return CollisionChecker::IntersectPolygons
+            (body.GetTransformedVertices(), body.GetNumVertices(), body.transform->GlobalPosition(),
+                lineData, 2, glm::vec2(0), fakeNormal, fakeDepth);
+    } else if (shape == RigidBodyShape::RB_CIRCLE)
+    {
+        bool result = CollisionChecker::IntersectCirclePolygon
+            (body.transform->GlobalPosition(), body.GetRadius(),
+                glm::vec2(0), lineData, 2, fakeNormal, fakeDepth);
+        return result;
+    }
+
+    return false;
+}
+
+bool CollisionChecker::RayCastCheck(TileCollider body, glm::vec2 *lineData)
+{
+    glm::vec2 fakeNormal;
+    float fakeDepth;
+
+    return CollisionChecker::IntersectPolygons
+            (lineData, 2, glm::vec2(0),
+                body.vertices, 4, body.center, fakeNormal, fakeDepth);
+}
+
+void CollisionChecker::GetRayContacts(const TileCollider *body, glm::vec2 *lineData, glm::vec2 &contact1, glm::vec2 &contact2, int &contactCount)
+{
+    FindContactPoint(*body->vertices, 4, lineData, contact1, contact2, contactCount);
+}
+
+void CollisionChecker::GetRayContacts(RigidBody *body, glm::vec2 *lineData, glm::vec2 &contact1, glm::vec2 &contact2, int &contactCount)
+{
+    if (body->bodyShape == RigidBodyShape::RB_BOX)
+    {
+        FindContactPoint(body->GetTransformedVertices(), body->GetNumVertices(), lineData, contact1, contact2, contactCount);
+    } else if (body->bodyShape == RigidBodyShape::RB_CIRCLE)
+    {
+        FindContactPoint(body->transform->GlobalPosition(), body->GetRadius(), lineData, contact1, contact2, contactCount);
+    }
+}
+
+//Get contacts against circle
+void CollisionChecker::FindContactPoint(glm::vec2 center, float rad, glm::vec2 *lineData, glm::vec2 &contact1, glm::vec2 &contact2, int &contactCount)
+{
+    float minDistSq = std::numeric_limits<float>::infinity();
+
+    for (int i = 0; i < 2; i++)
+    {
+        glm::vec2 vA = lineData[i];
+        glm::vec2 vB = lineData[(i + 1) % 2];
+
+        float distanceSquared;
+        glm::vec2 testContact;
+        PointSegmentDistance(center, vA, vB, distanceSquared, testContact);
+
+        if (distanceSquared < minDistSq)
+        {
+            minDistSq = distanceSquared;
+            contact1 = testContact;
+        }
+    }
+}
+
+//Get contacts against polys
+void CollisionChecker::FindContactPoint(glm::vec2 *vertices, int numVerts, glm::vec2 *lineData, glm::vec2 &contact1, glm::vec2 &contact2, int &contactCount)
+{
+    float minDistSq = std::numeric_limits<float>::infinity();
+
+    //Check for one
+    for (int i = 0; i < numVerts; i++)
+    {
+        glm::vec2 p = vertices[i];
+
+        for (int j = 0; j < 2; j++)
+        {
+            glm::vec2 va = lineData[j];
+            glm::vec2 vb = lineData[(j + 1) % 2];
+
+            float distanceSquared;
+            glm::vec2 testContact;
+            PointSegmentDistance(p, va, vb, distanceSquared, testContact);
+
+            if (GetNearlyEqual(distanceSquared, minDistSq))
+            {
+                if (!GetNearlyEqual(testContact, contact1))
+                {
+                    contact2 = testContact;
+                    contactCount = 2;
+                }
+            } else if (distanceSquared < minDistSq)
+            {
+                minDistSq = distanceSquared;
+                contactCount = 1;
+                contact1 = testContact;
+            }
+        }
+    }
+
+    //Check for other.
+    for (int i = 0; i < 2; i++)
+    {
+        glm::vec2 p = lineData[i];
+
+        for (int j = 0; j < numVerts; j++)
+        {
+            glm::vec2 va = vertices[j];
+            glm::vec2 vb = vertices[(j + 1) % numVerts];
+
+            float distanceSquared;
+            glm::vec2 testContact;
+            PointSegmentDistance(p, va, vb, distanceSquared, testContact);
+
+            if (GetNearlyEqual(distanceSquared, minDistSq))
+            {
+                if (!GetNearlyEqual(testContact, contact1))
+                {
+                    contact2 = testContact;
+                    contactCount = 2;
+                }
+            } else if (distanceSquared < minDistSq)
+            {
+                minDistSq = distanceSquared;
+                contactCount = 1;
+                contact1 = testContact;
+            }
+        }
+    }
+}
+
+
+
 
 
 

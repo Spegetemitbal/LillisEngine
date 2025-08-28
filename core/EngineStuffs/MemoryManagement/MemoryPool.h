@@ -56,7 +56,7 @@ public:
     ActiveTracker() = delete;
     ~ActiveTracker() = default;
 
-    ActiveTracker(std::vector<T> v, unsigned int activeLine, MemoryPool* pool)
+    ActiveTracker(std::vector<T>* v, unsigned int activeLine, MemoryPool* pool)
     {
         data = v;
         _activeLine = activeLine;
@@ -67,7 +67,7 @@ public:
     {
         try
         {
-            return data[idx];
+            return (*data)[idx];
         } catch (...)
         {
             std::cerr << "Invalid Tracker type" << std::endl;
@@ -75,7 +75,7 @@ public:
         }
     }
 
-    size_t size() {return data.size();}
+    size_t size() {return (*data).size();}
 
     int GetNumInactive() const
     {
@@ -84,7 +84,7 @@ public:
         {
             try
             {
-                if (!data[i]->GetActive())
+                if (!(*data)[i]->GetActive())
                 {
                     result++;
                 }
@@ -102,13 +102,13 @@ public:
         return mPool;
     }
 
-    std::vector<T>& extractData()
+    std::vector<T>* extractData()
     {
         return data;
     }
 
 private:
-    std::vector<T> data;
+    std::vector<T>* data;
     unsigned int _activeLine;
     MemoryPool* mPool = nullptr;
 };

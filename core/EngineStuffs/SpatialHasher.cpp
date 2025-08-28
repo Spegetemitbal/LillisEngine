@@ -46,6 +46,29 @@ void SpatialHasher::InsertObject(AABB aabb, int iter)
     }
 }
 
+std::vector<GridHash> SpatialHasher::GetGridSpacesOfObject(AABB aabb) const
+{
+    std::vector<GridHash> grids;
+
+    int minX, maxX, minY, maxY;
+    glm::vec2 minPoint = aabb.min * invTileSize;
+    glm::vec2 maxPoint = aabb.max * invTileSize;
+    minX = (int)std::round(minPoint.x);
+    minY = (int)std::round(minPoint.y);
+    maxX = (int)std::round(maxPoint.x);
+    maxY = (int)std::round(maxPoint.y);
+
+    for (int x = minX; x <= maxX; x++)
+    {
+        for (int y = minY; y <= maxY; y++)
+        {
+            grids.emplace_back(x, y);
+        }
+    }
+    return grids;
+}
+
+
 void SpatialHasher::InsertTile(AABB aabb, int xIter, int yIter)
 {
     int minX, maxX, minY, maxY;

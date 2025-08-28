@@ -56,6 +56,8 @@ public:
     //Could very well be 0
     std::multimap<GridHash, std::pair<int,int>>::iterator> GetTilesInGrid(GridHash g);
     void InsertObject(AABB aabb, int iter);
+    //Does not insert.
+    std::vector<GridHash> GetGridSpacesOfObject(AABB aabb) const;
     void InsertTile(AABB aabb, int xIter, int yIter);
     //For later usage.
     void DelTile(AABB aabb, int xIter, int yIter);

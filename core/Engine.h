@@ -36,5 +36,6 @@ private:
     void frameStep();
     void renderStep();
     void updateScripts();
+    void lateUpdateScripts();
 };
 

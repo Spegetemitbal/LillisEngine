@@ -4,9 +4,8 @@
 
 #include "PhysicsSystem.h"
 
-#include <glm/detail/func_geometric.inl>
-
 #include "CollisionChecker.h"
+#include "EngineStuffs/WorldManager.h"
 #include "EngineStuffs/Graphics/ProcGen.h"
 #include "EngineStuffs/Tilemaps/TileMap.h"
 
@@ -139,6 +138,7 @@ void PhysicsSystem::PhysicsStep(double deltaTime, ActiveTracker<RigidBody*> &phy
         NarrowPhase(physObjects, tMaps);
     }
     eventHandler->TickFireEvent(physObjects.getMPool());
+    physicsStepComplete = true;
 }
 
 //TODO remove.
@@ -735,5 +735,243 @@ void PhysicsSystem::ResolveTileCollision(ColManifold &contact)
             , -((ra.x * frictionImpulse.y) - (frictionImpulse.x * ra.y)) * bodyA->invInertia);
     }
 }
+
+bool PhysicsSystem::RayCast(glm::vec2 origin, glm::vec2 direction, float distance, int layerIgnore)
+{
+    if (!physicsStepComplete)
+    {
+        std::cout << "Cannot perform Raycasts before physics are generated for the frame, try using LateUpdate" << std::endl;
+        return false;
+    }
+
+    GameWorld* world = WorldManager::getInstance()->GetCurrentWorld();
+    if (world == nullptr)
+    {
+        std::cout << "No world exists to perform raycast" << std::endl;
+        return false;
+    }
+
+    ActiveTracker<RigidBody*> rbs = world->getRBsRaw();
+    std::vector<TileMap>& mps = world->getTileMaps();
+
+    //Generate ray info.
+    if (glm::length(direction) != 1)
+    {
+        if (glm::length(direction) <= 0.0f)
+        {
+            std::cout << "Non-zero direction vector required" << std::endl;
+            return false;
+        }
+        direction = glm::normalize(direction);
+    }
+
+    glm::vec2 endPoint = origin + (direction * distance);
+
+    glm::vec2 lineData[2] = {{std::min(origin.x, endPoint.x), std::min(origin.y, endPoint.y)},
+        {std::max(origin.x, endPoint.x), std::max(origin.y, endPoint.y)}};
+
+    AABB lineAABB = AABB(lineData[0], lineData[1]);
+    std::vector<GridHash> placesToCheck = spatialHasher.GetGridSpacesOfObject(lineAABB);
+
+    for (int i = 0; i < placesToCheck.size(); i++)
+    {
+        auto gridBits = spatialHasher.GetObjectsInGrid(placesToCheck[i]);
+        auto tileBits = spatialHasher.GetTilesInGrid(placesToCheck[i]);
+
+        //Now check against all objects.
+        for (auto it = gridBits.first; it != gridBits.second; ++i)
+        {
+            if (!rbs[it->second]->GetActive() || rbs[it->second]->collisionTag == layerIgnore)
+            {
+                continue;
+            }
+            if (CollisionChecker::RayCastCheck(*rbs[it->second], lineData))
+            {
+                return true;
+            }
+        }
+
+        //Check against all tiles
+        for (auto j = tileBits.first; j != tileBits.second; ++j)
+        {
+            auto pr = j->second;
+            if (!mps[pr.first].active || mps[pr.first].collisionTag == layerIgnore)
+            {
+                continue;
+            }
+            if (CollisionChecker::RayCastCheck(mps[pr.first].getTileColliderVerts().at(pr.second), lineData))
+            {
+                return true;
+            }
+        }
+
+    }
+
+    return false;
+}
+
+ColManifold PhysicsSystem::RayCastNear(glm::vec2 origin, glm::vec2 direction, float distance, int layerIgnore)
+{
+    ColManifold cm = ColManifold();
+
+    if (!physicsStepComplete)
+    {
+        std::cout << "Cannot perform Raycasts before physics are generated for the frame, try using LateUpdate" << std::endl;
+        return cm;
+    }
+
+    GameWorld* world = WorldManager::getInstance()->GetCurrentWorld();
+    if (world == nullptr)
+    {
+        std::cout << "No world exists to perform raycast" << std::endl;
+        return cm;
+    }
+
+    ActiveTracker<RigidBody*> rbs = world->getRBsRaw();
+    std::vector<TileMap>& mps = world->getTileMaps();
+
+    //Generate ray info.
+    if (glm::length(direction) != 1)
+    {
+        if (glm::length(direction) <= 0.0f)
+        {
+            std::cout << "Non-zero direction vector required" << std::endl;
+            return cm;
+        }
+        direction = glm::normalize(direction);
+    }
+
+    glm::vec2 endPoint = origin + (direction * distance);
+
+    glm::vec2 lineData[2] = {{std::min(origin.x, endPoint.x), std::min(origin.y, endPoint.y)},
+        {std::max(origin.x, endPoint.x), std::max(origin.y, endPoint.y)}};
+
+    AABB lineAABB = AABB(lineData[0], lineData[1]);
+    std::vector<GridHash> placesToCheck = spatialHasher.GetGridSpacesOfObject(lineAABB);
+
+    //Find direction of vector, sort gridspaces by said direction.
+    int xDir = direction.x > 0 ? 1 : -1;
+    int yDir = direction.y > 0 ? 1 : -1;
+    std::sort(placesToCheck.begin(), placesToCheck.end(),
+        [xDir, yDir](const GridHash& a, const GridHash& b)
+        {
+            int aX = a.x * xDir, aY = a.y * yDir, bX = b.x * xDir, bY = b.y * yDir;
+            return aX < bX && aY <= bY || aY < bY && aX <= bX;
+        });
+
+
+    for (int i = 0; i < placesToCheck.size(); i++)
+    {
+        auto gridBits = spatialHasher.GetObjectsInGrid(placesToCheck[i]);
+        auto tileBits = spatialHasher.GetTilesInGrid(placesToCheck[i]);
+
+        //Now check against all objects.
+        for (auto it = gridBits.first; it != gridBits.second; ++i)
+        {
+            if (!rbs[it->second]->GetActive() || rbs[it->second]->collisionTag == layerIgnore)
+            {
+                continue;
+            }
+            if (CollisionChecker::RayCastCheck(*rbs[it->second], lineData))
+            {
+                CollisionChecker::GetRayContacts(rbs[it->second], lineData, cm.Contact1, cm.Contact2, cm.ContactCount);
+                return cm;
+            }
+        }
+
+        //Check against all tiles
+        for (auto j = tileBits.first; j != tileBits.second; ++j)
+        {
+            auto pr = j->second;
+            if (!mps[pr.first].active || mps[pr.first].collisionTag == layerIgnore)
+            {
+                continue;
+            }
+            if (CollisionChecker::RayCastCheck(mps[pr.first].getTileColliderVerts().at(pr.second), lineData))
+            {
+                CollisionChecker::GetRayContacts(&mps[pr.first].getTileColliderVerts().at(pr.second), lineData, cm.Contact1, cm.Contact2, cm.ContactCount);
+                return cm;
+            }
+        }
+
+    }
+
+    return cm;
+}
+
+std::vector<ColManifold> PhysicsSystem::RayCastAll(glm::vec2 origin, glm::vec2 direction, float distance, int layerIgnore, unsigned int numCollisions)
+{
+    std::vector<ColManifold> cm;
+
+    if (!physicsStepComplete)
+    {
+        std::cout << "Cannot perform Raycasts before physics are generated for the frame, try using LateUpdate" << std::endl;
+        return cm;
+    }
+
+    GameWorld* world = WorldManager::getInstance()->GetCurrentWorld();
+    if (world == nullptr)
+    {
+        std::cout << "No world exists to perform raycast" << std::endl;
+        return cm;
+    }
+
+    ActiveTracker<RigidBody*> rbs = world->getRBsRaw();
+    std::vector<TileMap>& mps = world->getTileMaps();
+
+    //Generate ray info.
+    if (glm::length(direction) != 1)
+    {
+        direction = glm::normalize(direction);
+    }
+
+    glm::vec2 endPoint = origin + (direction * distance);
+
+    glm::vec2 lineData[2] = {{std::min(origin.x, endPoint.x), std::min(origin.y, endPoint.y)},
+        {std::max(origin.x, endPoint.x), std::max(origin.y, endPoint.y)}};
+
+    AABB lineAABB = AABB(lineData[0], lineData[1]);
+    std::vector<GridHash> placesToCheck = spatialHasher.GetGridSpacesOfObject(lineAABB);
+
+    for (int i = 0; i < placesToCheck.size(); i++)
+    {
+        auto gridBits = spatialHasher.GetObjectsInGrid(placesToCheck[i]);
+        auto tileBits = spatialHasher.GetTilesInGrid(placesToCheck[i]);
+
+        //Now check against all objects.
+        for (auto it = gridBits.first; it != gridBits.second; ++i)
+        {
+            if (!rbs[it->second]->GetActive() || rbs[it->second]->collisionTag == layerIgnore)
+            {
+                continue;
+            }
+            if (CollisionChecker::RayCastCheck(*rbs[it->second], lineData))
+            {
+                cm.emplace_back();
+                CollisionChecker::GetRayContacts(rbs[it->second], lineData, cm.back().Contact1, cm.back().Contact2, cm.back().ContactCount);
+            }
+        }
+
+        //Check against all tiles
+        for (auto j = tileBits.first; j != tileBits.second; ++j)
+        {
+            auto pr = j->second;
+            if (!mps[pr.first].active || mps[pr.first].collisionTag == layerIgnore)
+            {
+                continue;
+            }
+            if (CollisionChecker::RayCastCheck(mps[pr.first].getTileColliderVerts().at(pr.second), lineData))
+            {
+                cm.emplace_back();
+                CollisionChecker::GetRayContacts(&mps[pr.first].getTileColliderVerts().at(pr.second), lineData, cm.back().Contact1, cm.back().Contact2, cm.back().ContactCount);
+            }
+        }
+
+    }
+
+    return cm;
+}
+
+
 
 

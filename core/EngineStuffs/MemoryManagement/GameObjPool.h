@@ -135,7 +135,7 @@ public:
 		*obj2 = temp;
 	}
 
-	ActiveTracker<GameObject*> getPool() {return {poolDir, activeLine, this};}
+	ActiveTracker<GameObject*> getPool() {return {&poolDir, activeLine, this};}
 
 	LilObj<GameObject> GetObjectByName(const std::string& name)
 	{

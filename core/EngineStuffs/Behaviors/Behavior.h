@@ -23,7 +23,11 @@ public:
 
 	std::string GetName() { return BehaviorName; }
 
+	//TODO add a disabler to ensure behaviors with no updates or lateupdates don't get checked.
+	//Pre physics / other game logic.
 	virtual void Update(float deltaTime) {};
+	//Post physics / other game logic.
+	virtual void LateUpdate(float deltaTime) {};
 	virtual void Serialize(Serializer& ser) {};
 	virtual void Deserialize(Serializer& ser) {};
 	virtual void ConnectComponents() {};

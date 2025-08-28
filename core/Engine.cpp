@@ -92,6 +92,9 @@ void Engine::Run()
 //Occurs every frame, the 'content' of the game loop
 void Engine::frameStep()
 {
+    PhysicsSystem* phys = PhysicsSystem::getInstance();
+    phys->markPhysicsStepIncomplete();
+
     InputSystem::UpdateControllers();
     //TODO: Move this elsewhere.
     ProcGen::getInstance()->ClearDebugObjects();
@@ -109,9 +112,9 @@ void Engine::frameStep()
     }
     WORLD->backgrounds()->TickBackgrounds((float)Timing::fixedUpdateTime);
 
+    //Physics
     ActiveTracker<RigidBody*> rb = WORLD->getRBsRaw();
     unsigned int numRB = WORLD->getRBActive();
-    PhysicsSystem* phys = PhysicsSystem::getInstance();
     phys->PhysicsStep(Timing::fixedUpdateTime, rb, numRB, WORLD->getTileMaps());
 
     //First run all possible changes, then run hierarchy.
@@ -129,10 +132,11 @@ void Engine::frameStep()
         }
     }
 
+    lateUpdateScripts();
+
     //TODO: Find a better place to put this.
     ActiveTracker<GameObject*> objs = WORLD->getObjectsRaw();
     WORLD->compactObjects(objs.GetNumInactive());
-    
     WORLD->compactEmitters(pe.GetNumInactive());
     WORLD->compactAnimators(anims.GetNumInactive());
     WORLD->compactRigidBodies(rb.GetNumInactive());
@@ -182,8 +186,22 @@ void Engine::updateScripts()
             behvs[i]->Update((float)Timing::fixedUpdateTime);
         }
     }
+}
+
+void Engine::lateUpdateScripts()
+{
+    ActiveTracker<Behavior*> behvs = WORLD->getBehaviorsRaw();
+    int bevSize = behvs.size();
+    for (int i = 0; i < bevSize; i++)
+    {
+        if (behvs[i]->GetActive())
+        {
+            behvs[i]->LateUpdate((float)Timing::fixedUpdateTime);
+        }
+    }
     WORLD->compactBehaviors(behvs.GetNumInactive());
 }
+
 
 //Singleton getter
 Engine* Engine::GetGameInstance()

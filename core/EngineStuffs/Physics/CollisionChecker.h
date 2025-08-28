@@ -30,8 +30,16 @@ public:
     //Polygon stuff
     static bool IntersectPolygons(glm::vec2 *verticesA, int aLen, glm::vec2 centerA, glm::vec2 *verticesB, int bLen, glm::vec2 centerB, glm::vec2 &normal, float &depth);
 
+    //Collision via SAT
     static bool CollideCheck(RigidBody bodyA, RigidBody bodyB, glm::vec2 &normal, float &depth);
     static bool CollideCheck(RigidBody bodyA, TileCollider bodyB, glm::vec2 &normal, float &depth);
+
+    //Raycasting
+    static bool RayCastCheck(RigidBody body, glm::vec2 *lineData);
+    static bool RayCastCheck(TileCollider body, glm::vec2 *lineData);
+    static void GetRayContacts(RigidBody* body, glm::vec2 *lineData, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
+    static void GetRayContacts(const TileCollider* body, glm::vec2 *lineData, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
+
     //Resolve
     static void ResolveCollision(const RigidBody& rb1, const RigidBody& rb2, float depth, glm::vec2 normal);
 private:
@@ -49,6 +57,10 @@ private:
     static void FindContactPoint(glm::vec2 centerA, float radA, glm::vec2 polyCenter, glm::vec2 *vertices, int len, glm::vec2& contact);
     //Polygon-Polygon
     static void FindContactPoint(glm::vec2 *verticesA, int aLen, glm::vec2 *verticesB, int bLen, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
+    //Line-Circle
+    static void FindContactPoint(glm::vec2 center, float rad, glm::vec2 *lineData, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
+    //Line-Polygon
+    static void FindContactPoint(glm::vec2 *vertices, int numVerts, glm::vec2 *lineData, glm::vec2& contact1, glm::vec2& contact2, int& contactCount);
 };
 
 

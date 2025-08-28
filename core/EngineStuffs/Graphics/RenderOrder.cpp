@@ -60,7 +60,7 @@ void RenderOrder::CalculateOrder(std::vector<Sprite*>& spritesOnScreen, const fl
     }
 }
 
-void RenderOrder::CalculateOrder(std::vector<ParticleEmitter*> &emitters)
+void RenderOrder::CalculateOrder(std::vector<ParticleEmitter*> *emitters)
 {
     const float planeDist = FAR_PLANE - NEAR_PLANE;
 
@@ -74,7 +74,7 @@ void RenderOrder::CalculateOrder(std::vector<ParticleEmitter*> &emitters)
         layerDif = planeDist / ((float)highestLayer + 1);
     }
 
-    for (auto emitter : emitters)
+    for (auto emitter : *emitters)
     {
         emitter->layer = std::clamp(emitter->layer, (unsigned int)0, highestLayer);
         if (axis != glm::vec2(0))
