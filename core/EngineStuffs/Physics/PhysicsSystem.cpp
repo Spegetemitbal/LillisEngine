@@ -875,6 +875,7 @@ ColManifold PhysicsSystem::RayCastNear(glm::vec2 origin, glm::vec2 direction, fl
             if (CollisionChecker::RayCastCheck(*rbs[it->second], lineData))
             {
                 CollisionChecker::GetRayContacts(rbs[it->second], lineData, cm.Contact1, cm.Contact2, cm.ContactCount);
+                cm.BodyA = rbs[it->second];
                 return cm;
             }
         }
@@ -890,6 +891,7 @@ ColManifold PhysicsSystem::RayCastNear(glm::vec2 origin, glm::vec2 direction, fl
             if (CollisionChecker::RayCastCheck(mps[pr.first].getTileColliderVerts().at(pr.second), lineData))
             {
                 CollisionChecker::GetRayContacts(&mps[pr.first].getTileColliderVerts().at(pr.second), lineData, cm.Contact1, cm.Contact2, cm.ContactCount);
+                cm.Tile = &mps[pr.first].getTileColliderVerts().at(pr.second);
                 return cm;
             }
         }
@@ -948,6 +950,7 @@ std::vector<ColManifold> PhysicsSystem::RayCastAll(glm::vec2 origin, glm::vec2 d
             if (CollisionChecker::RayCastCheck(*rbs[it->second], lineData))
             {
                 cm.emplace_back();
+                cm.back().BodyA = rbs[it->second];
                 CollisionChecker::GetRayContacts(rbs[it->second], lineData, cm.back().Contact1, cm.back().Contact2, cm.back().ContactCount);
             }
         }
@@ -963,6 +966,7 @@ std::vector<ColManifold> PhysicsSystem::RayCastAll(glm::vec2 origin, glm::vec2 d
             if (CollisionChecker::RayCastCheck(mps[pr.first].getTileColliderVerts().at(pr.second), lineData))
             {
                 cm.emplace_back();
+                cm.back().Tile = &mps[pr.first].getTileColliderVerts().at(pr.second);
                 CollisionChecker::GetRayContacts(&mps[pr.first].getTileColliderVerts().at(pr.second), lineData, cm.back().Contact1, cm.back().Contact2, cm.back().ContactCount);
             }
         }
