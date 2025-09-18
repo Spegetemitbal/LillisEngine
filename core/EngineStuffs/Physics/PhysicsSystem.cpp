@@ -417,6 +417,38 @@ void PhysicsSystem::SeparateBodies(RigidBody *bodyA, RigidBody *bodyB, const glm
     }
 }
 
+void PhysicsSystem::SeparateBodies(LilObj<RigidBody> bodyA, LilObj<RigidBody> bodyB, const glm::vec2 &mtv)
+{
+    if (!bodyB.Exists() || !bodyA.Exists())
+    {
+        return;
+    }
+    if (bodyB->GetActive() || bodyA->GetActive())
+    {
+        return;
+    }
+    RigidBodyType typeA = bodyA->bodyType;
+    RigidBodyType typeB = bodyB->bodyType;
+
+    if (typeA != RigidBodyType::RB_DYNAMIC && typeB != RigidBodyType::RB_DYNAMIC)
+    {
+        return;
+    }
+
+    if (typeA != RigidBodyType::RB_DYNAMIC)
+    {
+        bodyB->transform->Translate(mtv * bodyB->GetLinearConstraint());
+    } else if (typeB != RigidBodyType::RB_DYNAMIC)
+    {
+        bodyA->transform->Translate(-mtv * bodyA->GetLinearConstraint());
+    } else
+    {
+        bodyA->transform->Translate((-mtv * bodyA->GetLinearConstraint()) / 2.0f);
+        bodyB->transform->Translate((mtv * bodyB->GetLinearConstraint()) / 2.0f);
+    }
+}
+
+
 void PhysicsSystem::ResolveCollisionComplex(ColManifold &contact)
 {
     if (contact.BodyB == nullptr)

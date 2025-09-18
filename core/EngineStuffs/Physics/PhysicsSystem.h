@@ -70,6 +70,8 @@ public:
     bool GetPhysicsStepComplete() {return physicsStepComplete;}
     void markPhysicsStepIncomplete() {physicsStepComplete = false;}
 
+    static void SeparateBodies(LilObj<RigidBody> bodyA, LilObj<RigidBody> bodyB, const glm::vec2& mtv);
+
 private:
     static PhysicsSystem* instance;
     PhysicsEventHandler* eventHandler = nullptr;

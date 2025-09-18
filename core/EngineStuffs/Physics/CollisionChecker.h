@@ -42,13 +42,15 @@ public:
 
     //Resolve
     static void ResolveCollision(const RigidBody& rb1, const RigidBody& rb2, float depth, glm::vec2 normal);
-private:
 
     //Find the closest point to point P.
     static void PointSegmentDistance(glm::vec2 p, glm::vec2 a, glm::vec2 b, float& distanceSquared, glm::vec2& contact);
+    static int FindClosestPointOnPolygon(glm::vec2 circleCenter, glm::vec2 *vertices, int len);
+
+private:
+
 
     static void ProjectCircle(glm::vec2 center, float radius, glm::vec2 axis, float &min, float &max);
-    static int FindClosestPointOnPolygon(glm::vec2 circleCenter, glm::vec2 *vertices, int len);
     static void ProjectVertices(glm::vec2 *vertices, int len, glm::vec2 axis, float &min, float &max);
 
     //Circle-Circle

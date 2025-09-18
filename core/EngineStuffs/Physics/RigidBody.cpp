@@ -145,7 +145,7 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
 
     glm::vec2 k1,k2,k3,k4;
 
-    glm::vec2 accumulatedForce = gravity;
+    accumulatedForce += gravity;
 
     //RUNGE KUTTA DEEZ NUTS.
 
@@ -173,6 +173,7 @@ void RigidBody::Integrate(float deltaTime, glm::vec2 gravity)
     glm::vec2 deltaPosition = linearVelocity * deltaTime;
 
     linearVelocity *= linearConstraints;
+    accumulatedForce = glm::vec2(0.0f);
 
     transform->Translate(deltaPosition);
 
@@ -274,6 +275,10 @@ float RigidBody::CalculateRotationalInertia() const
 
 void RigidBody::AddForce(glm::vec2 force)
 {
+    if (glm::length(force) > EPSILON)
+    {
+        isSleeping = false;
+    }
     accumulatedForce += force;
 }
 

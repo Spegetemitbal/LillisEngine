@@ -47,6 +47,20 @@ public:
 		}
 		toUpdate = true;
 	}
+
+	void RotateAroundPoint(float rotation, glm::vec2 point, bool degrees = false)
+	{
+		Rotate(rotation, degrees);
+		if (degrees)
+		{
+			rotation = glm::radians(rotation);
+		}
+		glm::vec2 dir = localPosition - point;
+		glm::vec2 newPos = {dir.x * glm::cos(rotation) - dir.y * glm::sin(rotation),
+			dir.x * glm::sin(rotation) + dir.y * glm::cos(rotation)};
+		localPosition = newPos + point;
+	}
+
 	void SetLocalRotation(float rotation, bool degrees = false)
 	{
 		if (degrees)
