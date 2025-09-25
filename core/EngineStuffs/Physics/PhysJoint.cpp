@@ -54,7 +54,7 @@ void PhysJoint::RunJointCollision(float dt)
     }
 
     glm::vec2 dir, finalForce;
-    float dist, restDist, forceMag = 0;
+    float dist, restDist, forceMag = 0, depth, Sin, Cos, orientDiff;
 
     //Yeah I know this isn't the OOP way of doing this, but memory management demands it.
     switch (jType)
@@ -67,7 +67,7 @@ void PhysJoint::RunJointCollision(float dt)
                     break;
                 }
 
-                float orientDiff = (bodyB->transform->GlobalRotation() - bodyA->transform->GlobalRotation()) - relativeOrient;
+                orientDiff = (bodyB->transform->GlobalRotation() - bodyA->transform->GlobalRotation()) - relativeOrient;
                 dir = bodyB->transform->GlobalPosition() - bodyA->transform->GlobalPosition();
 
                 if (std::abs(orientDiff) > MIN_THRESHOLD)
@@ -96,7 +96,7 @@ void PhysJoint::RunJointCollision(float dt)
             //collide if too far apart, fixing them together.
                 dir = bodyB->transform->GlobalPosition() - bodyA->transform->GlobalPosition();
                 dist = glm::length(dir);
-                float depth = dist - joint_distance;
+                depth = dist - joint_distance;
                 if (depth <= 0.0f)
                 {
                     break;
@@ -120,8 +120,8 @@ void PhysJoint::RunJointCollision(float dt)
         case JOINT_TYPES::HINGE:
             //doorhinge time.
                 //Ensure anchor point is rotated correctly.
-                float Sin = glm::sin(bodyA->transform->GlobalRotation() - relativeOrient);
-                float Cos = glm::cos(bodyA->transform->GlobalRotation() - relativeOrient);
+                Sin = glm::sin(bodyA->transform->GlobalRotation() - relativeOrient);
+                Cos = glm::cos(bodyA->transform->GlobalRotation() - relativeOrient);
                 glm::vec2 anchor = {
                     Cos * relativePos.x - Sin * relativePos.y + bodyA->transform->GlobalPosition().x,
                     Sin * relativePos.x + Cos * relativePos.y + bodyA->transform->GlobalPosition().y
